@@ -1,11 +1,12 @@
 <main class="page-shell">
   <section class="hero card reveal">
     <div class="hero-copy">
-      <p class="eyebrow">Wedding dinner invitation starter</p>
-      <h1>An elegant evening to gather, dine, and celebrate.</h1>
+      <p class="eyebrow">Wedding dinner invitation</p>
+      <h1>An editorial invitation built around the two of you.</h1>
       <p class="lede">
-        A refined Angular 21 starting point for a wedding dinner invite — designed to feel warm,
-        polished, and easy to adapt for your own event.
+        This redraft drops the old programme section and leans into a completely different mood: a
+        photo-led, magazine-like invitation with stronger contrast, cleaner structure, and a
+        bright midday feel.
       </p>
 
       <div class="cta-row">
@@ -16,44 +17,49 @@
       </div>
     </div>
 
-    <aside class="hero-panel">
-      <p class="panel-kicker">The essentials</p>
-      <div class="detail-grid">
-        @for (detail of details; track detail.label) {
-          <div class="detail-item">
-            <span>{{ detail.label }}</span>
-            <strong>{{ detail.value }}</strong>
-          </div>
-        }
-      </div>
-    </aside>
+    <figure class="portrait-card">
+      <img [src]="photoSrc" [alt]="photoAlt">
+      <figcaption>
+        <p class="panel-kicker">The couple</p>
+        <strong>A bright, joyful frame for the whole invitation.</strong>
+        <span>Used here as the visual anchor instead of a generic hero illustration.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="detail-band card reveal" style="--delay: 80ms">
+    <div class="detail-grid">
+      @for (detail of details; track detail.label) {
+        <div class="detail-item">
+          <span>{{ detail.label }}</span>
+          <strong>{{ detail.value }}</strong>
+        </div>
+      }
+    </div>
   </section>
 
   <section class="content-grid">
-    <article class="card reveal" style="--delay: 80ms">
+    <article class="card reveal" style="--delay: 120ms">
       <div class="section-heading">
-        <p class="eyebrow">Evening flow</p>
-        <h2>How the night unfolds</h2>
+        <p class="eyebrow">Design direction</p>
+        <h2>Built more like an editorial spread.</h2>
       </div>
 
-      <div class="timeline">
-        @for (item of timeline; track item.time) {
-          <div class="timeline-item">
-            <div class="timeline-time">{{ item.time }}</div>
-            <div class="timeline-body">
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.body }}</p>
-            </div>
+      <div class="highlight-list">
+        @for (item of highlights; track item.title) {
+          <div class="highlight-item">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
           </div>
         }
       </div>
     </article>
 
     <div class="stack">
-      <article class="card reveal" style="--delay: 140ms">
+      <article class="card reveal" style="--delay: 180ms">
         <div class="section-heading">
-          <p class="eyebrow">Starter notes</p>
-          <h2>Swap these details for your own event</h2>
+          <p class="eyebrow">Invitation notes</p>
+          <h2>Flexible blocks you can keep or replace.</h2>
         </div>
 
         <div class="note-list">
@@ -66,16 +72,16 @@
         </div>
       </article>
 
-      <article id="rsvp" class="card card-accent reveal" style="--delay: 200ms">
+      <article id="rsvp" class="card card-accent reveal" style="--delay: 240ms">
         <p class="eyebrow">RSVP section</p>
         <h2>Make this the reply point for your guests.</h2>
         <p>
           Replace this text with a form, mailto link, WhatsApp contact, or whatever reply flow you
-          want to use for the dinner.
+          want to use for the invitation.
         </p>
         <div class="inline-links">
           <a [href]="rsvpHref">RSVP link placeholder</a>
-          <a [href]="registryHref">Registry placeholder</a>
+          <a [href]="mapHref" target="_blank" rel="noreferrer">Venue directions</a>
         </div>
       </article>
     </div>

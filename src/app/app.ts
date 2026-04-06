@@ -5,13 +5,12 @@ interface Detail {
   value: string;
 }
 
-interface TimelineItem {
-  time: string;
+interface NoteItem {
   title: string;
   body: string;
 }
 
-interface NoteItem {
+interface HighlightItem {
   title: string;
   body: string;
 }
@@ -30,46 +29,43 @@ export class App {
     { label: 'Dress code', value: 'Colourful' },
   ];
 
-  protected readonly timeline: TimelineItem[] = [
+  protected readonly highlights: HighlightItem[] = [
     {
-      time: '6:30 PM',
-      title: 'Arrival & welcome drinks',
-      body: 'Guests arrive, settle in, and ease into the evening with a first toast.',
+      title: 'Photo-led layout',
+      body: 'The couple photo becomes the anchor of the page instead of a generic hero block.',
     },
     {
-      time: '7:15 PM',
-      title: 'Dinner is served',
-      body: 'A seated meal with a few courses, good conversation, and a calm pace.',
+      title: 'Daytime energy',
+      body: 'Copy and layout shift toward a bright midday celebration with a lighter pacing and feel.',
     },
     {
-      time: '9:00 PM',
-      title: 'Speeches & dessert',
-      body: 'A handful of heartfelt words, then something sweet to close the dinner.',
+      title: 'Editorial composition',
+      body: 'A magazine-like spread with a framed photo, stacked cards, and stronger contrast.',
     },
     {
-      time: '9:45 PM',
-      title: 'Music & mingling',
-      body: 'Music, photos, and the easy part of the night where everyone stays a while.',
+      title: 'Simple RSVP path',
+      body: 'The reply flow stays obvious and easy to swap for a form, email, or message link.',
     },
   ];
 
   protected readonly notes: NoteItem[] = [
     {
-      title: 'RSVP',
-      body: 'Link this card to your RSVP form, guest list, or email reply address.',
+      title: 'Venue',
+      body: 'Keep the venue card linked to directions so guests can open the new location quickly.',
     },
     {
-      title: 'Registry',
-      body: 'Swap in gift registry links or remove this section if you want a simpler invite.',
+      title: 'Reply',
+      body: 'Replace the placeholder with your preferred RSVP form, email address, or WhatsApp link.',
     },
     {
-      title: 'Travel',
-      body: 'Add nearby hotels, transport notes, or parking guidance for guests coming in from outside London.',
+      title: 'Extras',
+      body: 'Add registry links, transport notes, or a short note about the colour dress code.',
     },
   ];
 
+  protected readonly photoSrc = 'couple-photo.jpeg';
+  protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
   protected readonly rsvpHref = '#rsvp';
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The%20Greenhouses%20Marylebone';
-  protected readonly registryHref = '#registry';
 }

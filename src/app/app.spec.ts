@@ -19,6 +19,6 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('An elegant evening to gather');
+    expect(compiled.querySelector('h1')?.textContent).toContain('An editorial invitation built around the two of you');
   });
 });
