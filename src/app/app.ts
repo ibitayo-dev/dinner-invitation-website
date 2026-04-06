@@ -24,10 +24,10 @@ interface NoteItem {
 })
 export class App {
   protected readonly details: Detail[] = [
-    { label: 'Date', value: 'Saturday, 18 July 2026' },
-    { label: 'Time', value: '7:00 PM' },
-    { label: 'Venue', value: 'The Gallery Room, London' },
-    { label: 'Dress code', value: 'Black tie, if you feel like dressing for the evening' },
+    { label: 'Date', value: 'Friday, 27 November 2026' },
+    { label: 'Time', value: '12:00 PM' },
+    { label: 'Venue', value: 'The Greenhouses, Marylebone' },
+    { label: 'Dress code', value: 'Colourful' },
   ];
 
   protected readonly timeline: TimelineItem[] = [
@@ -69,6 +69,7 @@ export class App {
   ];
 
   protected readonly rsvpHref = '#rsvp';
-  protected readonly mapHref = 'https://www.google.com/maps/search/?api=1&query=London';
+  protected readonly mapHref =
+    'https://www.google.com/maps/search/?api=1&query=The%20Greenhouses%20Marylebone';
   protected readonly registryHref = '#registry';
 }
