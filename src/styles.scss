@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  color-scheme: light;
+  --paper: #f9f1ea;
+  --paper-soft: #fff8f4;
+  --ink: #281916;
+  --muted: #6d4a42;
+  --rose: #8b594f;
+  --champagne: #d5b192;
+  --shadow: rgba(64, 34, 27, 0.14);
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(213, 177, 146, 0.52), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(169, 109, 96, 0.22), transparent 26%),
+    linear-gradient(180deg, #f9f1ea 0%, #f4e7dc 100%);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--ink);
+  background: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.26), transparent 38%),
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2), transparent 22%),
+    radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.12), transparent 20%);
+  opacity: 0.85;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(139, 89, 79, 0.22);
+  color: var(--ink);
+}

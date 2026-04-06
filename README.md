@@ -1,3 +1,46 @@
 # dinner-invitation-website
 
-A private site for guests for our celebratory dinner.
+A private Angular 21 starter for a wedding dinner invitation site.
+
+## What’s included
+
+- A polished one-page invitation layout with a refined editorial feel
+- Editable sections for event details, schedule, RSVP, registry, and travel notes
+- GitHub Pages-ready build settings
+- An automated Pages deployment workflow
+
+## Local development
+
+```bash
+npm install
+npm start
+```
+
+Then open `http://localhost:4200/`.
+
+## Production build
+
+```bash
+npm run build:pages
+```
+
+The build is configured for the `dinner-invitation-website` GitHub Pages path.
+
+## GitHub Pages deployment
+
+This repo includes a workflow in `.github/workflows/deploy.yml` that publishes the app from the `main` branch.
+
+After the first deploy, make sure GitHub Pages is set to use GitHub Actions in the repository settings.
+
+## Editing the starter
+
+The invitation content lives in `src/app/app.ts` and `src/app/app.html`.
+
+Update those files to swap in:
+
+- your names
+- the venue and date
+- the RSVP link or email
+- registry and travel details
+
+The visual system lives in `src/app/app.scss` and `src/styles.scss`.

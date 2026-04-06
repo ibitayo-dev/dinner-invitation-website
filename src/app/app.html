@@ -1,0 +1,83 @@
+<main class="page-shell">
+  <section class="hero card reveal">
+    <div class="hero-copy">
+      <p class="eyebrow">Wedding dinner invitation starter</p>
+      <h1>An elegant evening to gather, dine, and celebrate.</h1>
+      <p class="lede">
+        A refined Angular 21 starting point for a wedding dinner invite — designed to feel warm,
+        polished, and easy to adapt for your own event.
+      </p>
+
+      <div class="cta-row">
+        <a class="button button-primary" [href]="rsvpHref">RSVP now</a>
+        <a class="button button-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
+          View venue
+        </a>
+      </div>
+    </div>
+
+    <aside class="hero-panel">
+      <p class="panel-kicker">The essentials</p>
+      <div class="detail-grid">
+        @for (detail of details; track detail.label) {
+          <div class="detail-item">
+            <span>{{ detail.label }}</span>
+            <strong>{{ detail.value }}</strong>
+          </div>
+        }
+      </div>
+    </aside>
+  </section>
+
+  <section class="content-grid">
+    <article class="card reveal" style="--delay: 80ms">
+      <div class="section-heading">
+        <p class="eyebrow">Evening flow</p>
+        <h2>How the night unfolds</h2>
+      </div>
+
+      <div class="timeline">
+        @for (item of timeline; track item.time) {
+          <div class="timeline-item">
+            <div class="timeline-time">{{ item.time }}</div>
+            <div class="timeline-body">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.body }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+
+    <div class="stack">
+      <article class="card reveal" style="--delay: 140ms">
+        <div class="section-heading">
+          <p class="eyebrow">Starter notes</p>
+          <h2>Swap these details for your own event</h2>
+        </div>
+
+        <div class="note-list">
+          @for (note of notes; track note.title) {
+            <div class="note">
+              <h3>{{ note.title }}</h3>
+              <p>{{ note.body }}</p>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article id="rsvp" class="card card-accent reveal" style="--delay: 200ms">
+        <p class="eyebrow">RSVP section</p>
+        <h2>Make this the reply point for your guests.</h2>
+        <p>
+          Replace this text with a form, mailto link, WhatsApp contact, or whatever reply flow you
+          want to use for the dinner.
+        </p>
+        <div class="inline-links">
+          <a [href]="rsvpHref">RSVP link placeholder</a>
+          <a [href]="registryHref">Registry placeholder</a>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
