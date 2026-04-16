@@ -5,14 +5,25 @@ interface Detail {
   value: string;
 }
 
+interface MoodItem {
+  title: string;
+  body: string;
+}
+
+interface TimelineItem {
+  time: string;
+  title: string;
+  body: string;
+}
+
 interface NoteItem {
   title: string;
   body: string;
 }
 
-interface HighlightItem {
-  title: string;
-  body: string;
+interface Swatch {
+  label: string;
+  value: string;
 }
 
 @Component({
@@ -29,43 +40,72 @@ export class App {
     { label: 'Dress code', value: 'Colourful' },
   ];
 
-  protected readonly highlights: HighlightItem[] = [
+  protected readonly moods: MoodItem[] = [
     {
-      title: 'Photo-led layout',
-      body: 'The couple photo becomes the anchor of the page instead of a generic hero block.',
+      title: 'Glasshouse glow',
+      body: 'Soft highlights, warm cream surfaces, and deep green shadows make the page feel like dusk in a greenhouse.',
     },
     {
-      title: 'Daytime energy',
-      body: 'Copy and layout shift toward a bright midday celebration with a lighter pacing and feel.',
+      title: 'Botanical layering',
+      body: 'Leaves, florals, and brass-like accents are handled with restraint so the page feels rich rather than busy.',
     },
     {
-      title: 'Editorial composition',
-      body: 'A magazine-like spread with a framed photo, stacked cards, and stronger contrast.',
+      title: 'Romantic structure',
+      body: 'The layout stays modern and airy, but the composition carries enough drama to feel like an event.',
     },
     {
-      title: 'Simple RSVP path',
-      body: 'The reply flow stays obvious and easy to swap for a form, email, or message link.',
+      title: 'Invitation pacing',
+      body: 'Hero, detail band, and supporting cards guide guests through the experience without feeling formal or stiff.',
+    },
+  ];
+
+  protected readonly timeline: TimelineItem[] = [
+    {
+      time: '12:00',
+      title: 'Arrival under the glass',
+      body: 'Guests arrive into a bright, leafy room with time to settle in before dinner begins.',
+    },
+    {
+      time: '12:30',
+      title: 'Dinner is served',
+      body: 'The table takes centre stage with flowers, layered glassware, and a calm, celebratory rhythm.',
+    },
+    {
+      time: '14:00',
+      title: 'Toasts and speeches',
+      body: 'The room shifts into something warmer and more intimate as the speeches begin.',
+    },
+    {
+      time: '15:00',
+      title: 'Afternoon ease',
+      body: 'Coffee, conversation, and that last golden stretch of the day close the invitation beautifully.',
     },
   ];
 
   protected readonly notes: NoteItem[] = [
     {
-      title: 'Venue',
-      body: 'Keep the venue card linked to directions so guests can open the new location quickly.',
+      title: 'Arrival',
+      body: 'Keep the opening simple so guests can find the room quickly and settle in without fuss.',
     },
     {
-      title: 'Reply',
-      body: 'Replace the placeholder with your preferred RSVP form, email address, or WhatsApp link.',
+      title: 'Flowers',
+      body: 'This design works best when the floral palette is echoed in the actual table styling too.',
     },
     {
-      title: 'Extras',
-      body: 'Add registry links, transport notes, or a short note about the colour dress code.',
+      title: 'Dress code',
+      body: 'Colourful works well here; it keeps the page feeling joyful rather than overly formal.',
     },
+  ];
+
+  protected readonly swatches: Swatch[] = [
+    { label: 'Moss', value: '#4f6a55' },
+    { label: 'Cream', value: '#f7f0e7' },
+    { label: 'Rose', value: '#c88c79' },
+    { label: 'Brass', value: '#b99657' },
   ];
 
   protected readonly photoSrc = 'couple-photo.jpeg';
   protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
-  protected readonly rsvpHref = '#rsvp';
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The%20Greenhouses%20Marylebone';
 }
