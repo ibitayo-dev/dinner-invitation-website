@@ -16,6 +16,11 @@ interface VenueNote {
   body: string;
 }
 
+interface Highlight {
+  title: string;
+  body: string;
+}
+
 @Component({
   selector: 'app-root',
   imports: [],
@@ -27,45 +32,60 @@ export class App {
     { label: 'Date', value: 'Saturday, 27 November 2026' },
     { label: 'Time', value: '6:00 PM' },
     { label: 'Venue', value: 'The Greenhouses, Marylebone' },
-    { label: 'Dress', value: 'Garden party evening wear' },
+    { label: 'Dress', value: 'Pressed florals and garden-party evening wear' },
     { label: 'RSVP by', value: '1 October 2026' },
+  ];
+
+  protected readonly highlights: Highlight[] = [
+    {
+      title: 'Dinner under glass',
+      body: 'A softly lit room with layered greenery, candlelight, and a layout that reads well on mobile.',
+    },
+    {
+      title: 'Minted-inspired mood',
+      body: 'Pressed-botanical stationery energy translated into a cleaner, more modern invitation.',
+    },
+    {
+      title: 'Easy to skim',
+      body: 'Clear hierarchy, quick access to the essentials, and a calmer RSVP path for guests.',
+    },
   ];
 
   protected readonly timeline: TimelineItem[] = [
     {
       time: '6:00',
       title: 'Arrive under the glass',
-      body: 'Guests are welcomed with drinks, foliage-filled tables, and a first look at the room in the evening light.',
+      body: 'Guests arrive to drinks, soft music, and the first look at the room in the evening light.',
     },
     {
       time: '7:00',
       title: 'Dinner begins',
-      body: 'A slower, warmer pace with good food, speeches, and the kind of conversation that stretches out naturally.',
+      body: 'Dinner, speeches, and a slower pace that lets the evening feel long, warm, and relaxed.',
     },
     {
       time: '9:00',
       title: 'Toasts and music',
-      body: 'The room softens into candlelight, with music, dancing, and a relaxed end to the night.',
+      body: 'The room softens into candlelight with music, dancing, and a gentle end to the night.',
     },
   ];
 
   protected readonly venueNotes: VenueNote[] = [
     {
       title: 'Travel',
-      body: 'Marylebone is a short walk from Bond Street and Baker Street. Add your exact arrival notes here if needed.',
+      body: 'Marylebone is a short walk from Bond Street and Baker Street. Add exact arrival notes if needed.',
     },
     {
       title: 'Flowers',
-      body: 'The greenhouse idea works best with loose seasonal florals, soft greens, and a few peach or blush accents.',
+      body: 'The palette leans into soft greens, pale neutrals, and a few blush or apricot accents.',
     },
     {
       title: 'Gifts',
-      body: 'If you want a registry, place it behind one clear link so the page still feels calm and uncluttered.',
+      body: 'If you want a registry, keep it behind one clear link so the page stays calm and uncluttered.',
     },
   ];
 
   protected readonly heroQuote =
-    'We wanted the dinner to feel like stepping into a warm conservatory at dusk: light, green, and quietly celebratory.';
+    'Think Minted-style botanical stationery, translated into a mobile-first invitation that feels softer, warmer, and more intentional.';
 
   protected readonly photoSrc = 'couple-photo.jpeg';
   protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';

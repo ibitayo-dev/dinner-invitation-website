@@ -1,11 +1,14 @@
 <main class="invite-shell">
   <section class="hero card reveal">
     <div class="hero-copy">
-      <p class="eyebrow">The Greenhouses • Wedding dinner</p>
-      <h1>A greenhouse evening in full bloom.</h1>
+      <p class="eyebrow">The Greenhouses · Wedding dinner</p>
+      <div class="title-lockup">
+        <span class="seal">TG</span>
+        <h1>Pressed botanicals, candlelight, and dinner under glass.</h1>
+      </div>
       <p class="lede">
-        Join us for a warm, flower-filled dinner with candlelight, greenery, and a relaxed pace
-        that feels made for lingering.
+        A mobile-first invitation inspired by Minted's botanical wedding templates — cleaner,
+        warmer, and shaped to feel beautiful on a phone.
       </p>
 
       <div class="cta-row">
@@ -13,6 +16,15 @@
         <a class="button button-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
           View venue
         </a>
+      </div>
+
+      <div class="hero-highlights">
+        @for (highlight of highlights; track highlight.title) {
+          <article class="highlight">
+            <h2>{{ highlight.title }}</h2>
+            <p>{{ highlight.body }}</p>
+          </article>
+        }
       </div>
 
       <dl id="details" class="detail-grid">
@@ -29,12 +41,12 @@
       <figure class="portrait-card">
         <div class="portrait-image-wrap">
           <img [src]="photoSrc" [alt]="photoAlt">
-          <span class="glass-tag">Friday night, greenhouse glow</span>
+          <span class="glass-tag">Greenhouse glow • evening dinner</span>
         </div>
 
         <figcaption>
           <p class="panel-kicker">The tone</p>
-          <strong>Soft, lush, and easy to read on a phone.</strong>
+          <strong>Soft, lush, and easy to scan on mobile.</strong>
           <span>{{ heroQuote }}</span>
         </figcaption>
       </figure>
@@ -43,8 +55,8 @@
 
   <section class="strip card reveal" style="--delay: 90ms">
     <p>
-      Think greenhouse reception, botanical table design, and a guest experience built to feel
-      calm, modern, and welcoming from the first glance.
+      Picture a greenhouse reception with the restraint of a beautifully edited stationery suite:
+      botanical, elegant, and immediately readable.
     </p>
   </section>
 
@@ -68,36 +80,33 @@
       </div>
     </article>
 
-    <div class="stack">
-      <article class="card panel reveal" style="--delay: 210ms">
-        <div class="section-heading">
-          <p class="eyebrow">Venue notes</p>
-          <h2>Useful details for the day.</h2>
-        </div>
+    <article class="card panel reveal" style="--delay: 210ms">
+      <div class="section-heading">
+        <p class="eyebrow">Venue notes</p>
+        <h2>Useful details for the day.</h2>
+      </div>
 
-        <div class="notes">
-          @for (note of venueNotes; track note.title) {
-            <div class="note">
-              <h3>{{ note.title }}</h3>
-              <p>{{ note.body }}</p>
-            </div>
-          }
-        </div>
-      </article>
+      <div class="notes">
+        @for (note of venueNotes; track note.title) {
+          <div class="note">
+            <h3>{{ note.title }}</h3>
+            <p>{{ note.body }}</p>
+          </div>
+        }
+      </div>
+    </article>
 
-      <article id="rsvp" class="card card-accent panel reveal" style="--delay: 270ms">
-        <p class="eyebrow">RSVP</p>
-        <h2>Let us know you’re coming.</h2>
-        <p>
-          Swap this section for your real RSVP form, email address, or message link when you are
-          ready.
-        </p>
+    <article id="rsvp" class="card card-accent panel reveal" style="--delay: 270ms">
+      <p class="eyebrow">RSVP</p>
+      <h2>Let us know you’re coming.</h2>
+      <p>
+        Replace this with your real RSVP form, email address, or message link when you are ready.
+      </p>
 
-        <div class="cta-row cta-row-tight">
-          <a class="button button-ghost" [href]="calendarHref">Save the date</a>
-          <a class="button button-outline" [href]="rsvpHref">Reply here</a>
-        </div>
-      </article>
-    </div>
+      <div class="cta-row cta-row-tight">
+        <a class="button button-ghost" [href]="calendarHref">Save the date</a>
+        <a class="button button-outline" [href]="rsvpHref">Reply here</a>
+      </div>
+    </article>
   </section>
 </main>

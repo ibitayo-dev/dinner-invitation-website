@@ -19,7 +19,10 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('A greenhouse evening in full bloom.');
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Pressed botanicals, candlelight, and dinner under glass.',
+    );
+    expect(compiled.querySelectorAll('.highlight').length).toBe(3);
     expect(compiled.querySelectorAll('.detail').length).toBeGreaterThan(0);
   });
 });
