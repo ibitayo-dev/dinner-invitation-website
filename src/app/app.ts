@@ -97,25 +97,27 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Set up intersection observer for scroll animations
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px',
-      }
-    );
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px',
+        }
+      );
 
-    // Observe all elements with data-animate attribute
-    setTimeout(() => {
-      const elements = document.querySelectorAll('[data-animate]');
-      elements.forEach((el) => this.observer?.observe(el));
-    }, 100);
+      // Observe all elements with data-animate attribute
+      setTimeout(() => {
+        const elements = document.querySelectorAll('[data-animate]');
+        elements.forEach((el) => this.observer?.observe(el));
+      }, 100);
+    }
   }
 
   ngOnDestroy(): void {

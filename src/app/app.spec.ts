@@ -13,16 +13,15 @@ describe('App', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('renders the greenhouse-led hero', async () => {
+  it('renders the modern wedding celebration hero', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Join us for our wedding dinner at The Greenhouses.',
-    );
-    expect(compiled.querySelectorAll('.highlight').length).toBe(3);
-    expect(compiled.querySelectorAll('.detail').length).toBeGreaterThan(0);
+    expect(compiled.querySelector('h1')?.textContent).toContain('Wedding');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Celebration');
+    expect(compiled.querySelectorAll('.highlight-item').length).toBe(3);
+    expect(compiled.querySelectorAll('.detail-card').length).toBeGreaterThan(0);
   });
 });
