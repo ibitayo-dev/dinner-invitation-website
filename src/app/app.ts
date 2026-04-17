@@ -5,12 +5,13 @@ interface Detail {
   value: string;
 }
 
-interface NoteItem {
+interface TimelineItem {
+  time: string;
   title: string;
   body: string;
 }
 
-interface HighlightItem {
+interface VenueNote {
   title: string;
   body: string;
 }
@@ -23,49 +24,53 @@ interface HighlightItem {
 })
 export class App {
   protected readonly details: Detail[] = [
-    { label: 'Date', value: 'Friday, 27 November 2026' },
-    { label: 'Time', value: '12:00 PM' },
+    { label: 'Date', value: 'Saturday, 27 November 2026' },
+    { label: 'Time', value: '6:00 PM' },
     { label: 'Venue', value: 'The Greenhouses, Marylebone' },
-    { label: 'Dress code', value: 'Colourful' },
+    { label: 'Dress', value: 'Garden party evening wear' },
+    { label: 'RSVP by', value: '1 October 2026' },
   ];
 
-  protected readonly highlights: HighlightItem[] = [
+  protected readonly timeline: TimelineItem[] = [
     {
-      title: 'Photo-led layout',
-      body: 'The couple photo becomes the anchor of the page instead of a generic hero block.',
+      time: '6:00',
+      title: 'Arrive under the glass',
+      body: 'Guests are welcomed with drinks, foliage-filled tables, and a first look at the room in the evening light.',
     },
     {
-      title: 'Daytime energy',
-      body: 'Copy and layout shift toward a bright midday celebration with a lighter pacing and feel.',
+      time: '7:00',
+      title: 'Dinner begins',
+      body: 'A slower, warmer pace with good food, speeches, and the kind of conversation that stretches out naturally.',
     },
     {
-      title: 'Editorial composition',
-      body: 'A magazine-like spread with a framed photo, stacked cards, and stronger contrast.',
-    },
-    {
-      title: 'Simple RSVP path',
-      body: 'The reply flow stays obvious and easy to swap for a form, email, or message link.',
+      time: '9:00',
+      title: 'Toasts and music',
+      body: 'The room softens into candlelight, with music, dancing, and a relaxed end to the night.',
     },
   ];
 
-  protected readonly notes: NoteItem[] = [
+  protected readonly venueNotes: VenueNote[] = [
     {
-      title: 'Venue',
-      body: 'Keep the venue card linked to directions so guests can open the new location quickly.',
+      title: 'Travel',
+      body: 'Marylebone is a short walk from Bond Street and Baker Street. Add your exact arrival notes here if needed.',
     },
     {
-      title: 'Reply',
-      body: 'Replace the placeholder with your preferred RSVP form, email address, or WhatsApp link.',
+      title: 'Flowers',
+      body: 'The greenhouse idea works best with loose seasonal florals, soft greens, and a few peach or blush accents.',
     },
     {
-      title: 'Extras',
-      body: 'Add registry links, transport notes, or a short note about the colour dress code.',
+      title: 'Gifts',
+      body: 'If you want a registry, place it behind one clear link so the page still feels calm and uncluttered.',
     },
   ];
+
+  protected readonly heroQuote =
+    'We wanted the dinner to feel like stepping into a warm conservatory at dusk: light, green, and quietly celebratory.';
 
   protected readonly photoSrc = 'couple-photo.jpeg';
   protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
   protected readonly rsvpHref = '#rsvp';
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The%20Greenhouses%20Marylebone';
+  protected readonly calendarHref = '#details';
 }

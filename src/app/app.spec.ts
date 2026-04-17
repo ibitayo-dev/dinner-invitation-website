@@ -13,12 +13,13 @@ describe('App', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('renders the hero title', async () => {
+  it('renders the greenhouse-led hero', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('An editorial invitation built around the two of you');
+    expect(compiled.querySelector('h1')?.textContent).toContain('A greenhouse evening in full bloom.');
+    expect(compiled.querySelectorAll('.detail').length).toBeGreaterThan(0);
   });
 });

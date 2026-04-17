@@ -1,12 +1,11 @@
-<main class="page-shell">
+<main class="invite-shell">
   <section class="hero card reveal">
     <div class="hero-copy">
-      <p class="eyebrow">Wedding dinner invitation</p>
-      <h1>An editorial invitation built around the two of you.</h1>
+      <p class="eyebrow">The Greenhouses • Wedding dinner</p>
+      <h1>A greenhouse evening in full bloom.</h1>
       <p class="lede">
-        This redraft drops the old programme section and leans into a completely different mood: a
-        photo-led, magazine-like invitation with stronger contrast, cleaner structure, and a
-        bright midday feel.
+        Join us for a warm, flower-filled dinner with candlelight, greenery, and a relaxed pace
+        that feels made for lingering.
       </p>
 
       <div class="cta-row">
@@ -15,55 +14,69 @@
           View venue
         </a>
       </div>
+
+      <dl id="details" class="detail-grid">
+        @for (detail of details; track detail.label) {
+          <div class="detail">
+            <dt>{{ detail.label }}</dt>
+            <dd>{{ detail.value }}</dd>
+          </div>
+        }
+      </dl>
     </div>
 
-    <figure class="portrait-card">
-      <img [src]="photoSrc" [alt]="photoAlt">
-      <figcaption>
-        <p class="panel-kicker">The couple</p>
-        <strong>A bright, joyful frame for the whole invitation.</strong>
-        <span>Used here as the visual anchor instead of a generic hero illustration.</span>
-      </figcaption>
-    </figure>
+    <aside class="hero-visual">
+      <figure class="portrait-card">
+        <div class="portrait-image-wrap">
+          <img [src]="photoSrc" [alt]="photoAlt">
+          <span class="glass-tag">Friday night, greenhouse glow</span>
+        </div>
+
+        <figcaption>
+          <p class="panel-kicker">The tone</p>
+          <strong>Soft, lush, and easy to read on a phone.</strong>
+          <span>{{ heroQuote }}</span>
+        </figcaption>
+      </figure>
+    </aside>
   </section>
 
-  <section class="detail-band card reveal" style="--delay: 80ms">
-    <div class="detail-grid">
-      @for (detail of details; track detail.label) {
-        <div class="detail-item">
-          <span>{{ detail.label }}</span>
-          <strong>{{ detail.value }}</strong>
-        </div>
-      }
-    </div>
+  <section class="strip card reveal" style="--delay: 90ms">
+    <p>
+      Think greenhouse reception, botanical table design, and a guest experience built to feel
+      calm, modern, and welcoming from the first glance.
+    </p>
   </section>
 
   <section class="content-grid">
-    <article class="card reveal" style="--delay: 120ms">
+    <article class="card panel reveal" style="--delay: 150ms">
       <div class="section-heading">
-        <p class="eyebrow">Design direction</p>
-        <h2>Built more like an editorial spread.</h2>
+        <p class="eyebrow">The evening</p>
+        <h2>What happens after you arrive.</h2>
       </div>
 
-      <div class="highlight-list">
-        @for (item of highlights; track item.title) {
-          <div class="highlight-item">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.body }}</p>
+      <div class="timeline">
+        @for (item of timeline; track item.time) {
+          <div class="timeline-item">
+            <div class="timeline-time">{{ item.time }}</div>
+            <div class="timeline-copy">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.body }}</p>
+            </div>
           </div>
         }
       </div>
     </article>
 
     <div class="stack">
-      <article class="card reveal" style="--delay: 180ms">
+      <article class="card panel reveal" style="--delay: 210ms">
         <div class="section-heading">
-          <p class="eyebrow">Invitation notes</p>
-          <h2>Flexible blocks you can keep or replace.</h2>
+          <p class="eyebrow">Venue notes</p>
+          <h2>Useful details for the day.</h2>
         </div>
 
-        <div class="note-list">
-          @for (note of notes; track note.title) {
+        <div class="notes">
+          @for (note of venueNotes; track note.title) {
             <div class="note">
               <h3>{{ note.title }}</h3>
               <p>{{ note.body }}</p>
@@ -72,16 +85,17 @@
         </div>
       </article>
 
-      <article id="rsvp" class="card card-accent reveal" style="--delay: 240ms">
-        <p class="eyebrow">RSVP section</p>
-        <h2>Make this the reply point for your guests.</h2>
+      <article id="rsvp" class="card card-accent panel reveal" style="--delay: 270ms">
+        <p class="eyebrow">RSVP</p>
+        <h2>Let us know you’re coming.</h2>
         <p>
-          Replace this text with a form, mailto link, WhatsApp contact, or whatever reply flow you
-          want to use for the invitation.
+          Swap this section for your real RSVP form, email address, or message link when you are
+          ready.
         </p>
-        <div class="inline-links">
-          <a [href]="rsvpHref">RSVP link placeholder</a>
-          <a [href]="mapHref" target="_blank" rel="noreferrer">Venue directions</a>
+
+        <div class="cta-row cta-row-tight">
+          <a class="button button-ghost" [href]="calendarHref">Save the date</a>
+          <a class="button button-outline" [href]="rsvpHref">Reply here</a>
         </div>
       </article>
     </div>
