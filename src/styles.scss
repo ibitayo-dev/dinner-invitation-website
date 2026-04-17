@@ -1,64 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Cormorant:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   color-scheme: dark;
-  --burgundy-deep: #3d0814;
-  --burgundy: #6b1327;
-  --burgundy-light: #8b1e3f;
-  --gold: #d4af37;
-  --gold-light: #f4d03f;
-  --cream: #f5e6d3;
-  --black: #0a0a0a;
-  --charcoal: #1a1a1a;
-  --shadow-gold: rgba(212, 175, 55, 0.3);
-  --font-heading: 'Playfair Display', serif;
-  --font-body: 'Cormorant', serif;
-  --font-accent: 'Cinzel', serif;
+
+  /* Modern Ocean & Coral Color Palette */
+  --ocean-deep: #0a1628;
+  --ocean: #132642;
+  --ocean-light: #4a6fa5;
+  --coral: #ff6b6b;
+  --coral-dark: #ee5a52;
+  --coral-glow: rgba(255, 107, 107, 0.3);
+  --ice: #f0f4f8;
+  --mist: #b8c5d6;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(19, 38, 66, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Typography */
+  --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html {
   min-height: 100%;
   scroll-behavior: smooth;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(212, 175, 55, 0.03) 2px,
-      rgba(212, 175, 55, 0.03) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(212, 175, 55, 0.03) 2px,
-      rgba(212, 175, 55, 0.03) 4px
-    ),
-    radial-gradient(circle at 50% 0%, rgba(107, 19, 39, 0.4), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(61, 8, 20, 0.6), transparent 50%),
-    linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  background: linear-gradient(180deg, var(--ocean-deep) 0%, var(--ocean) 50%, #0d1b2a 100%);
+  background-attachment: fixed;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   font-family: var(--font-body);
-  color: var(--cream);
+  color: var(--ice);
   background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: hidden;
 }
 
+/* Animated gradient overlay */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(45deg, transparent 48%, rgba(212, 175, 55, 0.05) 50%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, rgba(212, 175, 55, 0.05) 50%, transparent 52%);
-  background-size: 100px 100px;
-  opacity: 0.3;
+    radial-gradient(circle at 20% 30%, rgba(255, 107, 107, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(74, 111, 165, 0.12) 0%, transparent 40%);
+  animation: move-background 20s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes move-background {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(50px, 30px);
+  }
+}
+
+/* Subtle grid pattern */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.5;
+  z-index: 0;
 }
 
 * {
@@ -70,6 +86,24 @@ a {
 }
 
 ::selection {
-  background: rgba(101, 123, 96, 0.22);
-  color: var(--ink);
+  background: var(--coral-glow);
+  color: var(--ice);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ocean-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--coral);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--coral-dark);
 }
