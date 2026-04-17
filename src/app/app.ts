@@ -38,16 +38,16 @@ export class App {
 
   protected readonly highlights: Highlight[] = [
     {
-      title: 'Dinner under glass',
-      body: 'A softly lit room with layered greenery, candlelight, and a layout that reads well on mobile.',
+      title: 'Welcome drinks',
+      body: 'Join us from 6:00 PM for a relaxed welcome drink before everyone sits down for dinner.',
     },
     {
-      title: 'Minted-inspired mood',
-      body: 'Pressed-botanical stationery energy translated into a cleaner, more modern invitation.',
+      title: 'Dinner and toasts',
+      body: 'We will share dinner together under the glasshouse followed by speeches and a joyful toast.',
     },
     {
-      title: 'Easy to skim',
-      body: 'Clear hierarchy, quick access to the essentials, and a calmer RSVP path for guests.',
+      title: 'Music and celebration',
+      body: 'After dinner, stay with us for music, conversation, and a warm evening with family and friends.',
     },
   ];
 
@@ -72,20 +72,20 @@ export class App {
   protected readonly venueNotes: VenueNote[] = [
     {
       title: 'Travel',
-      body: 'Marylebone is a short walk from Bond Street and Baker Street. Add exact arrival notes if needed.',
+      body: 'The Greenhouses in Marylebone is a short walk from Bond Street and Baker Street stations.',
     },
     {
-      title: 'Flowers',
-      body: 'The palette leans into soft greens, pale neutrals, and a few blush or apricot accents.',
+      title: 'Dietary needs',
+      body: 'Please share any dietary requirements when you RSVP so we can plan the menu with care.',
     },
     {
       title: 'Gifts',
-      body: 'If you want a registry, keep it behind one clear link so the page stays calm and uncluttered.',
+      body: 'Your presence is the best gift, but if you would like registry details, we will gladly share them.',
     },
   ];
 
   protected readonly heroQuote =
-    'Think Minted-style botanical stationery, translated into a mobile-first invitation that feels softer, warmer, and more intentional.';
+    'We would love for you to join us for an evening of dinner, music, and celebration at The Greenhouses in Marylebone.';
 
   protected readonly photoSrc = 'couple-photo.jpeg';
   protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
