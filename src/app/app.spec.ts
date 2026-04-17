@@ -20,7 +20,7 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Pressed botanicals, candlelight, and dinner under glass.',
+      'Join us for our wedding dinner at The Greenhouses.',
     );
     expect(compiled.querySelectorAll('.highlight').length).toBe(3);
     expect(compiled.querySelectorAll('.detail').length).toBeGreaterThan(0);
