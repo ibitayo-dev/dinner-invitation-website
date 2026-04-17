@@ -1,41 +1,33 @@
-<main class="page-shell" id="top">
+<main class="page-shell">
   <section class="hero card reveal">
     <div class="hero-copy">
-      <p class="eyebrow">The Greenhouses • Wedding dinner</p>
-      <h1>An evening dinner in full bloom.</h1>
+      <p class="eyebrow">Wedding dinner invitation</p>
+      <h1>An editorial invitation built around the two of you.</h1>
       <p class="lede">
-        A greenhouse-inspired invitation with warm light, botanical depth, and a modern sense of
-        romance. The new look leans into the venue instead of fighting it.
+        This redraft drops the old programme section and leans into a completely different mood: a
+        photo-led, magazine-like invitation with stronger contrast, cleaner structure, and a
+        bright midday feel.
       </p>
 
-      <div class="hero-badges" aria-label="Event summary">
-        @for (detail of details; track detail.label) {
-          <span class="badge">
-            <em>{{ detail.label }}</em>
-            <strong>{{ detail.value }}</strong>
-          </span>
-        }
-      </div>
-
       <div class="cta-row">
-        <a class="button button-primary" [href]="mapHref" target="_blank" rel="noreferrer">
-          Open venue map
+        <a class="button button-primary" [href]="rsvpHref">RSVP now</a>
+        <a class="button button-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
+          View venue
         </a>
-        <a class="button button-secondary" href="#details">See full details</a>
       </div>
     </div>
 
-    <figure class="hero-art">
-      <div class="hero-art__glow"></div>
+    <figure class="portrait-card">
       <img [src]="photoSrc" [alt]="photoAlt">
       <figcaption>
-        <p class="panel-kicker">Mood</p>
-        <strong>Greenhouse light, soft florals, and a dinner that feels quietly special.</strong>
+        <p class="panel-kicker">The couple</p>
+        <strong>A bright, joyful frame for the whole invitation.</strong>
+        <span>Used here as the visual anchor instead of a generic hero illustration.</span>
       </figcaption>
     </figure>
   </section>
 
-  <section class="detail-band card reveal" id="details" style="--delay: 90ms">
+  <section class="detail-band card reveal" style="--delay: 80ms">
     <div class="detail-grid">
       @for (detail of details; track detail.label) {
         <div class="detail-item">
@@ -47,15 +39,15 @@
   </section>
 
   <section class="content-grid">
-    <article class="card reveal" style="--delay: 140ms">
+    <article class="card reveal" style="--delay: 120ms">
       <div class="section-heading">
-        <p class="eyebrow">Atmosphere</p>
-        <h2>Modern, romantic, and built around the greenhouse.</h2>
+        <p class="eyebrow">Design direction</p>
+        <h2>Built more like an editorial spread.</h2>
       </div>
 
-      <div class="mood-grid">
-        @for (item of moods; track item.title) {
-          <div class="mood-card">
+      <div class="highlight-list">
+        @for (item of highlights; track item.title) {
+          <div class="highlight-item">
             <h3>{{ item.title }}</h3>
             <p>{{ item.body }}</p>
           </div>
@@ -64,82 +56,34 @@
     </article>
 
     <div class="stack">
-      <article class="card reveal" style="--delay: 200ms">
+      <article class="card reveal" style="--delay: 180ms">
         <div class="section-heading">
-          <p class="eyebrow">Evening flow</p>
-          <h2>How the night unfolds.</h2>
+          <p class="eyebrow">Invitation notes</p>
+          <h2>Flexible blocks you can keep or replace.</h2>
         </div>
 
-        <div class="timeline">
-          @for (step of timeline; track step.title) {
-            <div class="timeline-item">
-              <div class="timeline-time">{{ step.time }}</div>
-              <div class="timeline-copy">
-                <h3>{{ step.title }}</h3>
-                <p>{{ step.body }}</p>
-              </div>
-            </div>
-          }
-        </div>
-      </article>
-
-      <article class="card card-accent reveal" style="--delay: 260ms">
-        <div class="section-heading">
-          <p class="eyebrow">Guest notes</p>
-          <h2>Small details that keep the evening easy.</h2>
-        </div>
-
-        <div class="note-grid">
+        <div class="note-list">
           @for (note of notes; track note.title) {
-            <div class="note-card">
+            <div class="note">
               <h3>{{ note.title }}</h3>
               <p>{{ note.body }}</p>
             </div>
           }
         </div>
       </article>
+
+      <article id="rsvp" class="card card-accent reveal" style="--delay: 240ms">
+        <p class="eyebrow">RSVP section</p>
+        <h2>Make this the reply point for your guests.</h2>
+        <p>
+          Replace this text with a form, mailto link, WhatsApp contact, or whatever reply flow you
+          want to use for the invitation.
+        </p>
+        <div class="inline-links">
+          <a [href]="rsvpHref">RSVP link placeholder</a>
+          <a [href]="mapHref" target="_blank" rel="noreferrer">Venue directions</a>
+        </div>
+      </article>
     </div>
   </section>
-
-  <section class="venue-grid">
-    <article class="card reveal" style="--delay: 320ms">
-      <div class="section-heading">
-        <p class="eyebrow">Venue</p>
-        <h2>The Greenhouses, Marylebone</h2>
-      </div>
-
-      <p class="venue-copy">
-        A central London setting that already feels like part of the design: glass, greenery, warm
-        textures, and just enough grandeur to make dinner feel like an occasion.
-      </p>
-
-      <div class="inline-links">
-        <a [href]="mapHref" target="_blank" rel="noreferrer">Open in Maps</a>
-        <a href="#top">Back to top</a>
-      </div>
-    </article>
-
-    <article class="card reveal palette-card" style="--delay: 380ms">
-      <div class="section-heading">
-        <p class="eyebrow">Palette</p>
-        <h2>Floral tones, glass, and brass.</h2>
-      </div>
-
-      <div class="palette-grid">
-        @for (swatch of swatches; track swatch.label) {
-          <div class="palette-item">
-            <span class="palette-chip" [style.background]="swatch.value"></span>
-            <div>
-              <h3>{{ swatch.label }}</h3>
-              <p>{{ swatch.value }}</p>
-            </div>
-          </div>
-        }
-      </div>
-    </article>
-  </section>
-
-  <footer class="footer reveal" style="--delay: 440ms">
-    <p>Built to feel like the first room guests step into, not just a webpage.</p>
-  </footer>
 </main>
