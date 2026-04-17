@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   color-scheme: light;
@@ -10,21 +10,24 @@
   --moss: #50624b;
   --rose: #d8a39a;
   --shadow: rgba(39, 52, 38, 0.12);
+  --font-heading: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
 
 html {
   min-height: 100%;
+  scroll-behavior: smooth;
   background:
-    radial-gradient(circle at 14% 10%, rgba(125, 149, 112, 0.3), transparent 26%),
-    radial-gradient(circle at 86% 14%, rgba(216, 163, 154, 0.16), transparent 24%),
-    radial-gradient(circle at 50% 100%, rgba(80, 98, 75, 0.12), transparent 30%),
-    linear-gradient(180deg, #faf7f1 0%, #e7eee3 100%);
+    radial-gradient(circle at 14% 10%, rgba(125, 149, 112, 0.25), transparent 30%),
+    radial-gradient(circle at 86% 14%, rgba(216, 163, 154, 0.12), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba(80, 98, 75, 0.10), transparent 34%),
+    linear-gradient(180deg, #faf7f1 0%, #eef2ea 100%);
 }
 
 body {
   min-height: 100vh;
   margin: 0;
-  font-family: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
   background: transparent;
   -webkit-font-smoothing: antialiased;
@@ -37,16 +40,9 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.32), transparent 42%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.08) 0,
-      rgba(255, 255, 255, 0.08) 1px,
-      transparent 1px,
-      transparent 92px
-    ),
-    radial-gradient(circle at 24% 82%, rgba(255, 255, 255, 0.24), transparent 20%);
-  opacity: 0.62;
+    linear-gradient(115deg, rgba(255, 255, 255, 0.28), transparent 42%),
+    radial-gradient(circle at 24% 82%, rgba(255, 255, 255, 0.18), transparent 24%);
+  opacity: 0.5;
 }
 
 * {
