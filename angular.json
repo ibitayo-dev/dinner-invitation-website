@@ -32,7 +32,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "outputPath": "dist/dinner-invitation-website"
+            "outputPath": "dist/dinner-invitation-website",
+            "optimization": {
+              "fonts": false
+            }
           },
           "configurations": {
             "production": {
@@ -45,8 +48,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "7kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "15kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"

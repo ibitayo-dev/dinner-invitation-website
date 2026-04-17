@@ -1,113 +1,155 @@
-<main class="invite-shell">
-  <section class="hero card reveal">
-    <div class="hero-copy">
-      <p class="eyebrow">Saturday, 27 November 2026 · Wedding dinner</p>
-      <div class="title-lockup">
-        <span class="seal">TG</span>
-        <h1>Join us for our wedding dinner at The Greenhouses.</h1>
+<main class="deco-invitation">
+  <!-- Ornamental Header -->
+  <header class="deco-header">
+    <div class="header-ornament"></div>
+    <div class="monogram">
+      <div class="monogram-frame">
+        <span class="monogram-letters">TG</span>
       </div>
-      <p class="lede">
-        We are so excited to celebrate with you in Marylebone. Please join us for drinks at
-        6:00 PM, followed by dinner, toasts, and music.
-      </p>
-
-      <div class="cta-row">
-        <a class="button button-primary" [href]="rsvpHref">RSVP now</a>
-        <a class="button button-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
-          View venue
-        </a>
-      </div>
-
-      <div class="hero-highlights">
-        @for (highlight of highlights; track highlight.title) {
-          <article class="highlight">
-            <h2>{{ highlight.title }}</h2>
-            <p>{{ highlight.body }}</p>
-          </article>
-        }
-      </div>
-
-      <dl id="details" class="detail-grid">
-        @for (detail of details; track detail.label) {
-          <div class="detail">
-            <dt>{{ detail.label }}</dt>
-            <dd>{{ detail.value }}</dd>
-          </div>
-        }
-      </dl>
     </div>
+    <h1 class="invitation-title">
+      <span class="title-line">You Are Cordially Invited</span>
+      <span class="title-line title-main">Wedding Celebration</span>
+    </h1>
+    <div class="date-banner">
+      <div class="banner-corner left"></div>
+      <span class="banner-text">Saturday · 27 November 2026</span>
+      <div class="banner-corner right"></div>
+    </div>
+  </header>
 
-    <aside class="hero-visual">
-      <figure class="portrait-card">
-        <div class="portrait-image-wrap">
-          <img [src]="photoSrc" [alt]="photoAlt">
-          <span class="glass-tag">Greenhouse glow • evening dinner</span>
-        </div>
-
-        <figcaption>
-          <p class="panel-kicker">A note from us</p>
-          <strong>We can’t wait to celebrate with you.</strong>
-          <span>{{ heroQuote }}</span>
-        </figcaption>
-      </figure>
-    </aside>
+  <!-- Hero Image Section -->
+  <section class="hero-image-section">
+    <div class="image-frame">
+      <div class="frame-corner tl"></div>
+      <div class="frame-corner tr"></div>
+      <div class="frame-corner bl"></div>
+      <div class="frame-corner br"></div>
+      <img [src]="photoSrc" [alt]="photoAlt" class="hero-image">
+      <div class="image-overlay"></div>
+    </div>
   </section>
 
-  <section class="strip card reveal" style="--delay: 90ms">
-    <p>
+  <!-- Main Invitation Text -->
+  <section class="invitation-prose">
+    <div class="prose-ornament top"></div>
+    <p class="invitation-body">
+      {{ heroQuote }}
+    </p>
+    <p class="invitation-details">
       We are gathering our favourite people for an intimate evening of good food, heartfelt
       toasts, and time together under the greenhouse lights.
     </p>
+    <div class="prose-ornament bottom"></div>
   </section>
 
-  <section class="content-grid">
-    <article class="card panel reveal" style="--delay: 150ms">
-      <div class="section-heading">
-        <p class="eyebrow">The evening</p>
-        <h2>What happens after you arrive.</h2>
-      </div>
+  <!-- Details Grid -->
+  <section class="details-section">
+    <h2 class="section-title">
+      <span class="title-ornament"></span>
+      Essential Details
+      <span class="title-ornament"></span>
+    </h2>
 
-      <div class="timeline">
-        @for (item of timeline; track item.time) {
-          <div class="timeline-item">
-            <div class="timeline-time">{{ item.time }}</div>
-            <div class="timeline-copy">
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.body }}</p>
-            </div>
+    <div class="details-grid">
+      @for (detail of details; track detail.label) {
+        <div class="detail-box">
+          <div class="detail-diamond"></div>
+          <dt class="detail-label">{{ detail.label }}</dt>
+          <dd class="detail-value">{{ detail.value }}</dd>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="timeline-section">
+    <h2 class="section-title">
+      <span class="title-ornament"></span>
+      Evening Timeline
+      <span class="title-ornament"></span>
+    </h2>
+
+    <div class="deco-timeline">
+      <div class="timeline-rail"></div>
+      @for (item of timeline; track item.time) {
+        <div class="timeline-block">
+          <div class="time-diamond">
+            <span class="time-text">{{ item.time }}</span>
           </div>
-        }
-      </div>
-    </article>
-
-    <article class="card panel reveal" style="--delay: 210ms">
-      <div class="section-heading">
-        <p class="eyebrow">Venue notes</p>
-        <h2>Useful details for the day.</h2>
-      </div>
-
-      <div class="notes">
-        @for (note of venueNotes; track note.title) {
-          <div class="note">
-            <h3>{{ note.title }}</h3>
-            <p>{{ note.body }}</p>
+          <div class="timeline-content">
+            <h3 class="timeline-heading">{{ item.title }}</h3>
+            <p class="timeline-body">{{ item.body }}</p>
           </div>
-        }
-      </div>
-    </article>
+        </div>
+      }
+    </div>
+  </section>
 
-    <article id="rsvp" class="card card-accent panel reveal" style="--delay: 270ms">
-      <p class="eyebrow">RSVP</p>
-      <h2>Let us know you’re coming.</h2>
-      <p>
+  <!-- Highlights Grid -->
+  <section class="highlights-section">
+    <h2 class="section-title">
+      <span class="title-ornament"></span>
+      What to Expect
+      <span class="title-ornament"></span>
+    </h2>
+
+    <div class="highlights-grid">
+      @for (highlight of highlights; track highlight.title) {
+        <article class="highlight-card">
+          <div class="card-frame"></div>
+          <h3 class="highlight-title">{{ highlight.title }}</h3>
+          <p class="highlight-text">{{ highlight.body }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Venue Notes -->
+  <section class="notes-section">
+    <h2 class="section-title">
+      <span class="title-ornament"></span>
+      Venue Information
+      <span class="title-ornament"></span>
+    </h2>
+
+    <div class="notes-container">
+      @for (note of venueNotes; track note.title) {
+        <div class="venue-note">
+          <div class="note-marker"></div>
+          <h3 class="note-title">{{ note.title }}</h3>
+          <p class="note-body">{{ note.body }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- RSVP Section -->
+  <section id="rsvp" class="rsvp-section">
+    <div class="rsvp-frame">
+      <div class="rsvp-ornament top-left"></div>
+      <div class="rsvp-ornament top-right"></div>
+      <div class="rsvp-ornament bottom-left"></div>
+      <div class="rsvp-ornament bottom-right"></div>
+
+      <h2 class="rsvp-title">RSVP</h2>
+      <p class="rsvp-text">
         Please reply by 1 October 2026 so we can confirm seating, menu choices, and any dietary
         requirements.
       </p>
 
-      <div class="cta-row cta-row-tight">
-        <a class="button button-ghost" [href]="calendarHref">Save the date</a>
-        <a class="button button-outline" [href]="rsvpHref">Reply here</a>
+      <div class="button-row">
+        <a class="deco-button primary" [href]="rsvpHref">Reply Here</a>
+        <a class="deco-button secondary" [href]="calendarHref">Save the Date</a>
+        <a class="deco-button secondary" [href]="mapHref" target="_blank" rel="noreferrer">
+          View Venue
+        </a>
       </div>
-    </article>
+    </div>
   </section>
+
+  <!-- Footer Ornament -->
+  <footer class="deco-footer">
+    <div class="footer-ornament"></div>
+  </footer>
 </main>
