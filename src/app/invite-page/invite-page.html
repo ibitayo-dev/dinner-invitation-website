@@ -68,34 +68,13 @@
       @for (detail of details; track detail.label) {
         <div class="detail-card" data-animate>
           <div class="card-shine"></div>
-          <div class="detail-icon">
-            <div class="icon-ring"></div>
+          <div class="detail-icon" aria-hidden="true">
+            <div class="icon-pulse icon-pulse--outer"></div>
+            <div class="icon-pulse icon-pulse--inner"></div>
+            <div class="icon-core"></div>
           </div>
           <h3 class="detail-label">{{ detail.label }}</h3>
           <p class="detail-value">{{ detail.value }}</p>
-        </div>
-      }
-    </div>
-  </section>
-
-  <section class="timeline-section">
-    <h2 class="section-heading" data-animate>
-      <span class="heading-line"></span>
-      <span class="heading-text">Event Schedule</span>
-      <span class="heading-line"></span>
-    </h2>
-    <div class="timeline">
-      @for (item of timeline; track item.time; let idx = $index) {
-        <div class="timeline-item" [attr.data-index]="idx" data-animate>
-          <div class="timeline-time">
-            <span class="time-display">{{ item.time }}</span>
-            <div class="time-pulse"></div>
-          </div>
-          <div class="timeline-connector"></div>
-          <div class="timeline-content-card">
-            <h3 class="timeline-title">{{ item.title }}</h3>
-            <p class="timeline-description">{{ item.body }}</p>
-          </div>
         </div>
       }
     </div>
@@ -170,15 +149,16 @@
                 <option value="no">Sorry, can't make it</option>
               </select>
             </div>
-            <div class="form-group">
-              <label for="rsvpGuests">Number of Guests</label>
-              <select id="rsvpGuests" formControlName="guestCount" class="form-select">
-                <option value="1">1 Guest</option>
-                <option value="2">2 Guests</option>
-                <option value="3">3 Guests</option>
-                <option value="4">4 Guests</option>
-              </select>
-            </div>
+            @if (showGuestCountField()) {
+              <div class="form-group">
+                <label for="rsvpGuests">Number of Guests</label>
+                <select id="rsvpGuests" formControlName="guestCount" class="form-select">
+                  @for (option of guestCountOptions(); track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+            }
           </div>
 
           @if (showPlusOneField()) {

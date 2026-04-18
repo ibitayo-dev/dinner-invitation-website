@@ -67,9 +67,17 @@ function normalizeString(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function normalizeGuestCount(value) {
+export function normalizeGuestCount(value, plusOneAllowed, attending) {
   const guestCount = Number.parseInt(String(value ?? '1'), 10);
-  return Number.isInteger(guestCount) && guestCount > 0 ? guestCount : 1;
+  if (!plusOneAllowed || attending !== 'yes') {
+    return 1;
+  }
+
+  return Number.isInteger(guestCount) && guestCount > 1 ? 2 : 1;
+}
+
+export function normalizePlusOneName(value, guestCount) {
+  return guestCount > 1 ? normalizeString(value) : '';
 }
 
 async function readJsonBody(request) {
@@ -310,11 +318,14 @@ async function main() {
           return;
         }
 
+        const attending = body.attending === 'no' ? 'no' : 'yes';
+        const guestCount = normalizeGuestCount(body.guestCount, invite.plusOneAllowed, attending);
+
         const submission = repository.upsertRsvp(token, {
-          attending: body.attending === 'no' ? 'no' : 'yes',
+          attending,
           dietaryRequirements: normalizeString(body.dietaryRequirements),
-          guestCount: normalizeGuestCount(body.guestCount),
-          plusOneName: normalizeString(body.plusOneName),
+          guestCount,
+          plusOneName: normalizePlusOneName(body.plusOneName, guestCount),
         });
 
         sendJson(response, 200, { submission }, origin);
@@ -348,7 +359,10 @@ async function main() {
   });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
+

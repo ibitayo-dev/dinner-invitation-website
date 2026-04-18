@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, effect, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -10,10 +10,9 @@ interface Detail {
   value: string;
 }
 
-interface TimelineItem {
-  body: string;
-  time: string;
-  title: string;
+interface GuestCountOption {
+  label: string;
+  value: string;
 }
 
 const invitationDetails: Detail[] = [
@@ -24,23 +23,19 @@ const invitationDetails: Detail[] = [
   { label: 'RSVP by', value: '1 October 2026' },
 ];
 
-const invitationTimeline: TimelineItem[] = [
-  {
-    time: '3:00',
-    title: 'Welcome Reception',
-    body: 'Arrive at The Coal Shed for welcome drinks and canapés with panoramic riverside views.',
-  },
-  {
-    time: '4:00',
-    title: 'Dinner Service',
-    body: 'Enjoy a carefully curated three-course dining experience with premium wine pairings.',
-  },
-  {
-    time: '5:30',
-    title: 'Speeches & Toasts',
-    body: 'Celebrate with heartfelt speeches, champagne toasts, and cherished moments together.',
-  },
+const plusOneGuestCountOptions: GuestCountOption[] = [
+  { label: '1 Guest', value: '1' },
+  { label: '2 Guests', value: '2' },
 ];
+
+function normalizeGuestCountSelection(value: string, canBringPlusOne: boolean): string {
+  const guestCount = Number.parseInt(value, 10);
+  if (!canBringPlusOne) {
+    return '1';
+  }
+
+  return Number.isInteger(guestCount) && guestCount > 1 ? '2' : '1';
+}
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
@@ -65,7 +60,6 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   protected readonly rsvpSubmitted = signal(false);
   protected readonly savedRsvpLoaded = signal(false);
   protected readonly details = invitationDetails;
-  protected readonly timeline = invitationTimeline;
   protected readonly heroQuote =
     'Join us for an evening of exceptional dining and celebration overlooking the Thames at The Coal Shed, One Tower Bridge.';
   protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
@@ -84,8 +78,32 @@ export class InvitePageComponent implements OnInit, OnDestroy {
     initialValue: this.rsvpForm.controls.attending.value,
   });
 
-  protected readonly showPlusOneField = computed(() => {
+  private readonly guestCountValue = toSignal(this.rsvpForm.controls.guestCount.valueChanges, {
+    initialValue: this.rsvpForm.controls.guestCount.value,
+  });
+
+  protected readonly showGuestCountField = computed(() => {
     return Boolean(this.activeInvite()?.plusOneAllowed && this.attendingValue() === 'yes');
+  });
+
+  protected readonly guestCountOptions = computed(() => {
+    return this.showGuestCountField() ? plusOneGuestCountOptions : plusOneGuestCountOptions.slice(0, 1);
+  });
+
+  protected readonly showPlusOneField = computed(() => {
+    return Boolean(this.showGuestCountField() && this.guestCountValue() === '2');
+  });
+
+  private readonly guestCountConstraintEffect = effect(() => {
+    const normalizedGuestCount = normalizeGuestCountSelection(this.guestCountValue(), this.showGuestCountField());
+
+    if (this.rsvpForm.controls.guestCount.value !== normalizedGuestCount) {
+      this.rsvpForm.controls.guestCount.setValue(normalizedGuestCount);
+    }
+
+    if (normalizedGuestCount !== '2' && this.rsvpForm.controls.plusOneName.value) {
+      this.rsvpForm.controls.plusOneName.setValue('');
+    }
   });
 
   async ngOnInit(): Promise<void> {
