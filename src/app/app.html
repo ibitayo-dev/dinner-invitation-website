@@ -16,10 +16,10 @@
     <div class="hero-content">
       <div class="hero-badge" data-animate>Saturday, 27 November 2026</div>
       <h1 class="hero-title" data-animate>
-        <span class="title-word">Wedding</span>
-        <span class="title-word">Celebration</span>
+        <span class="title-word">Ibitayo</span>
+        <span class="title-word">and Shannon</span>
       </h1>
-      <p class="hero-subtitle" data-animate>An Afternoon of Fine Dining</p>
+      <p class="hero-subtitle" data-animate>Post Wedding Dinner</p>
       <div class="hero-location" data-animate>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -151,27 +151,126 @@
       <p class="rsvp-text">
         Please confirm your attendance by 1 October 2026. We look forward to celebrating with you.
       </p>
-      <div class="rsvp-actions">
-        <a class="btn btn-primary" [href]="rsvpHref">
-          <span>Confirm Attendance</span>
-        </a>
-        <button class="btn btn-secondary" (click)="downloadCalendar()" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+
+      @if (rsvpSubmitted) {
+        <div class="rsvp-success">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span>Save the Date</span>
-        </button>
-        <a class="btn btn-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-          <span>View Map</span>
-        </a>
-      </div>
+          <h3>Thank You!</h3>
+          <p>Your RSVP has been prepared. Please send the email that just opened to confirm.</p>
+        </div>
+      }
+
+      @if (!showRsvpForm && !rsvpSubmitted) {
+        <div class="rsvp-actions">
+          <button class="btn btn-primary" (click)="toggleRsvpForm()" type="button">
+            <span>Confirm Attendance</span>
+          </button>
+          <button class="btn btn-secondary" (click)="downloadCalendar()" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Save the Date</span>
+          </button>
+          <a class="btn btn-secondary" [href]="mapHref" target="_blank" rel="noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>View Map</span>
+          </a>
+        </div>
+      }
+
+      @if (showRsvpForm) {
+        <form class="rsvp-form" (ngSubmit)="submitRsvp()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rsvpName">Your Name *</label>
+              <input
+                type="text"
+                id="rsvpName"
+                name="rsvpName"
+                [(ngModel)]="rsvpName"
+                required
+                placeholder="John Doe"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label for="rsvpEmail">Email Address *</label>
+              <input
+                type="email"
+                id="rsvpEmail"
+                name="rsvpEmail"
+                [(ngModel)]="rsvpEmail"
+                required
+                placeholder="john@example.com"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rsvpAttending">Will you attend?</label>
+              <select
+                id="rsvpAttending"
+                name="rsvpAttending"
+                [(ngModel)]="rsvpAttending"
+                class="form-select"
+              >
+                <option value="yes">Yes, I'll be there!</option>
+                <option value="no">Sorry, can't make it</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="rsvpGuests">Number of Guests</label>
+              <select
+                id="rsvpGuests"
+                name="rsvpGuests"
+                [(ngModel)]="rsvpGuests"
+                class="form-select"
+              >
+                <option value="1">1 Guest</option>
+                <option value="2">2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="rsvpDietary">Dietary Requirements (Optional)</label>
+            <textarea
+              id="rsvpDietary"
+              name="rsvpDietary"
+              [(ngModel)]="rsvpDietary"
+              rows="3"
+              placeholder="Please let us know of any allergies or dietary restrictions..."
+              class="form-textarea"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"></path>
+                <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+              </svg>
+              <span>Submit RSVP</span>
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="toggleRsvpForm()">
+              <span>Cancel</span>
+            </button>
+          </div>
+        </form>
+      }
     </div>
   </section>
 

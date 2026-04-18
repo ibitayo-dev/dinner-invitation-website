@@ -19,8 +19,8 @@ describe('App', () => {
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Wedding');
-    expect(compiled.querySelector('h1')?.textContent).toContain('Celebration');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Ibitayo');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Shannon');
     expect(compiled.querySelectorAll('.highlight-item').length).toBe(3);
     expect(compiled.querySelectorAll('.detail-card').length).toBeGreaterThan(0);
   });
