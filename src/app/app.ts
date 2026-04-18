@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InviteRecord, WeddingInviteDatabase } from './invite-database';
 
 interface Detail {
   label: string;
@@ -20,7 +21,12 @@ interface TimelineItem {
 })
 export class App implements OnInit, OnDestroy {
   private observer?: IntersectionObserver;
+  private readonly inviteDatabase = new WeddingInviteDatabase();
+
+  protected activeInvite: InviteRecord | null = null;
   protected inviteeName = 'friend';
+  protected inviteSource = 'default';
+  protected inviteError = '';
   protected readonly details: Detail[] = [
     { label: 'Date', value: 'Friday, 27th November 2026' },
     { label: 'Time', value: '6:00 PM - 9:00 PM' },
@@ -56,11 +62,40 @@ export class App implements OnInit, OnDestroy {
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London';
 
+  protected rsvpAttending: 'yes' | 'no' = 'yes';
+  protected rsvpGuests = '1';
+  protected rsvpDietary = '';
+  protected rsvpPlusOneName = '';
+  protected showRsvpForm = false;
+  protected rsvpSubmitted = false;
+  protected savedRsvpLoaded = false;
+
   ngOnInit(): void {
     const params = new URLSearchParams(window.location.search);
+    const token = params.get('token')?.trim();
     const inviteeName = params.get('name')?.trim();
+    const resolvedInvite = this.inviteDatabase.resolveInvite(token, inviteeName);
+    const invite = resolvedInvite.invite;
 
-    if (inviteeName) {
+    this.activeInvite = invite;
+    this.inviteeName = invite?.displayName ?? inviteeName ?? 'friend';
+    this.inviteSource = resolvedInvite.source;
+
+    if (resolvedInvite.source === 'token' && invite) {
+      const savedSubmission = this.inviteDatabase.getSubmission(invite.token);
+      if (savedSubmission) {
+        this.applySubmission(
+          savedSubmission.attending,
+          savedSubmission.guestCount,
+          savedSubmission.dietaryRequirements,
+          savedSubmission.plusOneName
+        );
+        this.showRsvpForm = true;
+        this.savedRsvpLoaded = true;
+      }
+    } else if (resolvedInvite.source === 'invalid') {
+      this.inviteError = resolvedInvite.error ?? 'This invite link could not be found.';
+    } else if (inviteeName) {
       this.inviteeName = inviteeName;
     }
 
@@ -99,7 +134,7 @@ export class App implements OnInit, OnDestroy {
       location: 'The Coal Shed, One Tower Bridge, 4 Crown Square, London SE1 2SE',
       description: 'Join us for an evening of exceptional dining and celebration overlooking the Thames.',
       start: '20261127T150000', // November 27, 2026, 3:00 PM
-      end: '20261127T180000',   // November 27, 2026, 6:00 PM
+      end: '20261127T180000', // November 27, 2026, 6:00 PM
     };
 
     const icsContent = [
@@ -135,36 +170,42 @@ export class App implements OnInit, OnDestroy {
     window.URL.revokeObjectURL(link.href);
   }
 
-  // Handle RSVP form submission
-  protected rsvpAttending = 'yes';
-  protected rsvpGuests = '1';
-  protected rsvpDietary = '';
-  protected showRsvpForm = false;
-  protected rsvpSubmitted = false;
-
   protected toggleRsvpForm(): void {
     this.showRsvpForm = !this.showRsvpForm;
     this.rsvpSubmitted = false;
+    this.savedRsvpLoaded = false;
+    if (this.activeInvite) {
+      this.inviteError = '';
+    }
   }
 
   protected submitRsvp(): void {
-    // Construct mailto link with form data
-    const subject = `RSVP: ${this.rsvpAttending === 'yes' ? 'Attending' : 'Unable to Attend'} - Ibitayo and Shannon Dinner`;
-    const body = `Guest: ${this.inviteeName}
-Attending: ${this.rsvpAttending === 'yes' ? 'Yes' : 'No'}
-Number of Guests: ${this.rsvpGuests}
-Dietary Requirements: ${this.rsvpDietary || 'None'}
+    if (!this.activeInvite) {
+      this.inviteError = 'Open a valid invite link to save an RSVP.';
+      return;
+    }
 
----
-This RSVP was submitted for the Post Wedding Dinner on Saturday, 27 November 2026.`;
+    this.inviteDatabase.saveSubmission(this.activeInvite.token, {
+      attending: this.rsvpAttending,
+      guestCount: Number(this.rsvpGuests),
+      dietaryRequirements: this.rsvpDietary.trim(),
+      plusOneName: this.rsvpPlusOneName.trim(),
+    });
 
-    const mailtoLink = `mailto:rsvp@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    // Open default email client
-    window.location.href = mailtoLink;
-
-    // Show success message
     this.rsvpSubmitted = true;
     this.showRsvpForm = false;
+    this.savedRsvpLoaded = false;
+    this.inviteError = '';
+  }
+
+  protected get showPlusOneField(): boolean {
+    return Boolean(this.activeInvite?.plusOneAllowed && this.rsvpAttending === 'yes');
+  }
+
+  private applySubmission(attending: 'yes' | 'no', guestCount: number, dietaryRequirements: string, plusOneName: string): void {
+    this.rsvpAttending = attending;
+    this.rsvpGuests = String(guestCount);
+    this.rsvpDietary = dietaryRequirements;
+    this.rsvpPlusOneName = plusOneName;
   }
 }

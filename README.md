@@ -5,6 +5,7 @@ A private Angular 21 starter for a wedding dinner invitation site.
 ## What’s included
 
 - A polished one-page invitation layout with a refined editorial feel
+- Token-backed invite records with local RSVP persistence for the guest flow
 - Editable sections for event details, schedule, and RSVP
 - GitHub Pages-ready build settings
 - An automated Pages deployment workflow
@@ -34,12 +35,14 @@ After the first deploy, make sure GitHub Pages is set to use GitHub Actions in t
 
 ## Editing the starter
 
-The invitation content lives in `src/app/app.ts` and `src/app/app.html`.
+The invitation content lives in `src/app/app.ts`, `src/app/app.html`, and `src/app/invite-database.ts`.
 
 Update those files to swap in:
 
 - your names
 - the venue and date
-- the RSVP copy and invitee greeting
+- the RSVP copy, invitee greeting, and seed invite tokens
+
+Guest links now prefer `?token=...` and fall back to `?name=...` for legacy links.
 
 The visual system lives in `src/app/app.scss` and `src/styles.scss`.
