@@ -22,11 +22,11 @@
   position: absolute;
   width: 4px;
   height: 4px;
-  background: var(--coral);
+  background: var(--gold-primary);
   border-radius: 50%;
   opacity: 0;
   animation: float-particle 15s infinite ease-in-out;
-  box-shadow: 0 0 20px var(--coral-glow);
+  box-shadow: 0 0 20px var(--gold-glow);
 }
 
 .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 12s; }
@@ -83,7 +83,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-  color: var(--coral);
+  color: var(--gold-primary);
   margin-bottom: 30px;
   text-transform: uppercase;
   animation: fadeInDown 0.8s ease-out 0.2s both;
@@ -95,13 +95,13 @@
   font-weight: 700;
   line-height: 1.1;
   margin: 0 0 24px;
-  color: var(--ice);
+  color: var(--pearl);
   animation: fadeInDown 0.8s ease-out 0.4s both;
 }
 
 .title-word {
   display: block;
-  background: linear-gradient(135deg, var(--ice) 0%, var(--coral) 100%);
+  background: linear-gradient(135deg, var(--pearl) 0%, var(--gold-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -116,7 +116,7 @@
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0 0 32px;
   font-weight: 300;
   letter-spacing: 0.02em;
@@ -128,12 +128,12 @@
   align-items: center;
   gap: 12px;
   font-size: 1.125rem;
-  color: var(--ocean-light);
+  color: var(--navy-light);
   margin-bottom: 40px;
   animation: fadeInDown 0.8s ease-out 0.8s both;
 
   svg {
-    color: var(--coral);
+    color: var(--gold-primary);
   }
 }
 
@@ -142,14 +142,14 @@
   align-items: center;
   gap: 12px;
   padding: 18px 36px;
-  background: linear-gradient(135deg, var(--coral) 0%, var(--coral-dark) 100%);
-  color: var(--ice);
+  background: linear-gradient(135deg, var(--gold-primary) 0%, #c9a035 100%);
+  color: var(--navy-deep);
   text-decoration: none;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.125rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 40px var(--coral-glow);
+  box-shadow: 0 10px 40px var(--gold-glow);
   animation: fadeInUp 0.8s ease-out 1s both;
 
   svg {
@@ -158,7 +158,7 @@
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 20px 60px var(--coral-glow);
+    box-shadow: 0 20px 60px var(--gold-glow);
 
     svg {
       transform: translateX(5px);
@@ -175,7 +175,7 @@
 .image-glow {
   position: absolute;
   inset: -40px;
-  background: radial-gradient(circle at center, var(--coral-glow) 0%, transparent 70%);
+  background: radial-gradient(circle at center, var(--gold-glow) 0%, transparent 70%);
   animation: pulse-glow 3s ease-in-out infinite;
   z-index: -1;
 }
@@ -210,7 +210,7 @@
 .scroll-line {
   width: 100%;
   height: 40px;
-  background: linear-gradient(180deg, transparent 0%, var(--coral) 100%);
+  background: linear-gradient(180deg, transparent 0%, var(--gold-primary) 100%);
   animation: scroll-down 2s ease-in-out infinite;
 }
 
@@ -243,7 +243,7 @@
 .message-text {
   font-size: 1.75rem;
   line-height: 1.6;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0 0 30px;
   font-weight: 400;
   text-align: center;
@@ -252,14 +252,14 @@
 .message-divider {
   width: 80px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--coral), transparent);
+  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
   margin: 0 auto 30px;
 }
 
 .message-subtext {
   font-size: 1.125rem;
   line-height: 1.8;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0;
   text-align: center;
   font-weight: 300;
@@ -275,14 +275,14 @@
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
-  color: var(--ice);
+  color: var(--pearl);
 }
 
 .heading-line {
   flex: 1;
   max-width: 200px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--ocean-light), transparent);
+  background: linear-gradient(90deg, transparent, var(--navy-light), transparent);
 }
 
 .heading-text {
@@ -315,8 +315,8 @@
 
   &:hover {
     transform: translateY(-8px);
-    border-color: var(--coral);
-    box-shadow: 0 20px 60px var(--coral-glow);
+    border-color: var(--gold-primary);
+    box-shadow: 0 20px 60px var(--gold-glow);
 
     .card-shine {
       transform: translateX(100%);
@@ -347,7 +347,7 @@
 .icon-ring {
   width: 100%;
   height: 100%;
-  border: 2px solid var(--coral);
+  border: 2px solid var(--gold-primary);
   border-radius: 50%;
   animation: rotate-ring 8s linear infinite;
 
@@ -359,9 +359,9 @@
     transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+    background: linear-gradient(135deg, var(--gold-primary), #c9a035);
     border-radius: 50%;
-    box-shadow: 0 0 20px var(--coral-glow);
+    box-shadow: 0 0 20px var(--gold-glow);
   }
 }
 
@@ -374,7 +374,7 @@
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--coral);
+  color: var(--gold-primary);
   margin: 0 0 12px;
   font-weight: 600;
 }
@@ -382,7 +382,7 @@
 .detail-value {
   font-size: 1.25rem;
   line-height: 1.5;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0;
   font-weight: 500;
 }
@@ -417,23 +417,23 @@
   height: 120px;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
-  border: 2px solid var(--coral);
+  border: 2px solid var(--gold-primary);
   border-radius: 50%;
-  box-shadow: 0 0 40px var(--coral-glow);
+  box-shadow: 0 0 40px var(--gold-glow);
 }
 
 .time-display {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--coral);
+  color: var(--gold-primary);
   z-index: 2;
 }
 
 .time-pulse {
   position: absolute;
   inset: -4px;
-  border: 2px solid var(--coral);
+  border: 2px solid var(--gold-primary);
   border-radius: 50%;
   animation: pulse-ring 2s ease-out infinite;
 }
@@ -446,7 +446,7 @@
 .timeline-connector {
   width: 2px;
   height: 100%;
-  background: linear-gradient(180deg, var(--coral), var(--ocean-light));
+  background: linear-gradient(180deg, var(--gold-primary), var(--navy-light));
   border-radius: 2px;
   justify-self: center;
 }
@@ -461,7 +461,7 @@
 
   &:hover {
     transform: translateX(8px);
-    border-color: var(--coral);
+    border-color: var(--gold-primary);
   }
 }
 
@@ -469,14 +469,14 @@
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0 0 12px;
 }
 
 .timeline-description {
   font-size: 1.125rem;
   line-height: 1.7;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0;
   font-weight: 300;
 }
@@ -506,8 +506,8 @@
 
   &:hover {
     transform: translateY(-8px);
-    border-color: var(--coral);
-    box-shadow: 0 20px 60px var(--coral-glow);
+    border-color: var(--gold-primary);
+    box-shadow: 0 20px 60px var(--gold-glow);
 
     .highlight-decoration {
       transform: rotate(45deg) scale(1.2);
@@ -525,13 +525,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+  background: linear-gradient(135deg, var(--gold-primary), #c9a035);
   border-radius: 50%;
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ice);
-  box-shadow: 0 4px 16px var(--coral-glow);
+  color: var(--navy-deep);
+  box-shadow: 0 4px 16px var(--gold-glow);
 }
 
 .highlight-content {
@@ -543,14 +543,14 @@
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0 0 16px;
 }
 
 .highlight-text {
   font-size: 1.125rem;
   line-height: 1.7;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0;
   font-weight: 300;
 }
@@ -561,7 +561,7 @@
   left: -40px;
   width: 120px;
   height: 120px;
-  border: 2px solid var(--coral);
+  border: 2px solid var(--gold-primary);
   border-radius: 24px;
   opacity: 0.1;
   transform: rotate(12deg);
@@ -591,11 +591,11 @@
 
   &:hover {
     transform: translateY(-5px);
-    border-color: var(--coral);
+    border-color: var(--gold-primary);
 
     .venue-icon-wrapper {
-      background: linear-gradient(135deg, var(--coral), var(--coral-dark));
-      box-shadow: 0 8px 24px var(--coral-glow);
+      background: linear-gradient(135deg, var(--gold-primary), #c9a035);
+      box-shadow: 0 8px 24px var(--gold-glow);
     }
   }
 }
@@ -606,13 +606,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ocean);
+  background: var(--navy-primary);
   border-radius: 50%;
   margin-bottom: 20px;
   transition: all 0.4s ease;
 
   svg {
-    color: var(--ice);
+    color: var(--pearl);
   }
 }
 
@@ -620,14 +620,14 @@
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0 0 12px;
 }
 
 .venue-text {
   font-size: 1rem;
   line-height: 1.7;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0;
   font-weight: 300;
 }
@@ -640,8 +640,8 @@
 }
 
 .rsvp-container {
-  background: linear-gradient(135deg, var(--ocean-deep), var(--ocean));
-  border: 2px solid var(--coral);
+  background: linear-gradient(135deg, var(--navy-deep), var(--navy-primary));
+  border: 2px solid var(--gold-primary);
   border-radius: 32px;
   padding: 80px 60px;
   text-align: center;
@@ -653,7 +653,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 30% 50%, var(--coral-glow) 0%, transparent 50%);
+    background: radial-gradient(circle at 30% 50%, var(--gold-glow) 0%, transparent 50%);
     opacity: 0.2;
     animation: move-gradient 8s ease-in-out infinite;
   }
@@ -667,12 +667,12 @@
 .rsvp-badge {
   display: inline-block;
   padding: 8px 20px;
-  background: var(--coral);
+  background: var(--gold-primary);
   border-radius: 50px;
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--ice);
+  color: var(--navy-deep);
   margin-bottom: 24px;
   text-transform: uppercase;
 }
@@ -681,14 +681,14 @@
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
-  color: var(--ice);
+  color: var(--pearl);
   margin: 0 0 24px;
 }
 
 .rsvp-text {
   font-size: 1.25rem;
   line-height: 1.7;
-  color: var(--mist);
+  color: var(--silver);
   margin: 0 0 40px;
   font-weight: 300;
 }
@@ -712,6 +712,8 @@
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 1;
+  cursor: pointer;
+  font-family: var(--font-body);
 
   svg {
     width: 18px;
@@ -720,25 +722,26 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--coral), var(--coral-dark));
-  color: var(--ice);
-  box-shadow: 0 10px 30px var(--coral-glow);
+  background: linear-gradient(135deg, var(--gold-primary), #c9a035);
+  color: var(--navy-deep);
+  box-shadow: 0 10px 30px var(--gold-glow);
   border: none;
+  font-weight: 700;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px var(--coral-glow);
+    box-shadow: 0 15px 40px var(--gold-glow);
   }
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--ice);
-  border: 2px solid var(--ice);
+  color: var(--pearl);
+  border: 2px solid var(--pearl);
 
   &:hover {
-    background: var(--ice);
-    color: var(--ocean-deep);
+    background: var(--pearl);
+    color: var(--navy-deep);
     transform: translateY(-3px);
   }
 }
@@ -752,7 +755,7 @@
 .footer-decoration {
   width: 100px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--coral), transparent);
+  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
   margin: 0 auto;
 }
 

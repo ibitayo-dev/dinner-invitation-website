@@ -93,7 +93,6 @@ export class App implements OnInit, OnDestroy {
   protected readonly rsvpHref = '#rsvp';
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London';
-  protected readonly calendarHref = '#details';
 
   ngOnInit(): void {
     // Set up intersection observer for scroll animations
@@ -122,5 +121,48 @@ export class App implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+  }
+
+  // Generate .ics calendar file for the event
+  protected downloadCalendar(): void {
+    const event = {
+      title: 'Wedding Celebration Dinner',
+      location: 'The Coal Shed, One Tower Bridge, 4 Crown Square, London SE1 2SE',
+      description: 'Join us for an afternoon of exceptional dining and celebration overlooking the Thames.',
+      start: '20261127T150000', // November 27, 2026, 3:00 PM
+      end: '20261127T180000',   // November 27, 2026, 6:00 PM
+    };
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Wedding Celebration//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `DTSTART:${event.start}`,
+      `DTEND:${event.end}`,
+      `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description}`,
+      `LOCATION:${event.location}`,
+      'STATUS:CONFIRMED',
+      'SEQUENCE:0',
+      'BEGIN:VALARM',
+      'TRIGGER:-P1D',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Reminder: Wedding Celebration tomorrow',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = 'wedding-celebration.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(link.href);
   }
 }
