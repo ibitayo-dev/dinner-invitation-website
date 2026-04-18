@@ -1,0 +1,32 @@
+{
+  "invites": [
+    {
+      "token": "shannon-plus-one",
+      "displayName": "Shannon",
+      "inviteType": "plus_one",
+      "plusOneAllowed": true,
+      "active": true,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    },
+    {
+      "token": "ibitayo-solo",
+      "displayName": "Ibitayo",
+      "inviteType": "solo",
+      "plusOneAllowed": false,
+      "active": true,
+      "createdAt": "2026-04-18T00:00:00.000Z",
+      "updatedAt": "2026-04-18T00:00:00.000Z"
+    }
+  ],
+  "submissions": {
+    "shannon-plus-one": {
+      "inviteToken": "shannon-plus-one",
+      "attending": "yes",
+      "guestCount": 2,
+      "dietaryRequirements": "Vegetarian",
+      "plusOneName": "Alex",
+      "updatedAt": "2026-04-18T21:17:27.889Z"
+    }
+  }
+}

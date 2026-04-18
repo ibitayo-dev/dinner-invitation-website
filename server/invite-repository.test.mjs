@@ -80,3 +80,57 @@ test('InviteRepository seeds from json and supports invite and RSVP updates', ()
     rmSync(tempDirectory, { force: true, recursive: true });
   }
 });
+
+test('InviteRepository backfills missing seed submissions into an existing database', () => {
+  const tempDirectory = mkdtempSync(join(tmpdir(), 'invite-repository-'));
+  const databasePath = join(tempDirectory, 'wedding.sqlite');
+  const seedFilePath = join(tempDirectory, 'seed.json');
+
+  writeFileSync(
+    seedFilePath,
+    JSON.stringify(
+      {
+        invites: [
+          {
+            token: 'shannon-plus-one',
+            displayName: 'Shannon',
+            inviteType: 'plus_one',
+            plusOneAllowed: true,
+            active: true,
+            createdAt: '2026-04-18T00:00:00.000Z',
+            updatedAt: '2026-04-18T00:00:00.000Z',
+          },
+        ],
+        submissions: {
+          'shannon-plus-one': {
+            inviteToken: 'shannon-plus-one',
+            attending: 'yes',
+            guestCount: 2,
+            dietaryRequirements: 'Vegetarian',
+            plusOneName: 'Alex',
+            updatedAt: '2026-04-18T01:00:00.000Z',
+          },
+        },
+      },
+      null,
+      2
+    )
+  );
+
+  const initialRepository = new InviteRepository({ databasePath });
+  initialRepository.close();
+
+  const reseededRepository = new InviteRepository({ databasePath, seedFilePath });
+
+  try {
+    const seededInvite = reseededRepository.getInviteByToken('shannon-plus-one');
+    assert.equal(seededInvite?.displayName, 'Shannon');
+
+    const seededSubmission = reseededRepository.getRsvpByToken('shannon-plus-one');
+    assert.equal(seededSubmission?.plusOneName, 'Alex');
+    assert.equal(seededSubmission?.guestCount, 2);
+  } finally {
+    reseededRepository.close();
+    rmSync(tempDirectory, { force: true, recursive: true });
+  }
+});

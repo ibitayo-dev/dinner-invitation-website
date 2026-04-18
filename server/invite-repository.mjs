@@ -132,14 +132,9 @@ export class InviteRepository {
   }
 
   seed(seedFilePath) {
-    const inviteCount = this.database.prepare('SELECT COUNT(*) AS count FROM invites').get().count;
-    if (inviteCount > 0) {
-      return;
-    }
-
     const seedState = readSeedState(seedFilePath);
     const insertInvite = this.database.prepare(`
-      INSERT INTO invites (
+      INSERT OR IGNORE INTO invites (
         token,
         display_name,
         normalized_display_name,
@@ -151,7 +146,7 @@ export class InviteRepository {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const insertRsvp = this.database.prepare(`
-      INSERT INTO rsvps (
+      INSERT OR IGNORE INTO rsvps (
         invite_token,
         attending,
         guest_count,
