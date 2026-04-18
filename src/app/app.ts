@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 interface Detail {
@@ -12,16 +12,6 @@ interface TimelineItem {
   body: string;
 }
 
-interface VenueNote {
-  title: string;
-  body: string;
-}
-
-interface Highlight {
-  title: string;
-  body: string;
-}
-
 @Component({
   selector: 'app-root',
   imports: [FormsModule],
@@ -30,27 +20,13 @@ interface Highlight {
 })
 export class App implements OnInit, OnDestroy {
   private observer?: IntersectionObserver;
+  protected inviteeName = 'friend';
   protected readonly details: Detail[] = [
     { label: 'Date', value: 'Friday, 27th November 2026' },
     { label: 'Time', value: '6:00 PM - 9:00 PM' },
     { label: 'Venue', value: 'The Coal Shed, One Tower Bridge' },
     { label: 'Dress', value: 'Formal' },
     { label: 'RSVP by', value: '1 October 2026' },
-  ];
-
-  protected readonly highlights: Highlight[] = [
-    {
-      title: 'Arrival & Drinks',
-      body: 'Join us at 3:00 PM for welcome cocktails and canapés with stunning views of Tower Bridge.',
-    },
-    {
-      title: 'Dining Experience',
-      body: 'Indulge in an exquisite three-course meal featuring the finest cuts and seasonal ingredients.',
-    },
-    {
-      title: 'Celebration',
-      body: 'Share in heartfelt speeches, toasts, and celebration as we mark this special occasion together.',
-    },
   ];
 
   protected readonly timeline: TimelineItem[] = [
@@ -71,21 +47,6 @@ export class App implements OnInit, OnDestroy {
     },
   ];
 
-  protected readonly venueNotes: VenueNote[] = [
-    {
-      title: 'Location',
-      body: 'The Coal Shed is at One Tower Bridge, 4 Crown Square, SE1 2SE. A short walk from London Bridge station with stunning Thames views.',
-    },
-    {
-      title: 'Dietary Requirements',
-      body: 'Please inform us of any dietary restrictions or allergies when you RSVP so we can accommodate your needs.',
-    },
-    {
-      title: 'Parking & Transport',
-      body: 'Limited parking available nearby. We recommend using London Bridge or Tower Hill stations, both within walking distance.',
-    },
-  ];
-
   protected readonly heroQuote =
     'Join us for an evening of exceptional dining and celebration overlooking the Thames at The Coal Shed, One Tower Bridge.';
 
@@ -96,6 +57,13 @@ export class App implements OnInit, OnDestroy {
     'https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London';
 
   ngOnInit(): void {
+    const params = new URLSearchParams(window.location.search);
+    const inviteeName = params.get('name')?.trim();
+
+    if (inviteeName) {
+      this.inviteeName = inviteeName;
+    }
+
     // Set up intersection observer for scroll animations
     if (typeof IntersectionObserver !== 'undefined') {
       this.observer = new IntersectionObserver(
@@ -168,8 +136,6 @@ export class App implements OnInit, OnDestroy {
   }
 
   // Handle RSVP form submission
-  protected rsvpName = '';
-  protected rsvpEmail = '';
   protected rsvpAttending = 'yes';
   protected rsvpGuests = '1';
   protected rsvpDietary = '';
@@ -182,16 +148,9 @@ export class App implements OnInit, OnDestroy {
   }
 
   protected submitRsvp(): void {
-    // Validate form
-    if (!this.rsvpName || !this.rsvpEmail) {
-      alert('Please fill in your name and email address.');
-      return;
-    }
-
     // Construct mailto link with form data
     const subject = `RSVP: ${this.rsvpAttending === 'yes' ? 'Attending' : 'Unable to Attend'} - Ibitayo and Shannon Dinner`;
-    const body = `Name: ${this.rsvpName}
-Email: ${this.rsvpEmail}
+    const body = `Guest: ${this.inviteeName}
 Attending: ${this.rsvpAttending === 'yes' ? 'Yes' : 'No'}
 Number of Guests: ${this.rsvpGuests}
 Dietary Requirements: ${this.rsvpDietary || 'None'}

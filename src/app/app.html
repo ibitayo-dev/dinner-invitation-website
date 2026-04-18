@@ -99,58 +99,12 @@
     </div>
   </section>
 
-  <!-- Highlights -->
-  <section class="highlights-section">
-    <h2 class="section-heading" data-animate>
-      <span class="heading-line"></span>
-      <span class="heading-text">What to Expect</span>
-      <span class="heading-line"></span>
-    </h2>
-    <div class="highlights-grid">
-      @for (highlight of highlights; track highlight.title; let idx = $index) {
-        <article class="highlight-item" [attr.data-index]="idx" data-animate>
-          <div class="highlight-number">{{ idx + 1 }}</div>
-          <div class="highlight-content">
-            <h3 class="highlight-title">{{ highlight.title }}</h3>
-            <p class="highlight-text">{{ highlight.body }}</p>
-          </div>
-          <div class="highlight-decoration"></div>
-        </article>
-      }
-    </div>
-  </section>
-
-  <!-- Venue Information -->
-  <section class="venue-section">
-    <h2 class="section-heading" data-animate>
-      <span class="heading-line"></span>
-      <span class="heading-text">Venue Details</span>
-      <span class="heading-line"></span>
-    </h2>
-    <div class="venue-grid">
-      @for (note of venueNotes; track note.title) {
-        <div class="venue-card" data-animate>
-          <div class="venue-icon-wrapper">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 6v6l4 2"></path>
-            </svg>
-          </div>
-          <h3 class="venue-title">{{ note.title }}</h3>
-          <p class="venue-text">{{ note.body }}</p>
-        </div>
-      }
-    </div>
-  </section>
-
   <!-- RSVP Section -->
   <section id="rsvp" class="rsvp-section" data-animate>
     <div class="rsvp-container">
       <div class="rsvp-badge">RSVP</div>
-      <h2 class="rsvp-title">Kindly Respond</h2>
-      <p class="rsvp-text">
-        Please confirm your attendance by 1 October 2026. We look forward to celebrating with you.
-      </p>
+      <h2 class="rsvp-title">{{ inviteeName }}, we'd love to have you!</h2>
+      <p class="rsvp-text">Please confirm your attendance by 1 October 2026. We look forward to celebrating with you.</p>
 
       @if (rsvpSubmitted) {
         <div class="rsvp-success">
@@ -159,7 +113,7 @@
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
           <h3>Thank You!</h3>
-          <p>Your RSVP has been prepared. Please send the email that just opened to confirm.</p>
+          <p>Your RSVP draft has been prepared. Please send the email that just opened to confirm.</p>
         </div>
       }
 
@@ -189,33 +143,6 @@
 
       @if (showRsvpForm) {
         <form class="rsvp-form" (ngSubmit)="submitRsvp()">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="rsvpName">Your Name *</label>
-              <input
-                type="text"
-                id="rsvpName"
-                name="rsvpName"
-                [(ngModel)]="rsvpName"
-                required
-                placeholder="John Doe"
-                class="form-input"
-              />
-            </div>
-            <div class="form-group">
-              <label for="rsvpEmail">Email Address *</label>
-              <input
-                type="email"
-                id="rsvpEmail"
-                name="rsvpEmail"
-                [(ngModel)]="rsvpEmail"
-                required
-                placeholder="john@example.com"
-                class="form-input"
-              />
-            </div>
-          </div>
-
           <div class="form-row">
             <div class="form-group">
               <label for="rsvpAttending">Will you attend?</label>

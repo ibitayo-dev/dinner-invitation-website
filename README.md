@@ -5,7 +5,7 @@ A private Angular 21 starter for a wedding dinner invitation site.
 ## What’s included
 
 - A polished one-page invitation layout with a refined editorial feel
-- Editable sections for event details, schedule, RSVP, registry, and travel notes
+- Editable sections for event details, schedule, and RSVP
 - GitHub Pages-ready build settings
 - An automated Pages deployment workflow
 
@@ -40,7 +40,6 @@ Update those files to swap in:
 
 - your names
 - the venue and date
-- the RSVP link or email
-- registry and travel details
+- the RSVP copy and invitee greeting
 
 The visual system lives in `src/app/app.scss` and `src/styles.scss`.
