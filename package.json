@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server/wedding-backend.mjs",
+    "dev": "ng serve",
     "backend": "node server/wedding-backend.mjs",
-    "build": "ng build",
-    "build:pages": "ng build --configuration production",
+    "build": "ng build --configuration production",
+    "build:pages": "ng build --configuration pages",
+    "test:server": "node --test server/*.test.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -19,6 +21,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "better-sqlite3": "^12.9.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -1,14 +1,14 @@
 # dinner-invitation-website
 
-A private Angular 21 starter for a wedding dinner invitation site.
+A private Angular 21 wedding invitation site with a same-origin Node backend, SQLite persistence, and a secret admin dashboard for invite management.
 
 ## What's included
 
 - A polished one-page invitation layout with a refined editorial feel
-- Token-backed invite records with shared RSVP persistence when the backend is configured
-- Editable sections for event details, schedule, and RSVP
-- GitHub Pages-ready build settings
-- An automated Pages deployment workflow
+- Token-backed invite records with shared RSVP persistence
+- A SQLite-backed invite and RSVP store that works well on Railway with a mounted volume
+- An admin dashboard at `/admin/:guid` for creating and disabling invites
+- Separate guest and admin routes served by one Node process
 
 ## Local development
 
@@ -16,36 +16,68 @@ A private Angular 21 starter for a wedding dinner invitation site.
 npm install
 ```
 
-Run `npm run backend` in one terminal and `npm start` in another, then open `http://localhost:4200/`. The backend listens on `http://localhost:3001` by default.
+Run the backend and frontend separately during development:
 
-The frontend will use the backend automatically on `localhost`. If you need to point the site at a deployed API, set `window.__WEDDING_API_BASE_URL__` before bootstrapping the app or replace the runtime override in `src/app/invite-database.ts`.
+```bash
+npm run backend
+npm run dev
+```
+
+Open `http://localhost:4200/`. The Angular frontend will talk to `http://localhost:3001` automatically when running on localhost.
+
+Useful commands:
+
+```bash
+npm run test:server
+npx ng test --watch=false
+npm run build
+```
+
+## Railway deployment
+
+This app is intended to run as one Railway service:
+
+1. Build command: `npm install && npm run build`
+2. Start command: `npm start`
+
+Set these environment variables in Railway:
+
+- `ADMIN_GUID`: required secret segment for the admin route, used as `/admin/<guid>`
+- `DATABASE_PATH`: absolute path to the SQLite file on your mounted Railway volume, for example `/data/wedding.sqlite`
+- `APP_ORIGIN`: optional canonical site origin used for CORS and generated links, for example `https://your-app.up.railway.app`
+
+Notes:
+
+- `npm start` runs the Node server in `server/wedding-backend.mjs`.
+- The server serves the built Angular app from `dist/dinner-invitation-website/browser` and exposes the API on the same origin.
+- The committed seed data in `data/wedding-data.json` is used only to initialize a fresh SQLite database.
+- The live SQLite database file should stay on the Railway volume and is ignored by git.
 
 ## Production build
 
 ```bash
-npm run build:pages
+npm run build
 ```
 
-The build is configured for the `dinner-invitation-website` GitHub Pages path.
+The production build targets `/` and is intended to be served by the Node backend.
 
-## GitHub Pages deployment
+## Invite links
 
-This repo includes a workflow in `.github/workflows/deploy.yml` that publishes the app from the `main` branch.
+- Guest links should use `?token=<invite-token>`.
+- Legacy `?name=<display name>` links still resolve for compatibility.
+- Admin access lives at `/admin/<ADMIN_GUID>`.
 
-After the first deploy, make sure GitHub Pages is set to use GitHub Actions in the repository settings.
+## Editing content and behavior
 
-## Editing the starter
+- Guest-facing invitation content now lives in `src/app/invite-page/invite-page.ts`, `src/app/invite-page/invite-page.html`, and `src/app/invite-page/invite-page.scss`.
+- Admin dashboard UI lives in `src/app/admin-page/admin-page.ts`, `src/app/admin-page/admin-page.html`, and `src/app/admin-page/admin-page.scss`.
+- The root shell and routes live in `src/app/app.ts` and `src/app/app.config.ts`.
+- Frontend API access lives in `src/app/invite-database.ts`.
+- Backend routing and static asset serving live in `server/wedding-backend.mjs`.
+- SQLite schema, seeding, and invite persistence live in `server/invite-repository.mjs`.
 
-The invitation content lives in `src/app/app.ts`, `src/app/app.html`, and `src/app/invite-database.ts`.
+Update those files to swap in your names, venue details, schedule, RSVP copy, and invite defaults.
 
-Update those files to swap in:
+## CI
 
-- your names
-- the venue and date
-- the RSVP copy, invitee greeting, and seed invite tokens
-
-Guest links now prefer `?token=...` and fall back to `?name=...` for legacy links.
-
-The backend lives in `server/wedding-backend.mjs` and persists shared invite/RSVP state to `data/wedding-data.json` when you run it locally or on a server.
-
-The visual system lives in `src/app/app.scss` and `src/styles.scss`.
+The GitHub Actions workflow now runs server tests, Angular unit tests, and a production build on pushes and pull requests.

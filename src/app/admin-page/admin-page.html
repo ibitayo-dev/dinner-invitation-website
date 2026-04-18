@@ -1,0 +1,116 @@
+<section class="admin-shell">
+  <header class="admin-hero">
+    <p class="admin-kicker">Admin Console</p>
+    <h1>Invite management</h1>
+    <p class="admin-summary">
+      Create guest links, deactivate invites, and review RSVP state from the same Railway-backed database.
+    </p>
+  </header>
+
+  <section class="admin-grid">
+    <article class="admin-panel admin-panel--stats">
+      <h2>Overview</h2>
+      <div class="stat-row">
+        <div>
+          <span class="stat-label">Invites</span>
+          <strong>{{ inviteItems().length }}</strong>
+        </div>
+        <div>
+          <span class="stat-label">Active</span>
+          <strong>{{ activeInviteCount() }}</strong>
+        </div>
+        <div>
+          <span class="stat-label">Responses</span>
+          <strong>{{ responseCount() }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="admin-panel admin-panel--create">
+      <h2>Create invite</h2>
+      <form class="admin-form" [formGroup]="createInviteForm" (ngSubmit)="createInvite()">
+        <label class="field">
+          <span>Display name</span>
+          <input type="text" formControlName="displayName" placeholder="Guest name">
+        </label>
+
+        <label class="field">
+          <span>Invite type</span>
+          <select formControlName="inviteType">
+            <option value="solo">Solo</option>
+            <option value="plus_one">Plus one</option>
+          </select>
+        </label>
+
+        <button type="submit" class="primary-button" [disabled]="isSaving()">
+          {{ isSaving() ? 'Creating...' : 'Create invite' }}
+        </button>
+      </form>
+    </article>
+  </section>
+
+  @if (dashboardError()) {
+    <p class="admin-error">{{ dashboardError() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="admin-empty">Loading invite dashboard...</p>
+  } @else if (!inviteItems().length) {
+    <p class="admin-empty">No invites exist yet. Create the first one above.</p>
+  } @else {
+    <section class="invite-list">
+      @for (entry of inviteItems(); track entry.invite.token) {
+        <article class="invite-card" [class.invite-card--inactive]="!entry.invite.active">
+          <div class="invite-card__header">
+            <div>
+              <p class="invite-name">{{ entry.invite.displayName }}</p>
+              <p class="invite-meta">
+                {{ entry.invite.inviteType === 'plus_one' ? 'Plus one' : 'Solo' }}
+                •
+                {{ entry.invite.active ? 'Active' : 'Inactive' }}
+              </p>
+            </div>
+            <button type="button" class="secondary-button" (click)="toggleInviteState(entry)">
+              {{ entry.invite.active ? 'Deactivate' : 'Reactivate' }}
+            </button>
+          </div>
+
+          <div class="invite-link-group">
+            <a [href]="buildInviteLink(entry.invite.token)" target="_blank" rel="noreferrer">
+              {{ buildInviteLink(entry.invite.token) }}
+            </a>
+            <button type="button" class="ghost-button" (click)="copyInviteLink(entry.invite.token)">
+              {{ copiedToken() === entry.invite.token ? 'Copied' : 'Copy link' }}
+            </button>
+          </div>
+
+          <div class="invite-card__meta-grid">
+            <div>
+              <span class="meta-label">Token</span>
+              <strong>{{ entry.invite.token }}</strong>
+            </div>
+            <div>
+              <span class="meta-label">Updated</span>
+              <strong>{{ formatTimestamp(entry.invite.updatedAt) }}</strong>
+            </div>
+          </div>
+
+          <div class="invite-card__response">
+            <h3>RSVP</h3>
+            @if (entry.submission) {
+              <p>
+                {{ entry.submission.attending === 'yes' ? 'Attending' : 'Not attending' }}
+                • {{ entry.submission.guestCount }} guest(s)
+              </p>
+              <p>Plus-one: {{ entry.submission.plusOneName || 'Not supplied' }}</p>
+              <p>Dietary notes: {{ entry.submission.dietaryRequirements || 'None' }}</p>
+              <p>Updated: {{ formatTimestamp(entry.submission.updatedAt) }}</p>
+            } @else {
+              <p>No RSVP submitted yet.</p>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+</section>

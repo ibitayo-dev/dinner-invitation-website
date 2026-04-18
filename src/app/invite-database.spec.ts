@@ -2,27 +2,16 @@ import { WeddingInviteDatabase } from './invite-database';
 
 describe('WeddingInviteDatabase', () => {
   beforeEach(() => {
-    window.localStorage.clear();
     (window as Window & { __WEDDING_API_BASE_URL__?: string }).__WEDDING_API_BASE_URL__ = '';
   });
 
-  it('resolves seeded local invites and saves RSVP data locally', async () => {
-    const database = new WeddingInviteDatabase();
-    const invite = await database.resolveInvite('shannon-plus-one', null);
+  it('returns a default invite when no token or legacy name is available', async () => {
+    const database = new WeddingInviteDatabase({ apiBaseUrl: null });
+    const invite = await database.resolveInvite(null, 'Guest Name');
 
-    expect(invite.invite?.displayName).toBe('Shannon');
-    expect(invite.invite?.plusOneAllowed).toBe(true);
-
-    await database.saveSubmission('shannon-plus-one', {
-      attending: 'yes',
-      guestCount: 2,
-      dietaryRequirements: 'Vegetarian',
-      plusOneName: 'Alex',
-    });
-
-    const saved = await database.getSubmission('shannon-plus-one');
-    expect(saved?.plusOneName).toBe('Alex');
-    expect(saved?.guestCount).toBe(2);
+    expect(invite.source).toBe('default');
+    expect(invite.invite?.displayName).toBe('Guest Name');
+    expect(invite.invite?.plusOneAllowed).toBe(false);
   });
 
   it('talks to the backend when an api base is provided', async () => {
@@ -81,7 +70,7 @@ describe('WeddingInviteDatabase', () => {
       throw new Error(`Unexpected request: ${url}`);
     });
 
-    const database = new WeddingInviteDatabase(window.localStorage, {
+    const database = new WeddingInviteDatabase({
       apiBaseUrl: 'https://api.example.test',
       fetchImpl: fetchMock as typeof fetch,
     });

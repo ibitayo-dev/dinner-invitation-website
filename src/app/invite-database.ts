@@ -19,17 +19,32 @@ export interface RsvpSubmission {
   updatedAt: string;
 }
 
-interface StoredInviteDatabase {
-  invites: InviteRecord[];
+export interface ResolveInviteResult {
+  invite: InviteRecord | null;
+  source: 'token' | 'legacy' | 'default' | 'invalid';
+  error?: string;
 }
 
-interface StoredSubmissionDatabase {
-  submissions: Record<string, RsvpSubmission>;
+export interface AdminInviteEntry {
+  invite: InviteRecord;
+  submission: RsvpSubmission | null;
+}
+
+export interface CreateInviteInput {
+  displayName: string;
+  inviteType: InviteType;
+  active?: boolean;
+  token?: string;
+}
+
+export interface UpdateInviteInput {
+  active?: boolean;
+  displayName?: string;
+  inviteType?: InviteType;
 }
 
 interface WeddingInviteDatabaseOptions {
   apiBaseUrl?: string | null;
-  storage?: Storage;
   fetchImpl?: typeof fetch;
 }
 
@@ -41,71 +56,8 @@ interface SubmissionApiResponse {
   submission: RsvpSubmission | null;
 }
 
-const INVITES_KEY = 'dinner-invitation.invites.v1';
-const SUBMISSIONS_KEY = 'dinner-invitation.submissions.v1';
-
-const SEED_INVITES: InviteRecord[] = [
-  {
-    token: 'shannon-plus-one',
-    displayName: 'Shannon',
-    inviteType: 'plus_one',
-    plusOneAllowed: true,
-    active: true,
-    createdAt: '2026-04-18T00:00:00.000Z',
-    updatedAt: '2026-04-18T00:00:00.000Z',
-  },
-  {
-    token: 'ibitayo-solo',
-    displayName: 'Ibitayo',
-    inviteType: 'solo',
-    plusOneAllowed: false,
-    active: true,
-    createdAt: '2026-04-18T00:00:00.000Z',
-    updatedAt: '2026-04-18T00:00:00.000Z',
-  },
-];
-
-export interface ResolveInviteResult {
-  invite: InviteRecord | null;
-  source: 'token' | 'legacy' | 'default' | 'invalid';
-  error?: string;
-}
-
-function createMemoryStorage(): Storage {
-  const store = new Map<string, string>();
-
-  return {
-    get length(): number {
-      return store.size;
-    },
-    clear(): void {
-      store.clear();
-    },
-    getItem(key: string): string | null {
-      return store.has(key) ? store.get(key)! : null;
-    },
-    key(index: number): string | null {
-      return Array.from(store.keys())[index] ?? null;
-    },
-    removeItem(key: string): void {
-      store.delete(key);
-    },
-    setItem(key: string, value: string): void {
-      store.set(key, value);
-    },
-  } as Storage;
-}
-
-function getDefaultStorage(): Storage {
-  return typeof window !== 'undefined' && window.localStorage ? window.localStorage : createMemoryStorage();
-}
-
-function slugify(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+interface AdminInviteListResponse {
+  items: AdminInviteEntry[];
 }
 
 function nowIso(): string {
@@ -123,27 +75,36 @@ function resolveRuntimeApiBaseUrl(): string | null {
 
   const runtimeOverride = (window as Window & { __WEDDING_API_BASE_URL__?: string }).__WEDDING_API_BASE_URL__;
   if (runtimeOverride !== undefined) {
-    const trimmedOverride = runtimeOverride.trim();
-    return trimmedOverride ? normalizeApiBaseUrl(trimmedOverride) : null;
+    return runtimeOverride.trim() ? normalizeApiBaseUrl(runtimeOverride.trim()) : null;
   }
 
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:3001';
   }
 
-  return null;
+  return '';
+}
+
+function buildRequestUrl(apiBaseUrl: string, path: string): string {
+  return apiBaseUrl === '' ? path : `${apiBaseUrl}${path}`;
+}
+
+async function readErrorMessage(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { error?: string };
+    return payload.error ?? `Request failed with status ${response.status}`;
+  } catch {
+    return `Request failed with status ${response.status}`;
+  }
 }
 
 export class WeddingInviteDatabase {
   private readonly apiBaseUrl: string | null;
+  private readonly fetchImpl: typeof fetch;
 
-  constructor(
-    private readonly storage: Storage = getDefaultStorage(),
-    options: WeddingInviteDatabaseOptions = {}
-  ) {
-    this.apiBaseUrl = normalizeOptionalBaseUrl(options.apiBaseUrl ?? resolveRuntimeApiBaseUrl());
+  constructor(options: WeddingInviteDatabaseOptions = {}) {
+    this.apiBaseUrl = options.apiBaseUrl !== undefined ? normalizeOptionalBaseUrl(options.apiBaseUrl) : resolveRuntimeApiBaseUrl();
     this.fetchImpl = options.fetchImpl ?? fetch.bind(globalThis);
-    this.ensureSeedData();
   }
 
   async resolveInvite(token: string | null | undefined, legacyName: string | null | undefined): Promise<ResolveInviteResult> {
@@ -180,230 +141,76 @@ export class WeddingInviteDatabase {
   }
 
   async getInviteByToken(token: string): Promise<InviteRecord | null> {
-    const remote = await this.getRemoteInviteByToken(token);
-    if (remote !== undefined) {
-      return remote;
-    }
-
-    return this.getLocalInviteByToken(token);
+    const payload = await this.fetchJson<InviteApiResponse>(`/api/invites/${encodeURIComponent(token)}`);
+    return payload?.invite ?? null;
   }
 
   async getInviteByDisplayName(displayName: string): Promise<InviteRecord | null> {
-    const remote = await this.getRemoteInviteByDisplayName(displayName);
-    if (remote !== undefined) {
-      return remote;
-    }
-
-    return this.getLocalInviteByDisplayName(displayName);
-  }
-
-  listInvites(): InviteRecord[] {
-    return [...this.readInviteDatabase().invites];
+    const payload = await this.fetchJson<InviteApiResponse>(`/api/invites?name=${encodeURIComponent(displayName)}`);
+    return payload?.invite ?? null;
   }
 
   async getSubmission(token: string): Promise<RsvpSubmission | null> {
-    const remote = await this.getRemoteSubmission(token);
-    if (remote !== undefined) {
-      return remote;
-    }
-
-    return this.readSubmissionDatabase().submissions[token] ?? null;
+    const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`);
+    return payload?.submission ?? null;
   }
 
   async saveSubmission(
     token: string,
     submission: Omit<RsvpSubmission, 'inviteToken' | 'updatedAt'>
   ): Promise<RsvpSubmission> {
-    const record: RsvpSubmission = {
-      inviteToken: token,
-      attending: submission.attending,
-      guestCount: submission.guestCount,
-      dietaryRequirements: submission.dietaryRequirements,
-      plusOneName: submission.plusOneName,
-      updatedAt: nowIso(),
-    };
+    const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`, {
+      method: 'PUT',
+      body: JSON.stringify(submission),
+    });
 
-    if (this.apiBaseUrl) {
-      const remote = await this.writeRemoteSubmission(token, record);
-      if (remote) {
-        return remote;
+    if (!payload?.submission) {
+      throw new Error('The backend did not return a saved RSVP.');
+    }
+
+    return payload.submission;
+  }
+
+  async listAdminInvites(adminGuid: string): Promise<AdminInviteEntry[]> {
+    const payload = await this.fetchJson<AdminInviteListResponse>(`/api/admin/${encodeURIComponent(adminGuid)}/invites`);
+    return payload?.items ?? [];
+  }
+
+  async createInvite(adminGuid: string, invite: CreateInviteInput): Promise<InviteRecord> {
+    const payload = await this.fetchJson<{ invite: InviteRecord }>(`/api/admin/${encodeURIComponent(adminGuid)}/invites`, {
+      method: 'POST',
+      body: JSON.stringify(invite),
+    });
+
+    if (!payload?.invite) {
+      throw new Error('The backend did not return a created invite.');
+    }
+
+    return payload.invite;
+  }
+
+  async updateInvite(adminGuid: string, token: string, updates: UpdateInviteInput): Promise<InviteRecord> {
+    const payload = await this.fetchJson<{ invite: InviteRecord }>(
+      `/api/admin/${encodeURIComponent(adminGuid)}/invites/${encodeURIComponent(token)}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
       }
-      console.warn('Wedding backend unavailable, saving RSVP locally.');
+    );
+
+    if (!payload?.invite) {
+      throw new Error('The backend did not return an updated invite.');
     }
 
-    const database = this.readSubmissionDatabase();
-    database.submissions[token] = record;
-    this.writeJson(SUBMISSIONS_KEY, database);
-
-    return record;
-  }
-
-  async createInvite(displayName: string, inviteType: InviteType): Promise<InviteRecord> {
-    const invite: InviteRecord = {
-      token: this.generateToken(displayName, inviteType),
-      displayName,
-      inviteType,
-      plusOneAllowed: inviteType === 'plus_one',
-      active: true,
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
-    };
-
-    if (this.apiBaseUrl) {
-      const remote = await this.writeRemoteInvite(invite);
-      if (remote) {
-        return remote;
-      }
-      console.warn('Wedding backend unavailable, creating invite locally.');
-    }
-
-    const database = this.readInviteDatabase();
-    database.invites = [invite, ...database.invites.filter((existing) => existing.token !== invite.token)];
-    this.writeJson(INVITES_KEY, database);
-
-    return invite;
-  }
-
-  resetToSeedData(): void {
-    this.writeJson(INVITES_KEY, { invites: SEED_INVITES });
-    this.writeJson(SUBMISSIONS_KEY, { submissions: {} });
-  }
-
-  private readonly fetchImpl: typeof fetch;
-
-  private ensureSeedData(): void {
-    if (!this.storage.getItem(INVITES_KEY)) {
-      this.writeJson(INVITES_KEY, { invites: SEED_INVITES });
-    }
-
-    if (!this.storage.getItem(SUBMISSIONS_KEY)) {
-      this.writeJson(SUBMISSIONS_KEY, { submissions: {} });
-    }
-  }
-
-  private generateToken(displayName: string, inviteType: InviteType): string {
-    const base = slugify(displayName) || 'guest';
-    const suffix = inviteType === 'plus_one' ? 'plus-one' : 'solo';
-    const randomPart = typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID().slice(0, 8)
-      : Math.random().toString(36).slice(2, 10);
-
-    return `${base}-${suffix}-${randomPart}`;
-  }
-
-  private normalize(value: string): string {
-    return value.trim().toLowerCase().replace(/\s+/g, ' ');
-  }
-
-  private readInviteDatabase(): StoredInviteDatabase {
-    return this.readJson(INVITES_KEY, { invites: SEED_INVITES });
-  }
-
-  private readSubmissionDatabase(): StoredSubmissionDatabase {
-    return this.readJson(SUBMISSIONS_KEY, { submissions: {} });
-  }
-
-  private getLocalInviteByToken(token: string): InviteRecord | null {
-    const database = this.readInviteDatabase();
-    return database.invites.find((invite) => invite.token === token) ?? null;
-  }
-
-  private getLocalInviteByDisplayName(displayName: string): InviteRecord | null {
-    const normalized = this.normalize(displayName);
-    const database = this.readInviteDatabase();
-    return database.invites.find((invite) => this.normalize(invite.displayName) === normalized) ?? null;
-  }
-
-  private async getRemoteInviteByToken(token: string): Promise<InviteRecord | null | undefined> {
-    if (!this.apiBaseUrl) {
-      return undefined;
-    }
-
-    try {
-      const payload = await this.fetchJson<InviteApiResponse>(`/api/invites/${encodeURIComponent(token)}`);
-      return payload?.invite ?? null;
-    } catch (error) {
-      console.warn('Wedding backend invite lookup failed, using local storage.', error);
-      return undefined;
-    }
-  }
-
-  private async getRemoteInviteByDisplayName(displayName: string): Promise<InviteRecord | null | undefined> {
-    if (!this.apiBaseUrl) {
-      return undefined;
-    }
-
-    try {
-      const payload = await this.fetchJson<InviteApiResponse>(`/api/invites?name=${encodeURIComponent(displayName)}`);
-      return payload?.invite ?? null;
-    } catch (error) {
-      console.warn('Wedding backend invite lookup failed, using local storage.', error);
-      return undefined;
-    }
-  }
-
-  private async getRemoteSubmission(token: string): Promise<RsvpSubmission | null | undefined> {
-    if (!this.apiBaseUrl) {
-      return undefined;
-    }
-
-    try {
-      const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`);
-      return payload?.submission ?? null;
-    } catch (error) {
-      console.warn('Wedding backend RSVP lookup failed, using local storage.', error);
-      return undefined;
-    }
-  }
-
-  private async writeRemoteSubmission(
-    token: string,
-    submission: RsvpSubmission
-  ): Promise<RsvpSubmission | null> {
-    if (!this.apiBaseUrl) {
-      return null;
-    }
-
-    try {
-      const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`, {
-        method: 'PUT',
-        body: JSON.stringify(submission),
-      });
-      return payload?.submission ?? submission;
-    } catch (error) {
-      console.warn('Wedding backend RSVP save failed, using local storage.', error);
-      return null;
-    }
-  }
-
-  private async writeRemoteInvite(invite: InviteRecord): Promise<InviteRecord | null> {
-    if (!this.apiBaseUrl) {
-      return null;
-    }
-
-    try {
-      const payload = await this.fetchJson<{ invite: InviteRecord }>('/api/invites', {
-        method: 'POST',
-        body: JSON.stringify({
-          displayName: invite.displayName,
-          inviteType: invite.inviteType,
-          token: invite.token,
-          active: invite.active,
-        }),
-      });
-      return payload?.invite ?? invite;
-    } catch (error) {
-      console.warn('Wedding backend invite creation failed, using local storage.', error);
-      return null;
-    }
+    return payload.invite;
   }
 
   private async fetchJson<T>(path: string, init: RequestInit = {}): Promise<T | null> {
-    if (!this.apiBaseUrl) {
+    if (this.apiBaseUrl === null) {
       return null;
     }
 
-    const response = await this.fetchImpl(`${this.apiBaseUrl}${path}`, {
+    const response = await this.fetchImpl(buildRequestUrl(this.apiBaseUrl, path), {
       headers: {
         'Content-Type': 'application/json',
         ...(init.headers ?? {}),
@@ -416,27 +223,10 @@ export class WeddingInviteDatabase {
     }
 
     if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
+      throw new Error(await readErrorMessage(response));
     }
 
     return (await response.json()) as T;
-  }
-
-  private readJson<T>(key: string, fallback: T): T {
-    const raw = this.storage.getItem(key);
-    if (!raw) {
-      return fallback;
-    }
-
-    try {
-      return JSON.parse(raw) as T;
-    } catch {
-      return fallback;
-    }
-  }
-
-  private writeJson(key: string, value: unknown): void {
-    this.storage.setItem(key, JSON.stringify(value));
   }
 }
 

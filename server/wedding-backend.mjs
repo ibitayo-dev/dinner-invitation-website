@@ -1,81 +1,80 @@
 import { createServer } from 'node:http';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { readFile, stat } from 'node:fs/promises';
+import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { InviteRepository } from './invite-repository.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
-const dataFile = join(dataDir, 'wedding-data.json');
+const staticDir = join(__dirname, '..', 'dist', 'dinner-invitation-website', 'browser');
+const indexFile = join(staticDir, 'index.html');
+const databasePath = process.env.DATABASE_PATH ?? join(dataDir, 'wedding.sqlite');
+const seedFilePath = join(dataDir, 'wedding-data.json');
+const adminGuid = process.env.ADMIN_GUID?.trim() || null;
 const port = Number.parseInt(process.env.PORT ?? '3001', 10);
+const repository = new InviteRepository({ databasePath, seedFilePath });
 
-const seedState = {
-  invites: [
-    {
-      token: 'shannon-plus-one',
-      displayName: 'Shannon',
-      inviteType: 'plus_one',
-      plusOneAllowed: true,
-      active: true,
-      createdAt: '2026-04-18T00:00:00.000Z',
-      updatedAt: '2026-04-18T00:00:00.000Z',
-    },
-    {
-      token: 'ibitayo-solo',
-      displayName: 'Ibitayo',
-      inviteType: 'solo',
-      plusOneAllowed: false,
-      active: true,
-      createdAt: '2026-04-18T00:00:00.000Z',
-      updatedAt: '2026-04-18T00:00:00.000Z',
-    },
-  ],
-  submissions: {},
+const contentTypes = {
+  '.css': 'text/css; charset=utf-8',
+  '.gif': 'image/gif',
+  '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
+  '.jpeg': 'image/jpeg',
+  '.jpg': 'image/jpeg',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.map': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
 };
 
-function slugify(value) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+const allowedOrigins = new Set(['http://localhost:4200', 'http://127.0.0.1:4200']);
+
+if (process.env.APP_ORIGIN?.trim()) {
+  allowedOrigins.add(process.env.APP_ORIGIN.trim());
 }
 
-function normalize(value) {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+if (process.env.RAILWAY_PUBLIC_DOMAIN?.trim()) {
+  allowedOrigins.add(`https://${process.env.RAILWAY_PUBLIC_DOMAIN.trim()}`);
 }
 
-function nowIso() {
-  return new Date().toISOString();
-}
-
-function generateToken(displayName, inviteType) {
-  const base = slugify(displayName) || 'guest';
-  const suffix = inviteType === 'plus_one' ? 'plus-one' : 'solo';
-  const randomPart = globalThis.crypto?.randomUUID
-    ? globalThis.crypto.randomUUID().slice(0, 8)
-    : Math.random().toString(36).slice(2, 10);
-
-  return `${base}-${suffix}-${randomPart}`;
-}
-
-async function ensureSeededStore() {
-  try {
-    const raw = await readFile(dataFile, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    await mkdir(dataDir, { recursive: true });
-    await writeFile(dataFile, JSON.stringify(seedState, null, 2));
-    return structuredClone(seedState);
+function buildCorsHeaders(origin) {
+  if (!origin || !allowedOrigins.has(origin)) {
+    return {};
   }
+
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    Vary: 'Origin',
+  };
 }
 
-async function persistStore(store) {
-  await mkdir(dataDir, { recursive: true });
-  await writeFile(dataFile, JSON.stringify(store, null, 2));
+function normalizeBoolean(value, fallback = true) {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function normalizeInviteType(value) {
+  return value === 'plus_one' || value === 'solo' ? value : null;
+}
+
+function normalizeString(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeGuestCount(value) {
+  const guestCount = Number.parseInt(String(value ?? '1'), 10);
+  return Number.isInteger(guestCount) && guestCount > 0 ? guestCount : 1;
 }
 
 async function readJsonBody(request) {
   const chunks = [];
+
   for await (const chunk of request) {
     chunks.push(chunk);
   }
@@ -88,135 +87,260 @@ async function readJsonBody(request) {
   return raw ? JSON.parse(raw) : null;
 }
 
-function sendJson(response, statusCode, payload) {
+function sendJson(response, statusCode, payload, origin) {
   response.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    ...buildCorsHeaders(origin),
   });
   response.end(JSON.stringify(payload));
 }
 
-function sendCorsPreflight(response) {
+function sendText(response, statusCode, payload) {
+  response.writeHead(statusCode, {
+    'Content-Type': 'text/plain; charset=utf-8',
+  });
+  response.end(payload);
+}
+
+function sendCorsPreflight(response, origin) {
   response.writeHead(204, {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    ...buildCorsHeaders(origin),
     'Access-Control-Max-Age': '86400',
   });
   response.end();
 }
 
-function getInviteByToken(state, token) {
-  return state.invites.find((invite) => invite.token === token) ?? null;
+function resolveStaticPath(pathname) {
+  const relativePath = pathname === '/' ? '/index.html' : pathname;
+  const filePath = normalize(join(staticDir, relativePath));
+  return filePath.startsWith(staticDir) ? filePath : null;
 }
 
-function getInviteByDisplayName(state, displayName) {
-  const target = normalize(displayName);
-  return state.invites.find((invite) => normalize(invite.displayName) === target) ?? null;
+function parseAdminRequest(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts[0] !== 'api' || parts[1] !== 'admin' || !parts[2]) {
+    return null;
+  }
+
+  return {
+    guid: decodeURIComponent(parts[2]),
+    resource: parts[3] ? decodeURIComponent(parts[3]) : null,
+    resourceId: parts[4] ? decodeURIComponent(parts[4]) : null,
+  };
+}
+
+function isAuthorizedAdmin(guid) {
+  return Boolean(adminGuid && guid && adminGuid === guid);
+}
+
+async function serveStaticAsset(pathname, response) {
+  const filePath = resolveStaticPath(pathname);
+  if (!filePath) {
+    return false;
+  }
+
+  try {
+    const fileStats = await stat(filePath);
+    if (!fileStats.isFile()) {
+      return false;
+    }
+
+    response.writeHead(200, {
+      'Content-Type': contentTypes[extname(filePath)] ?? 'application/octet-stream',
+      'Cache-Control': pathname === '/index.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    });
+    response.end(await readFile(filePath));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function serveAppShell(response) {
+  try {
+    response.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache',
+    });
+    response.end(await readFile(indexFile, 'utf8'));
+  } catch {
+    sendText(response, 503, 'Frontend build output is not available yet. Run npm run build first.');
+  }
+}
+
+async function handleAdminRequest(request, response, adminRequest, origin) {
+  if (!isAuthorizedAdmin(adminRequest.guid)) {
+    sendJson(response, 403, { error: 'Admin access denied.' }, origin);
+    return true;
+  }
+
+  if (request.method === 'GET' && adminRequest.resource === 'invites' && adminRequest.resourceId === null) {
+    sendJson(response, 200, { items: repository.listInvitesWithSubmissions() }, origin);
+    return true;
+  }
+
+  if (request.method === 'POST' && adminRequest.resource === 'invites' && adminRequest.resourceId === null) {
+    const body = await readJsonBody(request);
+    const displayName = normalizeString(body?.displayName);
+    const inviteType = normalizeInviteType(body?.inviteType);
+
+    if (!displayName || !inviteType) {
+      sendJson(response, 400, { error: 'displayName and inviteType are required.' }, origin);
+      return true;
+    }
+
+    const invite = repository.createInvite({
+      displayName,
+      inviteType,
+      active: normalizeBoolean(body?.active, true),
+      token: normalizeString(body?.token) || undefined,
+    });
+
+    sendJson(response, 201, { invite }, origin);
+    return true;
+  }
+
+  if (request.method === 'PATCH' && adminRequest.resource === 'invites' && adminRequest.resourceId) {
+    const body = await readJsonBody(request);
+    const inviteType = body?.inviteType === undefined ? undefined : normalizeInviteType(body.inviteType);
+
+    if (body?.inviteType !== undefined && !inviteType) {
+      sendJson(response, 400, { error: 'inviteType must be solo or plus_one.' }, origin);
+      return true;
+    }
+
+    const invite = repository.updateInvite(adminRequest.resourceId, {
+      active: typeof body?.active === 'boolean' ? body.active : undefined,
+      displayName: body?.displayName === undefined ? undefined : normalizeString(body.displayName),
+      inviteType,
+    });
+
+    if (!invite) {
+      sendJson(response, 404, { error: 'Invite not found.' }, origin);
+      return true;
+    }
+
+    sendJson(response, 200, { invite }, origin);
+    return true;
+  }
+
+  sendJson(response, 404, { error: 'Not found' }, origin);
+  return true;
 }
 
 async function main() {
-  const state = await ensureSeededStore();
-
   const server = createServer(async (request, response) => {
+    const origin = request.headers.origin;
     const url = new URL(request.url ?? '/', 'http://localhost');
 
-    if (request.method === 'OPTIONS') {
-      sendCorsPreflight(response);
-      return;
-    }
-
-    if (request.method === 'GET' && url.pathname === '/api/health') {
-      sendJson(response, 200, { ok: true });
-      return;
-    }
-
-    if (request.method === 'GET' && url.pathname === '/api/invites') {
-      const name = url.searchParams.get('name');
-      const invite = name ? getInviteByDisplayName(state, name) : null;
-      sendJson(response, 200, { invite });
-      return;
-    }
-
-    if (request.method === 'GET' && url.pathname.startsWith('/api/invites/')) {
-      const token = decodeURIComponent(url.pathname.replace('/api/invites/', ''));
-      const invite = getInviteByToken(state, token);
-      if (!invite) {
-        sendJson(response, 404, { invite: null });
+    try {
+      if (request.method === 'OPTIONS') {
+        sendCorsPreflight(response, origin);
         return;
       }
 
-      sendJson(response, 200, { invite });
-      return;
-    }
-
-    if (request.method === 'POST' && url.pathname === '/api/invites') {
-      const body = await readJsonBody(request);
-      if (!body?.displayName || !body?.inviteType) {
-        sendJson(response, 400, { error: 'displayName and inviteType are required' });
+      if (request.method === 'GET' && url.pathname === '/api/health') {
+        sendJson(
+          response,
+          200,
+          {
+            status: 'ok',
+            databasePath,
+            adminConfigured: Boolean(adminGuid),
+          },
+          origin
+        );
         return;
       }
 
-      const invite = {
-        token: typeof body.token === 'string' && body.token.trim() ? body.token.trim() : generateToken(body.displayName, body.inviteType),
-        displayName: String(body.displayName).trim(),
-        inviteType: body.inviteType === 'plus_one' ? 'plus_one' : 'solo',
-        plusOneAllowed: body.inviteType === 'plus_one',
-        active: body.active !== false,
-        createdAt: nowIso(),
-        updatedAt: nowIso(),
-      };
-
-      const existingIndex = state.invites.findIndex((entry) => entry.token === invite.token);
-      if (existingIndex >= 0) {
-        state.invites[existingIndex] = invite;
-      } else {
-        state.invites.unshift(invite);
-      }
-
-      await persistStore(state);
-      sendJson(response, 201, { invite });
-      return;
-    }
-
-    if (request.method === 'GET' && url.pathname.startsWith('/api/rsvps/')) {
-      const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
-      const submission = state.submissions[token] ?? null;
-      if (!submission) {
-        sendJson(response, 404, { submission: null });
+      const adminRequest = parseAdminRequest(url.pathname);
+      if (adminRequest) {
+        await handleAdminRequest(request, response, adminRequest, origin);
         return;
       }
 
-      sendJson(response, 200, { submission });
-      return;
-    }
-
-    if (request.method === 'PUT' && url.pathname.startsWith('/api/rsvps/')) {
-      const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
-      const body = await readJsonBody(request);
-      if (!body) {
-        sendJson(response, 400, { error: 'Request body is required' });
+      if (request.method === 'GET' && url.pathname === '/api/invites') {
+        const name = normalizeString(url.searchParams.get('name'));
+        const invite = name ? repository.getInviteByDisplayName(name) : null;
+        sendJson(response, 200, { invite }, origin);
         return;
       }
 
-      const submission = {
-        inviteToken: token,
-        attending: body.attending === 'no' ? 'no' : 'yes',
-        guestCount: Number.isFinite(Number(body.guestCount)) ? Number(body.guestCount) : 1,
-        dietaryRequirements: typeof body.dietaryRequirements === 'string' ? body.dietaryRequirements : '',
-        plusOneName: typeof body.plusOneName === 'string' ? body.plusOneName : '',
-        updatedAt: nowIso(),
-      };
+      if (request.method === 'GET' && url.pathname.startsWith('/api/invites/')) {
+        const token = decodeURIComponent(url.pathname.replace('/api/invites/', ''));
+        const invite = repository.getInviteByToken(token);
+        if (!invite) {
+          sendJson(response, 404, { invite: null }, origin);
+          return;
+        }
 
-      state.submissions[token] = submission;
-      await persistStore(state);
-      sendJson(response, 200, { submission });
-      return;
+        sendJson(response, 200, { invite }, origin);
+        return;
+      }
+
+      if (request.method === 'GET' && url.pathname.startsWith('/api/rsvps/')) {
+        const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
+        const invite = repository.getInviteByToken(token);
+        if (!invite) {
+          sendJson(response, 404, { submission: null }, origin);
+          return;
+        }
+
+        const submission = repository.getRsvpByToken(token);
+        if (!submission) {
+          sendJson(response, 404, { submission: null }, origin);
+          return;
+        }
+
+        sendJson(response, 200, { submission }, origin);
+        return;
+      }
+
+      if (request.method === 'PUT' && url.pathname.startsWith('/api/rsvps/')) {
+        const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
+        const invite = repository.getInviteByToken(token);
+        if (!invite) {
+          sendJson(response, 404, { error: 'Invite not found.' }, origin);
+          return;
+        }
+
+        const body = await readJsonBody(request);
+        if (!body) {
+          sendJson(response, 400, { error: 'Request body is required.' }, origin);
+          return;
+        }
+
+        const submission = repository.upsertRsvp(token, {
+          attending: body.attending === 'no' ? 'no' : 'yes',
+          dietaryRequirements: normalizeString(body.dietaryRequirements),
+          guestCount: normalizeGuestCount(body.guestCount),
+          plusOneName: normalizeString(body.plusOneName),
+        });
+
+        sendJson(response, 200, { submission }, origin);
+        return;
+      }
+
+      if (request.method === 'GET' && !url.pathname.startsWith('/api/')) {
+        const servedAsset = await serveStaticAsset(url.pathname, response);
+        if (servedAsset) {
+          return;
+        }
+
+        if (url.pathname.startsWith('/admin/') && !isAuthorizedAdmin(decodeURIComponent(url.pathname.split('/').filter(Boolean)[1] ?? ''))) {
+          sendText(response, 404, 'Not found');
+          return;
+        }
+
+        await serveAppShell(response);
+        return;
+      }
+
+      sendJson(response, 404, { error: 'Not found' }, origin);
+    } catch (error) {
+      console.error(error);
+      sendJson(response, 500, { error: 'Internal server error' }, origin);
     }
-
-    sendJson(response, 404, { error: 'Not found' });
   });
 
   server.listen(port, () => {
