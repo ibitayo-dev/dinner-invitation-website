@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "backend": "node server/wedding-backend.mjs",
     "build": "ng build",
     "build:pages": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",

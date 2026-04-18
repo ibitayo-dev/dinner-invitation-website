@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InviteRecord, WeddingInviteDatabase } from './invite-database';
 
@@ -22,6 +22,7 @@ interface TimelineItem {
 export class App implements OnInit, OnDestroy {
   private observer?: IntersectionObserver;
   private readonly inviteDatabase = new WeddingInviteDatabase();
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected activeInvite: InviteRecord | null = null;
   protected inviteeName = 'friend';
@@ -71,10 +72,15 @@ export class App implements OnInit, OnDestroy {
   protected savedRsvpLoaded = false;
 
   ngOnInit(): void {
+    void this.loadInvite();
+  }
+
+  private async loadInvite(): Promise<void> {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token')?.trim();
-    const inviteeName = params.get('name')?.trim();
-    const resolvedInvite = this.inviteDatabase.resolveInvite(token, inviteeName);
+    const runtime = window as Window & { __WEDDING_INVITE_TOKEN__?: string; __WEDDING_INVITEE_NAME__?: string };
+    const token = params.get('token')?.trim() || runtime.__WEDDING_INVITE_TOKEN__?.trim() || null;
+    const inviteeName = params.get('name')?.trim() || runtime.__WEDDING_INVITEE_NAME__?.trim() || null;
+    const resolvedInvite = await this.inviteDatabase.resolveInvite(token, inviteeName);
     const invite = resolvedInvite.invite;
 
     this.activeInvite = invite;
@@ -82,7 +88,7 @@ export class App implements OnInit, OnDestroy {
     this.inviteSource = resolvedInvite.source;
 
     if (resolvedInvite.source === 'token' && invite) {
-      const savedSubmission = this.inviteDatabase.getSubmission(invite.token);
+      const savedSubmission = await this.inviteDatabase.getSubmission(invite.token);
       if (savedSubmission) {
         this.applySubmission(
           savedSubmission.attending,
@@ -121,6 +127,8 @@ export class App implements OnInit, OnDestroy {
         elements.forEach((el) => this.observer?.observe(el));
       }, 100);
     }
+
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -179,13 +187,13 @@ export class App implements OnInit, OnDestroy {
     }
   }
 
-  protected submitRsvp(): void {
+  protected async submitRsvp(): Promise<void> {
     if (!this.activeInvite) {
       this.inviteError = 'Open a valid invite link to save an RSVP.';
       return;
     }
 
-    this.inviteDatabase.saveSubmission(this.activeInvite.token, {
+    await this.inviteDatabase.saveSubmission(this.activeInvite.token, {
       attending: this.rsvpAttending,
       guestCount: Number(this.rsvpGuests),
       dietaryRequirements: this.rsvpDietary.trim(),
@@ -196,6 +204,7 @@ export class App implements OnInit, OnDestroy {
     this.showRsvpForm = false;
     this.savedRsvpLoaded = false;
     this.inviteError = '';
+    this.cdr.detectChanges();
   }
 
   protected get showPlusOneField(): boolean {
