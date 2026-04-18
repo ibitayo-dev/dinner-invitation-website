@@ -31,8 +31,8 @@ interface Highlight {
 export class App implements OnInit, OnDestroy {
   private observer?: IntersectionObserver;
   protected readonly details: Detail[] = [
-    { label: 'Date', value: 'Saturday, 27 November 2026' },
-    { label: 'Time', value: '3:00 PM - 6:00 PM' },
+    { label: 'Date', value: 'Friday, 27th November 2026' },
+    { label: 'Time', value: '6:00 PM - 9:00 PM' },
     { label: 'Venue', value: 'The Coal Shed, One Tower Bridge' },
     { label: 'Dress', value: 'Formal' },
     { label: 'RSVP by', value: '1 October 2026' },
