@@ -30,6 +30,13 @@ export interface AdminInviteEntry {
   submission: RsvpSubmission | null;
 }
 
+export interface DatabaseSnapshot {
+  provider: 'sqlite' | 'postgres';
+  connectionLabel: string;
+  invites: InviteRecord[];
+  rsvps: RsvpSubmission[];
+}
+
 export interface CreateInviteInput {
   displayName: string;
   inviteType: InviteType;
@@ -60,6 +67,10 @@ interface AdminInviteListResponse {
   items: AdminInviteEntry[];
 }
 
+interface DatabaseSnapshotResponse {
+  snapshot: DatabaseSnapshot;
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -78,7 +89,10 @@ function resolveRuntimeApiBaseUrl(): string | null {
     return runtimeOverride.trim() ? normalizeApiBaseUrl(runtimeOverride.trim()) : null;
   }
 
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  if (
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+    window.location.port === '4200'
+  ) {
     return 'http://localhost:3001';
   }
 
@@ -174,6 +188,11 @@ export class WeddingInviteDatabase {
   async listAdminInvites(adminGuid: string): Promise<AdminInviteEntry[]> {
     const payload = await this.fetchJson<AdminInviteListResponse>(`/api/admin/${encodeURIComponent(adminGuid)}/invites`);
     return payload?.items ?? [];
+  }
+
+  async getDatabaseSnapshot(adminGuid: string): Promise<DatabaseSnapshot | null> {
+    const payload = await this.fetchJson<DatabaseSnapshotResponse>(`/api/admin/${encodeURIComponent(adminGuid)}/database`);
+    return payload?.snapshot ?? null;
   }
 
   async createInvite(adminGuid: string, invite: CreateInviteInput): Promise<InviteRecord> {

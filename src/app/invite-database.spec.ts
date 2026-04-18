@@ -67,6 +67,30 @@ describe('WeddingInviteDatabase', () => {
         );
       }
 
+      if (url.endsWith('/api/admin/admin-guid/database')) {
+        return new Response(
+          JSON.stringify({
+            snapshot: {
+              provider: 'postgres',
+              connectionLabel: 'railway.internal/wedding',
+              invites: [
+                {
+                  token: 'remote-token',
+                  displayName: 'Remote Guest',
+                  inviteType: 'plus_one',
+                  plusOneAllowed: true,
+                  active: true,
+                  createdAt: '2026-04-18T00:00:00.000Z',
+                  updatedAt: '2026-04-18T00:00:00.000Z',
+                },
+              ],
+              rsvps: [],
+            },
+          }),
+          { status: 200 }
+        );
+      }
+
       throw new Error(`Unexpected request: ${url}`);
     });
 
@@ -87,6 +111,10 @@ describe('WeddingInviteDatabase', () => {
       dietaryRequirements: 'Vegetarian',
       plusOneName: 'Alex',
     });
+
+    const snapshot = await database.getDatabaseSnapshot('admin-guid');
+    expect(snapshot?.provider).toBe('postgres');
+    expect(snapshot?.invites.length).toBe(1);
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.example.test/api/rsvps/remote-token',

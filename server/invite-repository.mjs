@@ -1,54 +1,9 @@
-import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 import Database from 'better-sqlite3';
 
-const fallbackSeedState = {
-  invites: [
-    {
-      token: 'shannon-plus-one',
-      displayName: 'Shannon',
-      inviteType: 'plus_one',
-      plusOneAllowed: true,
-      active: true,
-      createdAt: '2026-04-18T00:00:00.000Z',
-      updatedAt: '2026-04-18T00:00:00.000Z',
-    },
-    {
-      token: 'ibitayo-solo',
-      displayName: 'Ibitayo',
-      inviteType: 'solo',
-      plusOneAllowed: false,
-      active: true,
-      createdAt: '2026-04-18T00:00:00.000Z',
-      updatedAt: '2026-04-18T00:00:00.000Z',
-    },
-  ],
-  submissions: {},
-};
-
-function normalizeDisplayName(displayName) {
-  return displayName.trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-function nowIso() {
-  return new Date().toISOString();
-}
-
-function slugify(value) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function createToken(displayName, inviteType) {
-  const base = slugify(displayName) || 'guest';
-  const suffix = inviteType === 'plus_one' ? 'plus-one' : 'solo';
-  return `${base}-${suffix}-${randomUUID().slice(0, 8)}`;
-}
+import { createToken, normalizeDisplayName, nowIso, readSeedState } from './invite-store-shared.mjs';
 
 function mapInvite(row) {
   if (!row) {
@@ -81,20 +36,10 @@ function mapSubmission(row) {
   };
 }
 
-function readSeedState(seedFilePath) {
-  if (seedFilePath && existsSync(seedFilePath)) {
-    try {
-      return JSON.parse(readFileSync(seedFilePath, 'utf8'));
-    } catch {
-      return structuredClone(fallbackSeedState);
-    }
-  }
-
-  return structuredClone(fallbackSeedState);
-}
-
 export class InviteRepository {
   constructor({ databasePath, seedFilePath }) {
+    this.provider = 'sqlite';
+    this.connectionLabel = databasePath;
     mkdirSync(dirname(databasePath), { recursive: true });
     this.database = new Database(databasePath);
     this.database.pragma('foreign_keys = ON');
@@ -255,6 +200,36 @@ export class InviteRepository {
           }
         : null,
     }));
+  }
+
+  listDatabaseSnapshot() {
+    const invites = this.database
+      .prepare(
+        `
+          SELECT *
+          FROM invites
+          ORDER BY active DESC, updated_at DESC, display_name ASC
+        `
+      )
+      .all()
+      .map(mapInvite);
+    const rsvps = this.database
+      .prepare(
+        `
+          SELECT *
+          FROM rsvps
+          ORDER BY updated_at DESC, invite_token ASC
+        `
+      )
+      .all()
+      .map(mapSubmission);
+
+    return {
+      provider: this.provider,
+      connectionLabel: this.connectionLabel,
+      invites,
+      rsvps,
+    };
   }
 
   createInvite({ displayName, inviteType, active = true, token }) {

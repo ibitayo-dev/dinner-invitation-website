@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { AdminInviteEntry, InviteType, WeddingInviteDatabase } from '../invite-database';
+import { AdminInviteEntry, DatabaseSnapshot, InviteType, WeddingInviteDatabase } from '../invite-database';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
@@ -24,6 +24,7 @@ export class AdminPageComponent {
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
   protected readonly inviteItems = signal<AdminInviteEntry[]>([]);
+  protected readonly databaseSnapshot = signal<DatabaseSnapshot | null>(null);
   protected readonly copiedToken = signal<string | null>(null);
 
   protected readonly createInviteForm = new FormGroup({
@@ -38,6 +39,9 @@ export class AdminPageComponent {
   protected readonly responseCount = computed(() => {
     return this.inviteItems().filter((item) => item.submission !== null).length;
   });
+
+  protected readonly databaseInviteCount = computed(() => this.databaseSnapshot()?.invites.length ?? 0);
+  protected readonly databaseRsvpCount = computed(() => this.databaseSnapshot()?.rsvps.length ?? 0);
 
   constructor() {
     void this.loadDashboard();
@@ -63,6 +67,7 @@ export class AdminPageComponent {
         inviteType: 'solo',
       });
       this.inviteItems.update((items) => [{ invite, submission: null }, ...items]);
+      await this.reloadDatabaseSnapshot();
     } catch (error) {
       this.dashboardError.set(getErrorMessage(error));
     } finally {
@@ -81,6 +86,7 @@ export class AdminPageComponent {
       this.inviteItems.update((items) =>
         items.map((item) => (item.invite.token === updatedInvite.token ? { ...item, invite: updatedInvite } : item))
       );
+      await this.reloadDatabaseSnapshot();
     } catch (error) {
       this.dashboardError.set(getErrorMessage(error));
     }
@@ -117,11 +123,21 @@ export class AdminPageComponent {
     }
 
     try {
-      this.inviteItems.set(await this.inviteDatabase.listAdminInvites(this.adminGuid()));
+      const [inviteItems, databaseSnapshot] = await Promise.all([
+        this.inviteDatabase.listAdminInvites(this.adminGuid()),
+        this.inviteDatabase.getDatabaseSnapshot(this.adminGuid()),
+      ]);
+      this.inviteItems.set(inviteItems);
+      this.databaseSnapshot.set(databaseSnapshot);
     } catch (error) {
       this.dashboardError.set(getErrorMessage(error));
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  private async reloadDatabaseSnapshot(): Promise<void> {
+    const snapshot = await this.inviteDatabase.getDatabaseSnapshot(this.adminGuid());
+    this.databaseSnapshot.set(snapshot);
   }
 }

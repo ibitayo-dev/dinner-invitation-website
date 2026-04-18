@@ -3,17 +3,17 @@ import { readFile, stat } from 'node:fs/promises';
 import { dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { InviteRepository } from './invite-repository.mjs';
+import { createInviteRepository } from './create-invite-repository.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
 const staticDir = join(__dirname, '..', 'dist', 'dinner-invitation-website', 'browser');
 const indexFile = join(staticDir, 'index.html');
 const databasePath = process.env.DATABASE_PATH ?? join(dataDir, 'wedding.sqlite');
+const databaseUrl = process.env.DATABASE_URL?.trim() || null;
 const seedFilePath = join(dataDir, 'wedding-data.json');
 const adminGuid = process.env.ADMIN_GUID?.trim() || null;
 const port = Number.parseInt(process.env.PORT ?? '3001', 10);
-const repository = new InviteRepository({ databasePath, seedFilePath });
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -176,14 +176,19 @@ async function serveAppShell(response) {
   }
 }
 
-async function handleAdminRequest(request, response, adminRequest, origin) {
+async function handleAdminRequest(request, response, adminRequest, origin, repository) {
   if (!isAuthorizedAdmin(adminRequest.guid)) {
     sendJson(response, 403, { error: 'Admin access denied.' }, origin);
     return true;
   }
 
   if (request.method === 'GET' && adminRequest.resource === 'invites' && adminRequest.resourceId === null) {
-    sendJson(response, 200, { items: repository.listInvitesWithSubmissions() }, origin);
+    sendJson(response, 200, { items: await repository.listInvitesWithSubmissions() }, origin);
+    return true;
+  }
+
+  if (request.method === 'GET' && adminRequest.resource === 'database' && adminRequest.resourceId === null) {
+    sendJson(response, 200, { snapshot: await repository.listDatabaseSnapshot() }, origin);
     return true;
   }
 
@@ -197,7 +202,7 @@ async function handleAdminRequest(request, response, adminRequest, origin) {
       return true;
     }
 
-    const invite = repository.createInvite({
+    const invite = await repository.createInvite({
       displayName,
       inviteType,
       active: normalizeBoolean(body?.active, true),
@@ -217,7 +222,7 @@ async function handleAdminRequest(request, response, adminRequest, origin) {
       return true;
     }
 
-    const invite = repository.updateInvite(adminRequest.resourceId, {
+    const invite = await repository.updateInvite(adminRequest.resourceId, {
       active: typeof body?.active === 'boolean' ? body.active : undefined,
       displayName: body?.displayName === undefined ? undefined : normalizeString(body.displayName),
       inviteType,
@@ -237,6 +242,12 @@ async function handleAdminRequest(request, response, adminRequest, origin) {
 }
 
 async function main() {
+  const repository = await createInviteRepository({
+    databasePath,
+    databaseUrl,
+    seedFilePath,
+  });
+
   const server = createServer(async (request, response) => {
     const origin = request.headers.origin;
     const url = new URL(request.url ?? '/', 'http://localhost');
@@ -253,7 +264,9 @@ async function main() {
           200,
           {
             status: 'ok',
-            databasePath,
+            databasePath: databaseUrl ? null : databasePath,
+            databaseProvider: repository.provider,
+            databaseConnection: repository.connectionLabel,
             adminConfigured: Boolean(adminGuid),
           },
           origin
@@ -263,20 +276,20 @@ async function main() {
 
       const adminRequest = parseAdminRequest(url.pathname);
       if (adminRequest) {
-        await handleAdminRequest(request, response, adminRequest, origin);
+        await handleAdminRequest(request, response, adminRequest, origin, repository);
         return;
       }
 
       if (request.method === 'GET' && url.pathname === '/api/invites') {
         const name = normalizeString(url.searchParams.get('name'));
-        const invite = name ? repository.getInviteByDisplayName(name) : null;
+        const invite = name ? await repository.getInviteByDisplayName(name) : null;
         sendJson(response, 200, { invite }, origin);
         return;
       }
 
       if (request.method === 'GET' && url.pathname.startsWith('/api/invites/')) {
         const token = decodeURIComponent(url.pathname.replace('/api/invites/', ''));
-        const invite = repository.getInviteByToken(token);
+        const invite = await repository.getInviteByToken(token);
         if (!invite) {
           sendJson(response, 404, { invite: null }, origin);
           return;
@@ -288,13 +301,13 @@ async function main() {
 
       if (request.method === 'GET' && url.pathname.startsWith('/api/rsvps/')) {
         const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
-        const invite = repository.getInviteByToken(token);
+        const invite = await repository.getInviteByToken(token);
         if (!invite) {
           sendJson(response, 404, { submission: null }, origin);
           return;
         }
 
-        const submission = repository.getRsvpByToken(token);
+        const submission = await repository.getRsvpByToken(token);
         if (!submission) {
           sendJson(response, 404, { submission: null }, origin);
           return;
@@ -306,7 +319,7 @@ async function main() {
 
       if (request.method === 'PUT' && url.pathname.startsWith('/api/rsvps/')) {
         const token = decodeURIComponent(url.pathname.replace('/api/rsvps/', ''));
-        const invite = repository.getInviteByToken(token);
+        const invite = await repository.getInviteByToken(token);
         if (!invite) {
           sendJson(response, 404, { error: 'Invite not found.' }, origin);
           return;
@@ -321,7 +334,7 @@ async function main() {
         const attending = body.attending === 'no' ? 'no' : 'yes';
         const guestCount = normalizeGuestCount(body.guestCount, invite.plusOneAllowed, attending);
 
-        const submission = repository.upsertRsvp(token, {
+        const submission = await repository.upsertRsvp(token, {
           attending,
           dietaryRequirements: normalizeString(body.dietaryRequirements),
           guestCount,

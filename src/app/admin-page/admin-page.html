@@ -47,6 +47,32 @@
         </button>
       </form>
     </article>
+
+    <article class="admin-panel admin-panel--database">
+      <h2>Database</h2>
+      @if (databaseSnapshot(); as snapshot) {
+        <div class="database-meta">
+          <div>
+            <span class="stat-label">Provider</span>
+            <strong>{{ snapshot.provider }}</strong>
+          </div>
+          <div>
+            <span class="stat-label">Connection</span>
+            <strong>{{ snapshot.connectionLabel }}</strong>
+          </div>
+          <div>
+            <span class="stat-label">Invite rows</span>
+            <strong>{{ databaseInviteCount() }}</strong>
+          </div>
+          <div>
+            <span class="stat-label">RSVP rows</span>
+            <strong>{{ databaseRsvpCount() }}</strong>
+          </div>
+        </div>
+      } @else {
+        <p class="admin-empty admin-empty--inline">Database snapshot unavailable.</p>
+      }
+    </article>
   </section>
 
   @if (dashboardError()) {
@@ -58,6 +84,88 @@
   } @else if (!inviteItems().length) {
     <p class="admin-empty">No invites exist yet. Create the first one above.</p>
   } @else {
+    @if (databaseSnapshot(); as snapshot) {
+      <section class="database-inspector">
+        <article class="admin-panel database-panel">
+          <div class="database-panel__header">
+            <div>
+              <p class="admin-kicker">Direct Database View</p>
+              <h2>Invites table</h2>
+            </div>
+            <p class="database-caption">Live rows from the connected database service.</p>
+          </div>
+
+          <div class="table-shell">
+            <table class="database-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Active</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (invite of snapshot.invites; track invite.token) {
+                  <tr>
+                    <td>{{ invite.token }}</td>
+                    <td>{{ invite.displayName }}</td>
+                    <td>{{ invite.inviteType }}</td>
+                    <td>{{ invite.active ? 'true' : 'false' }}</td>
+                    <td>{{ formatTimestamp(invite.updatedAt) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="admin-panel database-panel">
+          <div class="database-panel__header">
+            <div>
+              <p class="admin-kicker">Direct Database View</p>
+              <h2>RSVP table</h2>
+            </div>
+            <p class="database-caption">Rows stored for submitted responses.</p>
+          </div>
+
+          <div class="table-shell">
+            <table class="database-table">
+              <thead>
+                <tr>
+                  <th>Invite token</th>
+                  <th>Attending</th>
+                  <th>Guest count</th>
+                  <th>Plus one</th>
+                  <th>Dietary notes</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (snapshot.rsvps.length) {
+                  @for (submission of snapshot.rsvps; track submission.inviteToken) {
+                    <tr>
+                      <td>{{ submission.inviteToken }}</td>
+                      <td>{{ submission.attending }}</td>
+                      <td>{{ submission.guestCount }}</td>
+                      <td>{{ submission.plusOneName || 'None' }}</td>
+                      <td>{{ submission.dietaryRequirements || 'None' }}</td>
+                      <td>{{ formatTimestamp(submission.updatedAt) }}</td>
+                    </tr>
+                  }
+                } @else {
+                  <tr>
+                    <td colspan="6">No RSVP rows stored yet.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    }
+
     <section class="invite-list">
       @for (entry of inviteItems(); track entry.invite.token) {
         <article class="invite-card" [class.invite-card--inactive]="!entry.invite.active">
