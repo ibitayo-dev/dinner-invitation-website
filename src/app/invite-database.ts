@@ -1,3 +1,5 @@
+import { InjectionToken, Provider } from '@angular/core';
+
 export type InviteType = 'solo' | 'plus_one';
 
 export interface InviteRecord {
@@ -50,7 +52,7 @@ export interface UpdateInviteInput {
   inviteType?: InviteType;
 }
 
-interface WeddingInviteDatabaseOptions {
+export interface WeddingInviteDatabaseOptions {
   apiBaseUrl?: string | null;
   fetchImpl?: typeof fetch;
 }
@@ -71,6 +73,17 @@ interface DatabaseSnapshotResponse {
   snapshot: DatabaseSnapshot;
 }
 
+export const WEDDING_INVITE_DATABASE = new InjectionToken<WeddingInviteDatabase>(
+  'WEDDING_INVITE_DATABASE',
+);
+
+export function provideWeddingInviteDatabase(options: WeddingInviteDatabaseOptions = {}): Provider {
+  return {
+    provide: WEDDING_INVITE_DATABASE,
+    useFactory: () => new WeddingInviteDatabase(options),
+  };
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -84,7 +97,8 @@ function resolveRuntimeApiBaseUrl(): string | null {
     return null;
   }
 
-  const runtimeOverride = (window as Window & { __WEDDING_API_BASE_URL__?: string }).__WEDDING_API_BASE_URL__;
+  const runtimeOverride = (window as Window & { __WEDDING_API_BASE_URL__?: string })
+    .__WEDDING_API_BASE_URL__;
   if (runtimeOverride !== undefined) {
     return runtimeOverride.trim() ? normalizeApiBaseUrl(runtimeOverride.trim()) : null;
   }
@@ -117,11 +131,17 @@ export class WeddingInviteDatabase {
   private readonly fetchImpl: typeof fetch;
 
   constructor(options: WeddingInviteDatabaseOptions = {}) {
-    this.apiBaseUrl = options.apiBaseUrl !== undefined ? normalizeOptionalBaseUrl(options.apiBaseUrl) : resolveRuntimeApiBaseUrl();
+    this.apiBaseUrl =
+      options.apiBaseUrl !== undefined
+        ? normalizeOptionalBaseUrl(options.apiBaseUrl)
+        : resolveRuntimeApiBaseUrl();
     this.fetchImpl = options.fetchImpl ?? fetch.bind(globalThis);
   }
 
-  async resolveInvite(token: string | null | undefined, legacyName: string | null | undefined): Promise<ResolveInviteResult> {
+  async resolveInvite(
+    token: string | null | undefined,
+    legacyName: string | null | undefined,
+  ): Promise<ResolveInviteResult> {
     if (token) {
       const invite = await this.getInviteByToken(token);
       if (invite) {
@@ -155,28 +175,37 @@ export class WeddingInviteDatabase {
   }
 
   async getInviteByToken(token: string): Promise<InviteRecord | null> {
-    const payload = await this.fetchJson<InviteApiResponse>(`/api/invites/${encodeURIComponent(token)}`);
+    const payload = await this.fetchJson<InviteApiResponse>(
+      `/api/invites/${encodeURIComponent(token)}`,
+    );
     return payload?.invite ?? null;
   }
 
   async getInviteByDisplayName(displayName: string): Promise<InviteRecord | null> {
-    const payload = await this.fetchJson<InviteApiResponse>(`/api/invites?name=${encodeURIComponent(displayName)}`);
+    const payload = await this.fetchJson<InviteApiResponse>(
+      `/api/invites?name=${encodeURIComponent(displayName)}`,
+    );
     return payload?.invite ?? null;
   }
 
   async getSubmission(token: string): Promise<RsvpSubmission | null> {
-    const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`);
+    const payload = await this.fetchJson<SubmissionApiResponse>(
+      `/api/rsvps/${encodeURIComponent(token)}`,
+    );
     return payload?.submission ?? null;
   }
 
   async saveSubmission(
     token: string,
-    submission: Omit<RsvpSubmission, 'inviteToken' | 'updatedAt'>
+    submission: Omit<RsvpSubmission, 'inviteToken' | 'updatedAt'>,
   ): Promise<RsvpSubmission> {
-    const payload = await this.fetchJson<SubmissionApiResponse>(`/api/rsvps/${encodeURIComponent(token)}`, {
-      method: 'PUT',
-      body: JSON.stringify(submission),
-    });
+    const payload = await this.fetchJson<SubmissionApiResponse>(
+      `/api/rsvps/${encodeURIComponent(token)}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(submission),
+      },
+    );
 
     if (!payload?.submission) {
       throw new Error('The backend did not return a saved RSVP.');
@@ -186,20 +215,27 @@ export class WeddingInviteDatabase {
   }
 
   async listAdminInvites(adminGuid: string): Promise<AdminInviteEntry[]> {
-    const payload = await this.fetchJson<AdminInviteListResponse>(`/api/admin/${encodeURIComponent(adminGuid)}/invites`);
+    const payload = await this.fetchJson<AdminInviteListResponse>(
+      `/api/admin/${encodeURIComponent(adminGuid)}/invites`,
+    );
     return payload?.items ?? [];
   }
 
   async getDatabaseSnapshot(adminGuid: string): Promise<DatabaseSnapshot | null> {
-    const payload = await this.fetchJson<DatabaseSnapshotResponse>(`/api/admin/${encodeURIComponent(adminGuid)}/database`);
+    const payload = await this.fetchJson<DatabaseSnapshotResponse>(
+      `/api/admin/${encodeURIComponent(adminGuid)}/database`,
+    );
     return payload?.snapshot ?? null;
   }
 
   async createInvite(adminGuid: string, invite: CreateInviteInput): Promise<InviteRecord> {
-    const payload = await this.fetchJson<{ invite: InviteRecord }>(`/api/admin/${encodeURIComponent(adminGuid)}/invites`, {
-      method: 'POST',
-      body: JSON.stringify(invite),
-    });
+    const payload = await this.fetchJson<{ invite: InviteRecord }>(
+      `/api/admin/${encodeURIComponent(adminGuid)}/invites`,
+      {
+        method: 'POST',
+        body: JSON.stringify(invite),
+      },
+    );
 
     if (!payload?.invite) {
       throw new Error('The backend did not return a created invite.');
@@ -208,13 +244,17 @@ export class WeddingInviteDatabase {
     return payload.invite;
   }
 
-  async updateInvite(adminGuid: string, token: string, updates: UpdateInviteInput): Promise<InviteRecord> {
+  async updateInvite(
+    adminGuid: string,
+    token: string,
+    updates: UpdateInviteInput,
+  ): Promise<InviteRecord> {
     const payload = await this.fetchJson<{ invite: InviteRecord }>(
       `/api/admin/${encodeURIComponent(adminGuid)}/invites/${encodeURIComponent(token)}`,
       {
         method: 'PATCH',
         body: JSON.stringify(updates),
-      }
+      },
     );
 
     if (!payload?.invite) {

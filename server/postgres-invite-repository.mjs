@@ -3,38 +3,17 @@ import { existsSync } from 'node:fs';
 import Database from 'better-sqlite3';
 import { Pool } from 'pg';
 
-import { createToken, normalizeDisplayName, nowIso, readSeedState, toIsoString } from './invite-store-shared.mjs';
-
-function mapInvite(row) {
-  if (!row) {
-    return null;
-  }
-
-  return {
-    token: row.token,
-    displayName: row.display_name,
-    inviteType: row.invite_type,
-    plusOneAllowed: Boolean(row.plus_one_allowed),
-    active: Boolean(row.active),
-    createdAt: toIsoString(row.created_at),
-    updatedAt: toIsoString(row.updated_at),
-  };
-}
-
-function mapSubmission(row) {
-  if (!row) {
-    return null;
-  }
-
-  return {
-    inviteToken: row.invite_token,
-    attending: row.attending,
-    guestCount: Number(row.guest_count),
-    dietaryRequirements: row.dietary_requirements,
-    plusOneName: row.plus_one_name,
-    updatedAt: toIsoString(row.updated_at),
-  };
-}
+import {
+  buildSeedEntries,
+  createToken,
+  mapInviteRow,
+  mapInviteSubmissionRow,
+  mapSubmissionRow,
+  normalizeDisplayName,
+  nowIso,
+  readSeedState,
+  toIsoString,
+} from './invite-store-shared.mjs';
 
 function summarizeDatabaseUrl(databaseUrl) {
   try {
@@ -66,7 +45,7 @@ function readSqliteSnapshot(databasePath) {
             updated_at AS "updatedAt"
           FROM invites
           ORDER BY active DESC, updated_at DESC, display_name ASC
-        `
+        `,
       )
       .all();
     const submissions = database
@@ -81,7 +60,7 @@ function readSqliteSnapshot(databasePath) {
             updated_at AS "updatedAt"
           FROM rsvps
           ORDER BY updated_at DESC, invite_token ASC
-        `
+        `,
       )
       .all();
 
@@ -91,7 +70,9 @@ function readSqliteSnapshot(databasePath) {
         plusOneAllowed: Boolean(invite.plusOneAllowed),
         active: Boolean(invite.active),
       })),
-      submissions: Object.fromEntries(submissions.map((submission) => [submission.inviteToken, submission])),
+      submissions: Object.fromEntries(
+        submissions.map((submission) => [submission.inviteToken, submission]),
+      ),
     };
   } finally {
     database.close();
@@ -106,7 +87,10 @@ export class PostgresInviteRepository {
     this.sqliteMigrationPath = sqliteMigrationPath;
     this.pool = new Pool({
       connectionString: databaseUrl,
-      ssl: databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1') ? false : { rejectUnauthorized: false },
+      ssl:
+        databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1')
+          ? false
+          : { rejectUnauthorized: false },
     });
   }
 
@@ -141,13 +125,15 @@ export class PostgresInviteRepository {
   }
 
   async seed() {
-    const sourceState = readSqliteSnapshot(this.sqliteMigrationPath) ?? readSeedState(this.seedFilePath);
+    const sourceState =
+      readSqliteSnapshot(this.sqliteMigrationPath) ?? readSeedState(this.seedFilePath);
+    const { invites, submissions } = buildSeedEntries(sourceState);
     const client = await this.pool.connect();
 
     try {
       await client.query('BEGIN');
 
-      for (const invite of sourceState.invites ?? []) {
+      for (const invite of invites) {
         await client.query(
           `
             INSERT INTO invites (
@@ -165,17 +151,17 @@ export class PostgresInviteRepository {
           [
             invite.token,
             invite.displayName,
-            normalizeDisplayName(invite.displayName),
+            invite.normalizedDisplayName,
             invite.inviteType,
-            Boolean(invite.plusOneAllowed),
-            invite.active !== false,
-            invite.createdAt ?? nowIso(),
-            invite.updatedAt ?? nowIso(),
-          ]
+            invite.plusOneAllowed,
+            invite.active,
+            invite.createdAt,
+            invite.updatedAt,
+          ],
         );
       }
 
-      for (const submission of Object.values(sourceState.submissions ?? {})) {
+      for (const submission of submissions) {
         await client.query(
           `
             INSERT INTO rsvps (
@@ -190,12 +176,12 @@ export class PostgresInviteRepository {
           `,
           [
             submission.inviteToken,
-            submission.attending === 'no' ? 'no' : 'yes',
-            Number.isInteger(Number(submission.guestCount)) ? Number(submission.guestCount) : 1,
-            submission.dietaryRequirements ?? '',
-            submission.plusOneName ?? '',
-            submission.updatedAt ?? nowIso(),
-          ]
+            submission.attending,
+            submission.guestCount,
+            submission.dietaryRequirements,
+            submission.plusOneName,
+            submission.updatedAt,
+          ],
         );
       }
 
@@ -216,10 +202,10 @@ export class PostgresInviteRepository {
         WHERE token = $1
           ${includeInactive ? '' : 'AND active = TRUE'}
       `,
-      [token]
+      [token],
     );
 
-    return mapInvite(result.rows[0]);
+    return mapInviteRow(result.rows[0], { dateSerializer: toIsoString });
   }
 
   async getInviteByDisplayName(displayName) {
@@ -232,10 +218,10 @@ export class PostgresInviteRepository {
         ORDER BY updated_at DESC
         LIMIT 1
       `,
-      [normalizeDisplayName(displayName)]
+      [normalizeDisplayName(displayName)],
     );
 
-    return mapInvite(result.rows[0]);
+    return mapInviteRow(result.rows[0], { dateSerializer: toIsoString });
   }
 
   async listInvitesWithSubmissions() {
@@ -259,19 +245,7 @@ export class PostgresInviteRepository {
       ORDER BY invites.active DESC, invites.updated_at DESC, invites.display_name ASC
     `);
 
-    return result.rows.map((row) => ({
-      invite: mapInvite(row),
-      submission: row.rsvp_invite_token
-        ? {
-            inviteToken: row.rsvp_invite_token,
-            attending: row.attending,
-            guestCount: Number(row.guest_count),
-            dietaryRequirements: row.dietary_requirements,
-            plusOneName: row.plus_one_name,
-            updatedAt: toIsoString(row.rsvp_updated_at),
-          }
-        : null,
-    }));
+    return result.rows.map((row) => mapInviteSubmissionRow(row, { dateSerializer: toIsoString }));
   }
 
   async listDatabaseSnapshot() {
@@ -291,8 +265,8 @@ export class PostgresInviteRepository {
     return {
       provider: this.provider,
       connectionLabel: this.connectionLabel,
-      invites: invitesResult.rows.map(mapInvite),
-      rsvps: rsvpsResult.rows.map(mapSubmission),
+      invites: invitesResult.rows.map((row) => mapInviteRow(row, { dateSerializer: toIsoString })),
+      rsvps: rsvpsResult.rows.map((row) => mapSubmissionRow(row, { dateSerializer: toIsoString })),
     };
   }
 
@@ -322,7 +296,7 @@ export class PostgresInviteRepository {
         active,
         timestamp,
         timestamp,
-      ]
+      ],
     );
 
     return this.getInviteByToken(inviteToken, { includeInactive: true });
@@ -350,7 +324,15 @@ export class PostgresInviteRepository {
           updated_at = $6
         WHERE token = $7
       `,
-      [displayName, normalizeDisplayName(displayName), inviteType, inviteType === 'plus_one', active, nowIso(), token]
+      [
+        displayName,
+        normalizeDisplayName(displayName),
+        inviteType,
+        inviteType === 'plus_one',
+        active,
+        nowIso(),
+        token,
+      ],
     );
 
     return this.getInviteByToken(token, { includeInactive: true });
@@ -363,10 +345,10 @@ export class PostgresInviteRepository {
         FROM rsvps
         WHERE invite_token = $1
       `,
-      [token]
+      [token],
     );
 
-    return mapSubmission(result.rows[0]);
+    return mapSubmissionRow(result.rows[0], { dateSerializer: toIsoString });
   }
 
   async upsertRsvp(token, submission) {
@@ -395,10 +377,10 @@ export class PostgresInviteRepository {
         submission.dietaryRequirements ?? '',
         submission.plusOneName ?? '',
         nowIso(),
-      ]
+      ],
     );
 
-    return mapSubmission(result.rows[0]);
+    return mapSubmissionRow(result.rows[0], { dateSerializer: toIsoString });
   }
 
   async close() {

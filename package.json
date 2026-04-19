@@ -8,6 +8,8 @@
     "backend": "node server/wedding-backend.mjs",
     "build": "ng build --configuration production",
     "build:pages": "ng build --configuration pages",
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
     "test:server": "node --test server/*.test.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

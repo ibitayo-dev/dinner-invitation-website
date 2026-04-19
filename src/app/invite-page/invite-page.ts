@@ -1,9 +1,21 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, effect, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { InviteRecord, RsvpSubmission, WeddingInviteDatabase } from '../invite-database';
+import { InviteRecord, RsvpSubmission } from '../invite-database';
+import { getUiErrorMessage, normalizeGuestCountSelection } from '../invite-ui-helpers';
+import { createInvitePageRevealObserver } from './invite-page-animations';
+import { InvitePageFacade } from './invite-page-facade';
 
 interface Detail {
   label: string;
@@ -28,19 +40,6 @@ const plusOneGuestCountOptions: GuestCountOption[] = [
   { label: '2 Guests', value: '2' },
 ];
 
-function normalizeGuestCountSelection(value: string, canBringPlusOne: boolean): string {
-  const guestCount = Number.parseInt(value, 10);
-  if (!canBringPlusOne) {
-    return '1';
-  }
-
-  return Number.isInteger(guestCount) && guestCount > 1 ? '2' : '1';
-}
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-}
-
 @Component({
   selector: 'app-invite-page',
   imports: [NgOptimizedImage, ReactiveFormsModule],
@@ -50,7 +49,7 @@ function getErrorMessage(error: unknown): string {
 })
 export class InvitePageComponent implements OnInit, OnDestroy {
   private observer?: IntersectionObserver;
-  private readonly inviteDatabase = new WeddingInviteDatabase();
+  private readonly invitePageFacade = inject(InvitePageFacade);
 
   protected readonly activeInvite = signal<InviteRecord | null>(null);
   protected readonly inviteeName = signal('friend');
@@ -62,7 +61,8 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   protected readonly details = invitationDetails;
   protected readonly heroQuote =
     'Join us for an evening of exceptional dining and celebration overlooking the Thames at The Coal Shed, One Tower Bridge.';
-  protected readonly photoAlt = 'A smiling couple standing together by the water in front of a brick building';
+  protected readonly photoAlt =
+    'A smiling couple standing together by the water in front of a brick building';
   protected readonly photoSrc = 'couple-photo.jpeg';
   protected readonly mapHref =
     'https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London';
@@ -87,7 +87,9 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   });
 
   protected readonly guestCountOptions = computed(() => {
-    return this.showGuestCountField() ? plusOneGuestCountOptions : plusOneGuestCountOptions.slice(0, 1);
+    return this.showGuestCountField()
+      ? plusOneGuestCountOptions
+      : plusOneGuestCountOptions.slice(0, 1);
   });
 
   protected readonly showPlusOneField = computed(() => {
@@ -95,7 +97,10 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   });
 
   private readonly guestCountConstraintEffect = effect(() => {
-    const normalizedGuestCount = normalizeGuestCountSelection(this.guestCountValue(), this.showGuestCountField());
+    const normalizedGuestCount = normalizeGuestCountSelection(
+      this.guestCountValue(),
+      this.showGuestCountField(),
+    );
 
     if (this.rsvpForm.controls.guestCount.value !== normalizedGuestCount) {
       this.rsvpForm.controls.guestCount.setValue(normalizedGuestCount);
@@ -126,18 +131,12 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   }
 
   protected async submitRsvp(): Promise<void> {
-    const invite = this.activeInvite();
-    if (!invite) {
-      this.inviteError.set('Open a valid invite link to save an RSVP.');
-      return;
-    }
-
     try {
-      await this.inviteDatabase.saveSubmission(invite.token, {
+      await this.invitePageFacade.save(this.activeInvite(), {
         attending: this.rsvpForm.controls.attending.getRawValue(),
-        dietaryRequirements: this.rsvpForm.controls.dietaryRequirements.getRawValue().trim(),
+        dietaryRequirements: this.rsvpForm.controls.dietaryRequirements.getRawValue(),
         guestCount: Number(this.rsvpForm.controls.guestCount.getRawValue()),
-        plusOneName: this.rsvpForm.controls.plusOneName.getRawValue().trim(),
+        plusOneName: this.rsvpForm.controls.plusOneName.getRawValue(),
       });
 
       this.rsvpSubmitted.set(true);
@@ -145,13 +144,14 @@ export class InvitePageComponent implements OnInit, OnDestroy {
       this.savedRsvpLoaded.set(false);
       this.inviteError.set('');
     } catch (error) {
-      this.inviteError.set(getErrorMessage(error));
+      this.inviteError.set(getUiErrorMessage(error));
     }
   }
 
   protected downloadCalendar(): void {
     const event = {
-      description: 'Join us for an evening of exceptional dining and celebration overlooking the Thames.',
+      description:
+        'Join us for an evening of exceptional dining and celebration overlooking the Thames.',
       end: '20261127T180000',
       location: 'The Coal Shed, One Tower Bridge, 4 Crown Square, London SE1 2SE',
       start: '20261127T150000',
@@ -192,34 +192,17 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   }
 
   private async loadInvite(): Promise<void> {
-    const params = new URLSearchParams(window.location.search);
-    const runtime = window as Window & { __WEDDING_INVITE_TOKEN__?: string; __WEDDING_INVITEE_NAME__?: string };
-    const token = params.get('token')?.trim() || runtime.__WEDDING_INVITE_TOKEN__?.trim() || null;
-    const inviteeName = params.get('name')?.trim() || runtime.__WEDDING_INVITEE_NAME__?.trim() || null;
-    const resolvedInvite = await this.inviteDatabase.resolveInvite(token, inviteeName);
-    const invite = resolvedInvite.invite;
+    const state = await this.invitePageFacade.load();
 
-    this.activeInvite.set(invite);
-    this.inviteeName.set(invite?.displayName ?? inviteeName ?? 'friend');
-    this.inviteSource.set(resolvedInvite.source);
+    this.activeInvite.set(state.invite);
+    this.inviteeName.set(state.inviteeName);
+    this.inviteSource.set(state.inviteSource);
+    this.inviteError.set(state.inviteError);
 
-    if (resolvedInvite.source === 'token' && invite) {
-      const savedSubmission = await this.inviteDatabase.getSubmission(invite.token);
-      if (savedSubmission) {
-        this.applySubmission(savedSubmission);
-        this.showRsvpForm.set(true);
-        this.savedRsvpLoaded.set(true);
-      }
-      return;
-    }
-
-    if (resolvedInvite.source === 'invalid') {
-      this.inviteError.set(resolvedInvite.error ?? 'This invite link could not be found.');
-      return;
-    }
-
-    if (inviteeName) {
-      this.inviteeName.set(inviteeName);
+    if (state.savedSubmission) {
+      this.applySubmission(state.savedSubmission);
+      this.showRsvpForm.set(true);
+      this.savedRsvpLoaded.set(true);
     }
   }
 
@@ -233,26 +216,6 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   }
 
   private initializeAnimations(): void {
-    if (typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px',
-      }
-    );
-
-    queueMicrotask(() => {
-      document.querySelectorAll('[data-animate]').forEach((element) => this.observer?.observe(element));
-    });
+    this.observer = createInvitePageRevealObserver();
   }
 }

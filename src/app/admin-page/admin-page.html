@@ -3,7 +3,8 @@
     <p class="admin-kicker">Admin Console</p>
     <h1>Invite management</h1>
     <p class="admin-summary">
-      Create guest links, deactivate invites, and review RSVP state from the same Railway-backed database.
+      Create guest links, deactivate invites, and review RSVP state from the same Railway-backed
+      database.
     </p>
   </header>
 
@@ -31,7 +32,7 @@
       <form class="admin-form" [formGroup]="createInviteForm" (ngSubmit)="createInvite()">
         <label class="field">
           <span>Display name</span>
-          <input type="text" formControlName="displayName" placeholder="Guest name">
+          <input type="text" formControlName="displayName" placeholder="Guest name" />
         </label>
 
         <label class="field">

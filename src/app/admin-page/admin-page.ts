@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { AdminInviteEntry, DatabaseSnapshot, InviteType, WeddingInviteDatabase } from '../invite-database';
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-}
+import {
+  AdminInviteEntry,
+  DatabaseSnapshot,
+  InviteType,
+  WEDDING_INVITE_DATABASE,
+} from '../invite-database';
+import { buildInviteLink, getUiErrorMessage } from '../invite-ui-helpers';
 
 @Component({
   selector: 'app-admin-page',
@@ -17,7 +19,7 @@ function getErrorMessage(error: unknown): string {
 })
 export class AdminPageComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly inviteDatabase = new WeddingInviteDatabase();
+  private readonly inviteDatabase = inject(WEDDING_INVITE_DATABASE);
 
   protected readonly adminGuid = signal(this.route.snapshot.paramMap.get('guid') ?? '');
   protected readonly dashboardError = signal('');
@@ -40,7 +42,9 @@ export class AdminPageComponent {
     return this.inviteItems().filter((item) => item.submission !== null).length;
   });
 
-  protected readonly databaseInviteCount = computed(() => this.databaseSnapshot()?.invites.length ?? 0);
+  protected readonly databaseInviteCount = computed(
+    () => this.databaseSnapshot()?.invites.length ?? 0,
+  );
   protected readonly databaseRsvpCount = computed(() => this.databaseSnapshot()?.rsvps.length ?? 0);
 
   constructor() {
@@ -69,7 +73,7 @@ export class AdminPageComponent {
       this.inviteItems.update((items) => [{ invite, submission: null }, ...items]);
       await this.reloadDatabaseSnapshot();
     } catch (error) {
-      this.dashboardError.set(getErrorMessage(error));
+      this.dashboardError.set(getUiErrorMessage(error));
     } finally {
       this.isSaving.set(false);
     }
@@ -79,33 +83,39 @@ export class AdminPageComponent {
     this.dashboardError.set('');
 
     try {
-      const updatedInvite = await this.inviteDatabase.updateInvite(this.adminGuid(), entry.invite.token, {
-        active: !entry.invite.active,
-      });
+      const updatedInvite = await this.inviteDatabase.updateInvite(
+        this.adminGuid(),
+        entry.invite.token,
+        {
+          active: !entry.invite.active,
+        },
+      );
 
       this.inviteItems.update((items) =>
-        items.map((item) => (item.invite.token === updatedInvite.token ? { ...item, invite: updatedInvite } : item))
+        items.map((item) =>
+          item.invite.token === updatedInvite.token ? { ...item, invite: updatedInvite } : item,
+        ),
       );
       await this.reloadDatabaseSnapshot();
     } catch (error) {
-      this.dashboardError.set(getErrorMessage(error));
+      this.dashboardError.set(getUiErrorMessage(error));
     }
   }
 
   protected async copyInviteLink(token: string): Promise<void> {
-    const inviteLink = `${window.location.origin}/?token=${encodeURIComponent(token)}`;
+    const inviteLink = buildInviteLink(window.location.origin, token);
 
     try {
       await navigator.clipboard.writeText(inviteLink);
       this.copiedToken.set(token);
       setTimeout(() => this.copiedToken.set(null), 1800);
     } catch (error) {
-      this.dashboardError.set(getErrorMessage(error));
+      this.dashboardError.set(getUiErrorMessage(error));
     }
   }
 
   protected buildInviteLink(token: string): string {
-    return `${window.location.origin}/?token=${encodeURIComponent(token)}`;
+    return buildInviteLink(window.location.origin, token);
   }
 
   protected formatTimestamp(timestamp: string): string {
@@ -130,7 +140,7 @@ export class AdminPageComponent {
       this.inviteItems.set(inviteItems);
       this.databaseSnapshot.set(databaseSnapshot);
     } catch (error) {
-      this.dashboardError.set(getErrorMessage(error));
+      this.dashboardError.set(getUiErrorMessage(error));
     } finally {
       this.isLoading.set(false);
     }

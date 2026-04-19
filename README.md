@@ -87,3 +87,9 @@ Update those files to swap in your names, venue details, schedule, RSVP copy, an
 ## CI
 
 The GitHub Actions workflow now runs server tests, Angular unit tests, and a production build on pushes and pull requests.
+
+On successful pushes to `main`, and on manual workflow dispatch, the same workflow also redeploys the Railway `web` service in the `production` environment.
+
+To enable the deploy job, add this repository secret in GitHub:
+
+- `RAILWAY_TOKEN`: a Railway project token with deploy access to the `dinner-invitation-website` project

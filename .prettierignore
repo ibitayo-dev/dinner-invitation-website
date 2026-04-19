@@ -1,0 +1,11 @@
+dist
+tmp
+out-tsc
+bazel-out
+node_modules
+.angular
+coverage
+.history
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal

@@ -62,3 +62,88 @@ export function readSeedState(seedFilePath) {
 export function toIsoString(value) {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
 }
+
+function identity(value) {
+  return value;
+}
+
+export function mapInviteRow(row, { dateSerializer = identity } = {}) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    token: row.token,
+    displayName: row.display_name,
+    inviteType: row.invite_type,
+    plusOneAllowed: Boolean(row.plus_one_allowed),
+    active: Boolean(row.active),
+    createdAt: dateSerializer(row.created_at),
+    updatedAt: dateSerializer(row.updated_at),
+  };
+}
+
+export function mapSubmissionRow(
+  row,
+  { updatedAtField = 'updated_at', dateSerializer = identity } = {},
+) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    inviteToken: row.invite_token,
+    attending: row.attending,
+    guestCount: Number(row.guest_count),
+    dietaryRequirements: row.dietary_requirements,
+    plusOneName: row.plus_one_name,
+    updatedAt: dateSerializer(row[updatedAtField]),
+  };
+}
+
+export function mapInviteSubmissionRow(row, { dateSerializer = identity } = {}) {
+  return {
+    invite: mapInviteRow(row, { dateSerializer }),
+    submission: row?.rsvp_invite_token
+      ? {
+          inviteToken: row.rsvp_invite_token,
+          attending: row.attending,
+          guestCount: Number(row.guest_count),
+          dietaryRequirements: row.dietary_requirements,
+          plusOneName: row.plus_one_name,
+          updatedAt: dateSerializer(row.rsvp_updated_at),
+        }
+      : null,
+  };
+}
+
+export function normalizeSeedInvite(invite) {
+  return {
+    token: invite.token,
+    displayName: invite.displayName,
+    normalizedDisplayName: normalizeDisplayName(invite.displayName),
+    inviteType: invite.inviteType,
+    plusOneAllowed: Boolean(invite.plusOneAllowed),
+    active: invite.active !== false,
+    createdAt: invite.createdAt ?? nowIso(),
+    updatedAt: invite.updatedAt ?? nowIso(),
+  };
+}
+
+export function normalizeSeedSubmission(submission) {
+  return {
+    inviteToken: submission.inviteToken,
+    attending: submission.attending === 'no' ? 'no' : 'yes',
+    guestCount: Number.isInteger(Number(submission.guestCount)) ? Number(submission.guestCount) : 1,
+    dietaryRequirements: submission.dietaryRequirements ?? '',
+    plusOneName: submission.plusOneName ?? '',
+    updatedAt: submission.updatedAt ?? nowIso(),
+  };
+}
+
+export function buildSeedEntries(seedState) {
+  return {
+    invites: (seedState.invites ?? []).map(normalizeSeedInvite),
+    submissions: Object.values(seedState.submissions ?? {}).map(normalizeSeedSubmission),
+  };
+}

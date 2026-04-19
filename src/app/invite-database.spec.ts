@@ -5,6 +5,10 @@ describe('WeddingInviteDatabase', () => {
     (window as Window & { __WEDDING_API_BASE_URL__?: string }).__WEDDING_API_BASE_URL__ = '';
   });
 
+  afterEach(() => {
+    delete (window as Window & { __WEDDING_API_BASE_URL__?: string }).__WEDDING_API_BASE_URL__;
+  });
+
   it('returns a default invite when no token or legacy name is available', async () => {
     const database = new WeddingInviteDatabase({ apiBaseUrl: null });
     const invite = await database.resolveInvite(null, 'Guest Name');
@@ -31,11 +35,14 @@ describe('WeddingInviteDatabase', () => {
               updatedAt: '2026-04-18T00:00:00.000Z',
             },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
 
-      if (url.endsWith('/api/rsvps/remote-token') && (!init || init.method === undefined || init.method === 'GET')) {
+      if (
+        url.endsWith('/api/rsvps/remote-token') &&
+        (!init || init.method === undefined || init.method === 'GET')
+      ) {
         return new Response(
           JSON.stringify({
             submission: {
@@ -47,7 +54,7 @@ describe('WeddingInviteDatabase', () => {
               updatedAt: '2026-04-18T00:00:00.000Z',
             },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
 
@@ -63,7 +70,7 @@ describe('WeddingInviteDatabase', () => {
               updatedAt: '2026-04-18T00:00:00.000Z',
             },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
 
@@ -87,7 +94,7 @@ describe('WeddingInviteDatabase', () => {
               rsvps: [],
             },
           }),
-          { status: 200 }
+          { status: 200 },
         );
       }
 
@@ -118,7 +125,7 @@ describe('WeddingInviteDatabase', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.example.test/api/rsvps/remote-token',
-      expect.objectContaining({ method: 'PUT' })
+      expect.objectContaining({ method: 'PUT' }),
     );
   });
 });

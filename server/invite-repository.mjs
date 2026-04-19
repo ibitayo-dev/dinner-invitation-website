@@ -3,38 +3,16 @@ import { dirname } from 'node:path';
 
 import Database from 'better-sqlite3';
 
-import { createToken, normalizeDisplayName, nowIso, readSeedState } from './invite-store-shared.mjs';
-
-function mapInvite(row) {
-  if (!row) {
-    return null;
-  }
-
-  return {
-    token: row.token,
-    displayName: row.display_name,
-    inviteType: row.invite_type,
-    plusOneAllowed: Boolean(row.plus_one_allowed),
-    active: Boolean(row.active),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
-
-function mapSubmission(row) {
-  if (!row) {
-    return null;
-  }
-
-  return {
-    inviteToken: row.invite_token,
-    attending: row.attending,
-    guestCount: Number(row.guest_count),
-    dietaryRequirements: row.dietary_requirements,
-    plusOneName: row.plus_one_name,
-    updatedAt: row.updated_at,
-  };
-}
+import {
+  buildSeedEntries,
+  createToken,
+  mapInviteRow,
+  mapInviteSubmissionRow,
+  mapSubmissionRow,
+  normalizeDisplayName,
+  nowIso,
+  readSeedState,
+} from './invite-store-shared.mjs';
 
 export class InviteRepository {
   constructor({ databasePath, seedFilePath }) {
@@ -77,7 +55,7 @@ export class InviteRepository {
   }
 
   seed(seedFilePath) {
-    const seedState = readSeedState(seedFilePath);
+    const { invites, submissions } = buildSeedEntries(readSeedState(seedFilePath));
     const insertInvite = this.database.prepare(`
       INSERT OR IGNORE INTO invites (
         token,
@@ -102,27 +80,27 @@ export class InviteRepository {
     `);
 
     const seedTransaction = this.database.transaction(() => {
-      for (const invite of seedState.invites ?? []) {
+      for (const invite of invites) {
         insertInvite.run(
           invite.token,
           invite.displayName,
-          normalizeDisplayName(invite.displayName),
+          invite.normalizedDisplayName,
           invite.inviteType,
           invite.plusOneAllowed ? 1 : 0,
-          invite.active === false ? 0 : 1,
-          invite.createdAt ?? nowIso(),
-          invite.updatedAt ?? nowIso()
+          invite.active ? 1 : 0,
+          invite.createdAt,
+          invite.updatedAt,
         );
       }
 
-      for (const submission of Object.values(seedState.submissions ?? {})) {
+      for (const submission of submissions) {
         insertRsvp.run(
           submission.inviteToken,
-          submission.attending === 'no' ? 'no' : 'yes',
-          Number.isInteger(Number(submission.guestCount)) ? Number(submission.guestCount) : 1,
-          submission.dietaryRequirements ?? '',
-          submission.plusOneName ?? '',
-          submission.updatedAt ?? nowIso()
+          submission.attending,
+          submission.guestCount,
+          submission.dietaryRequirements,
+          submission.plusOneName,
+          submission.updatedAt,
         );
       }
     });
@@ -138,11 +116,11 @@ export class InviteRepository {
           FROM invites
           WHERE token = ?
             ${includeInactive ? '' : 'AND active = 1'}
-        `
+        `,
       )
       .get(token);
 
-    return mapInvite(row);
+    return mapInviteRow(row);
   }
 
   getInviteByDisplayName(displayName) {
@@ -155,11 +133,11 @@ export class InviteRepository {
             AND active = 1
           ORDER BY updated_at DESC
           LIMIT 1
-        `
+        `,
       )
       .get(normalizeDisplayName(displayName));
 
-    return mapInvite(row);
+    return mapInviteRow(row);
   }
 
   listInvitesWithSubmissions() {
@@ -183,23 +161,11 @@ export class InviteRepository {
           FROM invites
           LEFT JOIN rsvps ON rsvps.invite_token = invites.token
           ORDER BY invites.active DESC, invites.updated_at DESC, invites.display_name ASC
-        `
+        `,
       )
       .all();
 
-    return rows.map((row) => ({
-      invite: mapInvite(row),
-      submission: row.rsvp_invite_token
-        ? {
-            inviteToken: row.rsvp_invite_token,
-            attending: row.attending,
-            guestCount: Number(row.guest_count),
-            dietaryRequirements: row.dietary_requirements,
-            plusOneName: row.plus_one_name,
-            updatedAt: row.rsvp_updated_at,
-          }
-        : null,
-    }));
+    return rows.map((row) => mapInviteSubmissionRow(row));
   }
 
   listDatabaseSnapshot() {
@@ -209,20 +175,20 @@ export class InviteRepository {
           SELECT *
           FROM invites
           ORDER BY active DESC, updated_at DESC, display_name ASC
-        `
+        `,
       )
       .all()
-      .map(mapInvite);
+      .map((row) => mapInviteRow(row));
     const rsvps = this.database
       .prepare(
         `
           SELECT *
           FROM rsvps
           ORDER BY updated_at DESC, invite_token ASC
-        `
+        `,
       )
       .all()
-      .map(mapSubmission);
+      .map((row) => mapSubmissionRow(row));
 
     return {
       provider: this.provider,
@@ -249,7 +215,7 @@ export class InviteRepository {
             created_at,
             updated_at
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `
+        `,
       )
       .run(
         inviteToken,
@@ -259,7 +225,7 @@ export class InviteRepository {
         inviteType === 'plus_one' ? 1 : 0,
         active ? 1 : 0,
         timestamp,
-        timestamp
+        timestamp,
       );
 
     return this.getInviteByToken(inviteToken, { includeInactive: true });
@@ -287,7 +253,7 @@ export class InviteRepository {
             active = ?,
             updated_at = ?
           WHERE token = ?
-        `
+        `,
       )
       .run(
         displayName,
@@ -296,23 +262,23 @@ export class InviteRepository {
         inviteType === 'plus_one' ? 1 : 0,
         active ? 1 : 0,
         nowIso(),
-        token
+        token,
       );
 
     return this.getInviteByToken(token, { includeInactive: true });
   }
 
   getRsvpByToken(token) {
-    return mapSubmission(
+    return mapSubmissionRow(
       this.database
         .prepare(
           `
             SELECT *
             FROM rsvps
             WHERE invite_token = ?
-          `
+          `,
         )
-        .get(token)
+        .get(token),
     );
   }
 
@@ -334,7 +300,7 @@ export class InviteRepository {
             dietary_requirements = excluded.dietary_requirements,
             plus_one_name = excluded.plus_one_name,
             updated_at = excluded.updated_at
-        `
+        `,
       )
       .run(
         token,
@@ -342,7 +308,7 @@ export class InviteRepository {
         submission.guestCount,
         submission.dietaryRequirements ?? '',
         submission.plusOneName ?? '',
-        nowIso()
+        nowIso(),
       );
 
     return this.getRsvpByToken(token);
