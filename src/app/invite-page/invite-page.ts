@@ -32,7 +32,6 @@ const invitationDetails: Detail[] = [
   { label: 'Time', value: '6:00 PM - 9:00 PM' },
   { label: 'Venue', value: 'The Coal Shed, One Tower Bridge' },
   { label: 'Dress', value: 'Formal' },
-  { label: 'RSVP by', value: '1 October 2026' },
 ];
 
 const plusOneGuestCountOptions: GuestCountOption[] = [
