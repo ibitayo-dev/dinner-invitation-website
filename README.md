@@ -57,6 +57,75 @@ Notes:
 - On the first Postgres boot, the backend backfills from the existing SQLite file at `DATABASE_PATH` when available; otherwise it seeds from `data/wedding-data.json`.
 - After verifying the Postgres data service, the old SQLite volume can be removed.
 
+### Manual Railway CLI redeploy
+
+Use this when you need to redeploy production manually, verify which service is linked locally, or smoke test the live app after a release.
+
+Prerequisites:
+
+- Railway CLI installed and authenticated
+- Local checkout at the commit you want to deploy
+- Linked Railway project `dinner-invitation-website`
+
+Check the current Railway context first:
+
+```bash
+railway status
+```
+
+The repo must point at the `web` service before you trust a deploy from the current directory. If the linked service is `Postgres`, relink it explicitly:
+
+```bash
+railway link -s web -e production
+```
+
+Equivalent explicit commands:
+
+```bash
+railway service link web
+railway environment link production
+```
+
+Deploy the current checkout to the production web service:
+
+```bash
+railway up --service=web --environment=production --ci
+```
+
+Check the service deployment status:
+
+```bash
+railway service status --service web --environment production --json
+```
+
+Get the live Railway hostname from service variables:
+
+```bash
+SITE_HOST="$(railway variables list --service web --environment production --kv | awk -F= '/^(RAILWAY_PUBLIC_DOMAIN|RAILWAY_SERVICE_WEB_URL)=/ { print $2; exit }')"
+echo "$SITE_HOST"
+```
+
+Smoke test the deployed app:
+
+```bash
+curl -fsS "https://$SITE_HOST/api/health"
+curl -I "https://$SITE_HOST/"
+```
+
+Expected checks:
+
+- `/api/health` returns HTTP `200` with JSON including `"status":"ok"`
+- The health response should report `"databaseProvider":"postgres"` in production
+- `/` returns HTTP `200` with `content-type: text/html`
+
+Observed production values during the last verified release:
+
+- Railway service: `web`
+- Railway environment: `production`
+- Public hostname: `ibi-shannon.up.railway.app`
+
+If you want to confirm the current local link after a deploy, run `railway status` again and verify it still shows service `web`.
+
 ## Production build
 
 ```bash
