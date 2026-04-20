@@ -12,11 +12,42 @@ import {
   normalizeDisplayName,
   nowIso,
   readSeedState,
-} from './invite-store-shared.mjs';
+} from './invite-store-shared.js';
+import type {
+  Invite,
+  InviteType,
+  InviteWithSubmission,
+  DatabaseSnapshot,
+  Submission,
+  InviteSubmissionRow,
+} from './invite-store-shared.js';
+
+interface UpsertRsvpInput {
+  attending: string;
+  guestCount: number;
+  dietaryRequirements?: string;
+  plusOneName?: string;
+}
+
+interface UpdateInviteInput {
+  displayName?: string;
+  inviteType?: InviteType;
+  active?: boolean;
+}
+
+interface CreateInviteInput {
+  displayName: string;
+  inviteType: InviteType;
+  active?: boolean;
+  token?: string;
+}
 
 export class InviteRepository {
-  constructor({ databasePath, seedFilePath }) {
-    this.provider = 'sqlite';
+  readonly provider = 'sqlite';
+  readonly connectionLabel: string;
+  private readonly database: Database.Database;
+
+  constructor({ databasePath, seedFilePath }: { databasePath: string; seedFilePath?: string }) {
     this.connectionLabel = databasePath;
     mkdirSync(dirname(databasePath), { recursive: true });
     this.database = new Database(databasePath);
@@ -26,7 +57,7 @@ export class InviteRepository {
     this.seed(seedFilePath);
   }
 
-  migrate() {
+  private migrate(): void {
     this.database.exec(`
       CREATE TABLE IF NOT EXISTS invites (
         token TEXT PRIMARY KEY,
@@ -54,7 +85,7 @@ export class InviteRepository {
     `);
   }
 
-  seed(seedFilePath) {
+  private seed(seedFilePath?: string): void {
     const { invites, submissions } = buildSeedEntries(readSeedState(seedFilePath));
     const insertInvite = this.database.prepare(`
       INSERT OR IGNORE INTO invites (
@@ -108,7 +139,7 @@ export class InviteRepository {
     seedTransaction();
   }
 
-  getInviteByToken(token, { includeInactive = false } = {}) {
+  getInviteByToken(token: string, { includeInactive = false } = {}): Invite | null {
     const row = this.database
       .prepare(
         `
@@ -120,10 +151,10 @@ export class InviteRepository {
       )
       .get(token);
 
-    return mapInviteRow(row);
+    return mapInviteRow(row as Parameters<typeof mapInviteRow>[0]);
   }
 
-  getInviteByDisplayName(displayName) {
+  getInviteByDisplayName(displayName: string): Invite | null {
     const row = this.database
       .prepare(
         `
@@ -137,10 +168,10 @@ export class InviteRepository {
       )
       .get(normalizeDisplayName(displayName));
 
-    return mapInviteRow(row);
+    return mapInviteRow(row as Parameters<typeof mapInviteRow>[0]);
   }
 
-  listInvitesWithSubmissions() {
+  listInvitesWithSubmissions(): InviteWithSubmission[] {
     const rows = this.database
       .prepare(
         `
@@ -165,10 +196,10 @@ export class InviteRepository {
       )
       .all();
 
-    return rows.map((row) => mapInviteSubmissionRow(row));
+    return rows.map((row) => mapInviteSubmissionRow(row as InviteSubmissionRow));
   }
 
-  listDatabaseSnapshot() {
+  listDatabaseSnapshot(): DatabaseSnapshot {
     const invites = this.database
       .prepare(
         `
@@ -178,7 +209,7 @@ export class InviteRepository {
         `,
       )
       .all()
-      .map((row) => mapInviteRow(row));
+      .map((row) => mapInviteRow(row as Parameters<typeof mapInviteRow>[0])) as Invite[];
     const rsvps = this.database
       .prepare(
         `
@@ -188,7 +219,9 @@ export class InviteRepository {
         `,
       )
       .all()
-      .map((row) => mapSubmissionRow(row));
+      .map((row) =>
+        mapSubmissionRow(row as Parameters<typeof mapSubmissionRow>[0]),
+      ) as Submission[];
 
     return {
       provider: this.provider,
@@ -198,7 +231,12 @@ export class InviteRepository {
     };
   }
 
-  createInvite({ displayName, inviteType, active = true, token }) {
+  createInvite({
+    displayName,
+    inviteType,
+    active = true,
+    token,
+  }: CreateInviteInput): Invite | null {
     const inviteToken = token || createToken(displayName, inviteType);
     const timestamp = nowIso();
 
@@ -231,7 +269,7 @@ export class InviteRepository {
     return this.getInviteByToken(inviteToken, { includeInactive: true });
   }
 
-  updateInvite(token, updates) {
+  updateInvite(token: string, updates: UpdateInviteInput): Invite | null {
     const existingInvite = this.getInviteByToken(token, { includeInactive: true });
     if (!existingInvite) {
       return null;
@@ -268,7 +306,7 @@ export class InviteRepository {
     return this.getInviteByToken(token, { includeInactive: true });
   }
 
-  getRsvpByToken(token) {
+  getRsvpByToken(token: string): Submission | null {
     return mapSubmissionRow(
       this.database
         .prepare(
@@ -278,11 +316,11 @@ export class InviteRepository {
             WHERE invite_token = ?
           `,
         )
-        .get(token),
+        .get(token) as Parameters<typeof mapSubmissionRow>[0],
     );
   }
 
-  upsertRsvp(token, submission) {
+  upsertRsvp(token: string, submission: UpsertRsvpInput): Submission | null {
     this.database
       .prepare(
         `
@@ -314,7 +352,7 @@ export class InviteRepository {
     return this.getRsvpByToken(token);
   }
 
-  close() {
+  close(): void {
     this.database.close();
   }
 }

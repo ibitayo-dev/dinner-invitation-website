@@ -1,0 +1,54 @@
+.design-nav {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+  &__label {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-right: 4px;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    &--active {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+  }
+}

@@ -1,0 +1,467 @@
+// Design 7: Paper Cut
+// Tactile craft aesthetic, layered paper depth, soft shadows, muted earthy pastels
+@import url('https://fonts.googleapis.com/css2?family=Gamjas+Flower&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap');
+
+$parchment: #f7f2ea;
+$blush: #e8d5c8;
+$blush-deep: #d4b8a4;
+$sage: #8a9e7a;
+$sage-dark: #6a7e5a;
+$clay: #b08060;
+$clay-dark: #8a6040;
+$ink: #3a3630;
+$ink-light: #6a645c;
+$warm-white: #fdfaf5;
+
+:host {
+  display: block;
+  --font-display: 'Gamjas Flower', cursive;
+  --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
+}
+
+.paper {
+  background: $parchment;
+  color: $ink;
+  min-height: 100vh;
+  position: relative;
+}
+
+// Hero
+.paper-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  overflow: hidden;
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  &__above {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: $ink-light;
+    margin: 0 0 16px;
+    opacity: 0;
+    animation: paperUp 1s ease-out 0.2s forwards;
+  }
+
+  &__event {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-weight: 400;
+    color: $clay;
+    margin: 0 0 28px;
+    opacity: 0;
+    animation: paperUp 1s ease-out 0.35s forwards;
+  }
+
+  &__names {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 0;
+    opacity: 0;
+    animation: paperUp 1s ease-out 0.5s forwards;
+  }
+
+  &__name {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 9vw, 6rem);
+    font-weight: 400;
+    color: $ink;
+    line-height: 1;
+  }
+
+  &__amp {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: $sage;
+  }
+}
+
+.paper-layer {
+  position: absolute;
+  border-radius: 24px;
+
+  &--back {
+    inset: 8% 6%;
+    background: $blush;
+    box-shadow: 0 4px 20px rgba($ink, 0.06);
+    transform: rotate(-1.5deg);
+    z-index: 0;
+  }
+
+  &--mid {
+    inset: 9% 7%;
+    background: $warm-white;
+    box-shadow: 0 2px 12px rgba($ink, 0.05);
+    transform: rotate(0.5deg);
+    z-index: 1;
+  }
+}
+
+.paper-stamp {
+  position: absolute;
+  top: -60px;
+  right: -40px;
+  width: 100px;
+  height: 100px;
+  color: $clay;
+  opacity: 0.4;
+  transform: rotate(15deg);
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: $clay;
+  }
+}
+
+// Photo
+.paper-photo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 80px;
+
+  &__card {
+    position: relative;
+    max-width: 440px;
+    width: 100%;
+    background: $warm-white;
+    padding: 16px 16px 40px;
+    box-shadow: 0 6px 28px rgba($ink, 0.08);
+    transform: rotate(-1deg);
+    transition: transform 0.4s ease;
+
+    &:hover {
+      transform: rotate(0deg);
+    }
+  }
+
+  &__tape {
+    position: absolute;
+    width: 50px;
+    height: 22px;
+    background: rgba($blush-deep, 0.35);
+    z-index: 2;
+    backdrop-filter: none;
+
+    &--left {
+      top: -8px;
+      left: 24px;
+      transform: rotate(-5deg);
+    }
+
+    &--right {
+      top: -6px;
+      right: 28px;
+      transform: rotate(8deg);
+    }
+  }
+
+  &__img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// Note
+.paper-note {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 80px;
+
+  &__card {
+    max-width: 480px;
+    width: 100%;
+    background: $warm-white;
+    padding: 40px 36px;
+    border-left: 3px solid $sage;
+    box-shadow: 0 3px 16px rgba($ink, 0.05);
+
+    @media (max-width: 500px) {
+      padding: 28px 20px;
+    }
+  }
+
+  &__text {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.8;
+    color: $ink;
+    margin: 0;
+  }
+}
+
+// Title
+.paper-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  color: $ink;
+  text-align: center;
+  margin: 0 0 36px;
+}
+
+// Details
+.paper-details {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 80px;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+
+  &__link {
+    margin-top: 32px;
+  }
+}
+
+.paper-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paper-tile {
+  background: $warm-white;
+  border-radius: 16px;
+  padding: 28px 20px;
+  box-shadow: 0 3px 12px rgba($ink, 0.04);
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba($ink, 0.08);
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 16px;
+    color: $sage;
+  }
+
+  h3 {
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: $clay;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: $ink;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.craft-link {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: $sage-dark;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: $clay;
+  }
+}
+
+// RSVP
+.paper-rsvp {
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px 80px;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+
+  &__note {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: $ink-light;
+    margin: -20px 0 32px;
+  }
+
+  &__card {
+    background: $warm-white;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 20px rgba($ink, 0.05);
+    text-align: left;
+
+    @media (max-width: 500px) {
+      padding: 24px 16px;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    @media (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.p-field {
+  label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: $clay;
+    margin-bottom: 8px;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: $ink;
+    background: $parchment;
+    border: 1px solid rgba($blush-deep, 0.4);
+    border-radius: 10px;
+    padding: 12px 16px;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: $sage;
+    }
+
+    &::placeholder {
+      color: rgba($ink-light, 0.5);
+    }
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a9e7a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 72px;
+  }
+}
+
+.craft-btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+
+  &--primary {
+    color: $warm-white;
+    background: $sage;
+    border: none;
+    padding: 12px 28px;
+
+    &:hover {
+      background: $sage-dark;
+    }
+  }
+
+  &--ghost {
+    color: $sage-dark;
+    background: none;
+    border: 1px solid rgba($sage, 0.3);
+    padding: 12px 20px;
+
+    &:hover {
+      border-color: $sage;
+    }
+  }
+}
+
+// Footer
+.paper-footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 24px 80px;
+
+  &__text {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: $ink-light;
+    margin: 0 0 8px;
+  }
+
+  &__heart {
+    font-size: 1.2rem;
+    color: $blush-deep;
+  }
+}
+
+@keyframes paperUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}

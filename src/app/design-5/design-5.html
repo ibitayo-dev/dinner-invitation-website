@@ -1,0 +1,181 @@
+<app-design-nav [current]="5"></app-design-nav>
+<!-- Design 5: Matinée — Claymorphism cinema, soft inflated cards, film-strip motifs -->
+<div class="mat">
+  <div class="mat-grain" aria-hidden="true"></div>
+
+  <header class="mat-hero">
+    <div class="mat-ticket" aria-hidden="true">
+      <span class="mat-ticket__text">ADMIT TWO</span>
+      <span class="mat-ticket__perf">★</span>
+      <span class="mat-ticket__text">ROW I · SEAT 27</span>
+    </div>
+    <div class="mat-clay mat-clay--hero">
+      <p class="mat-hero__over">
+        <svg class="mat-hero__star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Now Showing
+      </p>
+      <h2 class="mat-hero__event">Post Wedding Dinner</h2>
+      <h1 class="mat-hero__names">
+        <span class="mat-hero__name">Ibitayo</span>
+        <span class="mat-hero__amp">&amp;</span>
+        <span class="mat-hero__name">Shannon</span>
+      </h1>
+      <div class="mat-hero__strip" aria-hidden="true">
+        <div class="mat-hero__frame"></div>
+        <div class="mat-hero__frame"></div>
+        <div class="mat-hero__frame"></div>
+        <div class="mat-hero__frame"></div>
+        <div class="mat-hero__frame"></div>
+      </div>
+      <p class="mat-hero__date">Friday, 27 November 2026 · 6 PM</p>
+    </div>
+  </header>
+
+  <section class="mat-photo">
+    <div class="mat-clay mat-clay--photo">
+      <div class="mat-photo__screen">
+        <img src="couple-photo.jpeg" alt="Ibitayo and Shannon" class="mat-photo__img"/>
+        <div class="mat-photo__curtain mat-photo__curtain--left" aria-hidden="true"></div>
+        <div class="mat-photo__curtain mat-photo__curtain--right" aria-hidden="true"></div>
+      </div>
+      <p class="mat-photo__caption">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        A Feature Presentation
+      </p>
+    </div>
+  </section>
+
+  <section class="mat-about">
+    <div class="mat-clay mat-clay--about">
+      <div class="mat-about__reel" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="currentColor" class="mat-reel">
+          <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="24" cy="24" r="4"/>
+          <circle cx="24" cy="10" r="3"/>
+          <circle cx="24" cy="38" r="3"/>
+          <circle cx="10" cy="24" r="3"/>
+          <circle cx="38" cy="24" r="3"/>
+          <circle cx="14" cy="14" r="2.5"/>
+          <circle cx="34" cy="34" r="2.5"/>
+          <circle cx="34" cy="14" r="2.5"/>
+          <circle cx="14" cy="34" r="2.5"/>
+        </svg>
+      </div>
+      <p class="mat-about__text">
+        An evening of extraordinary dining and celebration at one
+        of London's finest restaurants — where the river meets the
+        city, and cherished company meets exceptional cuisine.
+      </p>
+    </div>
+  </section>
+
+  <section class="mat-details">
+    <div class="mat-clay mat-clay--details">
+      <h2 class="mat-details__title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Showtime
+      </h2>
+      <div class="mat-details__grid">
+        <div class="mat-details__item">
+          <span class="mat-details__label">Date</span>
+          <span class="mat-details__value">Friday, 27 November 2026</span>
+        </div>
+        <div class="mat-details__item">
+          <span class="mat-details__label">Time</span>
+          <span class="mat-details__value">6:00 PM — 9:00 PM</span>
+        </div>
+        <div class="mat-details__item">
+          <span class="mat-details__label">Venue</span>
+          <span class="mat-details__value">The Coal Shed<br/>One Tower Bridge, London</span>
+        </div>
+        <div class="mat-details__item">
+          <span class="mat-details__label">Dress Code</span>
+          <span class="mat-details__value">Formal</span>
+        </div>
+      </div>
+      <a href="https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London"
+         target="_blank" rel="noreferrer" class="mat-link">Get directions →</a>
+    </div>
+  </section>
+
+  <section class="mat-rsvp">
+    <div class="mat-clay mat-clay--rsvp">
+      <h2 class="mat-rsvp__title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Reserve Your Seat
+      </h2>
+      <p class="mat-rsvp__deadline">Please respond by 1 October 2026</p>
+      <div class="mat-rsvp__form">
+        <div class="mat-rsvp__row">
+          <div class="m-field">
+            <label>Attending</label>
+            <select>
+              <option>Yes, I'll be there</option>
+              <option>Unfortunately not</option>
+            </select>
+          </div>
+          <div class="m-field">
+            <label>Guests</label>
+            <select>
+              <option>1</option>
+              <option>2</option>
+            </select>
+          </div>
+        </div>
+        <div class="m-field">
+          <label>Dietary Requirements</label>
+          <textarea rows="3" placeholder="Any requirements or notes…"></textarea>
+        </div>
+        <div class="mat-rsvp__actions">
+          <button type="button" class="mat-btn mat-btn--fill">Confirm Booking</button>
+          <button type="button" class="mat-btn mat-btn--soft">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Save the Date
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="mat-footer">
+    <div class="mat-footer__strip" aria-hidden="true">
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+    </div>
+    <p class="mat-footer__text">We look forward to your company</p>
+    <div class="mat-footer__strip" aria-hidden="true">
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+      <div class="mat-footer__hole"></div>
+    </div>
+  </footer>
+</div>

@@ -1,12 +1,12 @@
 import { Pool } from 'pg';
 import test from 'node:test';
 
-import { createInviteRepository } from './create-invite-repository.mjs';
-import { registerInviteRepositoryContract } from './invite-repository-contract.mjs';
+import { createInviteRepository } from './create-invite-repository.js';
+import { registerInviteRepositoryContract } from './invite-repository-contract.js';
 
-const testDatabaseUrl = process.env.TEST_DATABASE_URL?.trim() ?? '';
+const testDatabaseUrl = process.env['TEST_DATABASE_URL']?.trim() ?? '';
 
-function buildPoolOptions(databaseUrl) {
+function buildPoolOptions(databaseUrl: string) {
   return {
     connectionString: databaseUrl,
     ssl:
@@ -16,7 +16,7 @@ function buildPoolOptions(databaseUrl) {
   };
 }
 
-async function resetPostgresState() {
+async function resetPostgresState(): Promise<void> {
   const pool = new Pool(buildPoolOptions(testDatabaseUrl));
 
   try {
@@ -43,7 +43,7 @@ if (!testDatabaseUrl) {
         repository: await createInviteRepository({
           databasePath,
           databaseUrl: testDatabaseUrl,
-          seedFilePath,
+          seedFilePath: seedFilePath ?? '',
         }),
         cleanup: async () => {
           await resetPostgresState();

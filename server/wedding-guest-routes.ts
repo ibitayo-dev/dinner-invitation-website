@@ -1,5 +1,25 @@
-function getPathValue(prefix, pathname) {
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+import type { IInviteRepository } from './create-invite-repository.js';
+
+function getPathValue(prefix: string, pathname: string): string {
   return decodeURIComponent(pathname.replace(prefix, ''));
+}
+
+interface HandleApiRequestOptions {
+  request: IncomingMessage;
+  response: ServerResponse;
+  url: URL;
+  origin: string | undefined;
+  repository: IInviteRepository;
+  databasePath: string;
+  databaseUrl: string | null;
+  adminGuid: string | null;
+  readJsonBody: (request: IncomingMessage) => Promise<unknown>;
+  normalizeString: (value: unknown) => string;
+  normalizeGuestCount: (value: unknown, plusOneAllowed: boolean, attending: string) => number;
+  normalizePlusOneName: (value: unknown, guestCount: number) => string;
+  sendJson: (response: ServerResponse, statusCode: number, payload: unknown, origin?: string) => void;
 }
 
 async function handleApiRequest({
@@ -16,7 +36,7 @@ async function handleApiRequest({
   normalizeGuestCount,
   normalizePlusOneName,
   sendJson,
-}) {
+}: HandleApiRequestOptions): Promise<boolean> {
   if (request.method === 'GET' && url.pathname === '/api/health') {
     sendJson(
       response,
@@ -83,13 +103,18 @@ async function handleApiRequest({
       return true;
     }
 
-    const attending = body.attending === 'no' ? 'no' : 'yes';
-    const guestCount = normalizeGuestCount(body.guestCount, invite.plusOneAllowed, attending);
+    const bodyRecord = body as Record<string, unknown>;
+    const attending = bodyRecord['attending'] === 'no' ? 'no' : 'yes';
+    const guestCount = normalizeGuestCount(
+      bodyRecord['guestCount'],
+      invite.plusOneAllowed,
+      attending,
+    );
     const submission = await repository.upsertRsvp(token, {
       attending,
-      dietaryRequirements: normalizeString(body.dietaryRequirements),
+      dietaryRequirements: normalizeString(bodyRecord['dietaryRequirements']),
       guestCount,
-      plusOneName: normalizePlusOneName(body.plusOneName, guestCount),
+      plusOneName: normalizePlusOneName(bodyRecord['plusOneName'], guestCount),
     });
 
     sendJson(response, 200, { submission }, origin);

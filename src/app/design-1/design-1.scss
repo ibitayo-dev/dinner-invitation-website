@@ -1,0 +1,529 @@
+// Design 1: Botanical Noir
+// Dark forest green + cream, editorial serif typography, botanical line art
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+$forest-deep: #0a1a0f;
+$forest: #1a2e1a;
+$forest-mid: #2d4a2d;
+$sage: #6b8f6b;
+$cream: #f5f0e8;
+$cream-soft: #e8e0d0;
+$gold-leaf: #c4a265;
+$moss: #4a6741;
+
+:host {
+  display: block;
+  --font-editorial: 'Cormorant Garamond', 'Georgia', serif;
+  --font-text: 'Libre Baskerville', 'Georgia', serif;
+}
+
+.botanical-noir {
+  background: $forest-deep;
+  color: $cream;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba($sage, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba($gold-leaf, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Botanical background illustrations
+.botanical-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  color: $sage;
+}
+
+.branch {
+  position: absolute;
+  height: 100%;
+  width: 200px;
+
+  &--left {
+    left: -20px;
+    opacity: 0.6;
+  }
+
+  &--right {
+    right: -20px;
+    opacity: 0.5;
+  }
+}
+
+// Hero section
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+
+  &__frame {
+    max-width: 700px;
+    animation: fadeIn 2s ease-out;
+  }
+
+  &__ornament {
+    width: 160px;
+    margin: 0 auto 40px;
+    color: $gold-leaf;
+    opacity: 0;
+    animation: fadeIn 1.5s ease-out 0.3s forwards;
+
+    &--bottom {
+      margin: 40px auto 0;
+      animation-delay: 1.5s;
+    }
+  }
+
+  &__prelude {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: $cream-soft;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeSlideUp 1.2s ease-out 0.5s forwards;
+  }
+
+  &__title {
+    font-family: var(--font-editorial);
+    margin: 0;
+    line-height: 1.1;
+    opacity: 0;
+    animation: fadeSlideUp 1.2s ease-out 0.7s forwards;
+  }
+
+  &__title-line {
+    display: block;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: $cream;
+
+    &--accent {
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      font-weight: 600;
+      color: $gold-leaf;
+      letter-spacing: 0.2em;
+      margin-top: 8px;
+      text-shadow: 0 0 60px rgba($gold-leaf, 0.3);
+    }
+  }
+
+  &__subtitle {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 1rem;
+    color: $sage;
+    letter-spacing: 0.06em;
+    margin: 32px 0 24px;
+    opacity: 0;
+    animation: fadeSlideUp 1.2s ease-out 0.9s forwards;
+  }
+
+  &__couple {
+    font-family: var(--font-editorial);
+    font-weight: 300;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin: 0;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: fadeSlideUp 1.2s ease-out 1.1s forwards;
+  }
+
+  &__name {
+    display: inline-block;
+  }
+
+  &__ampersand {
+    display: inline-block;
+    font-style: italic;
+    color: $gold-leaf;
+    margin: 0 16px;
+    font-size: 0.8em;
+  }
+}
+
+// Portrait section
+.portrait {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 40px 24px 80px;
+
+  &__frame {
+    position: relative;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  &__border {
+    position: absolute;
+    inset: -12px;
+    border: 1px solid rgba($gold-leaf, 0.3);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border: 1px solid rgba($gold-leaf, 0.1);
+    }
+  }
+
+  &__image {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: sepia(0.15) contrast(1.05);
+    transition: filter 0.6s ease;
+
+    &:hover {
+      filter: sepia(0) contrast(1.1);
+    }
+  }
+}
+
+// Quote section
+.quote-section {
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.quote {
+  max-width: 600px;
+  text-align: center;
+  margin: 0;
+  padding: 48px 40px;
+  border-top: 1px solid rgba($gold-leaf, 0.2);
+  border-bottom: 1px solid rgba($gold-leaf, 0.2);
+
+  p {
+    font-family: var(--font-editorial);
+    font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.8;
+    color: $cream-soft;
+    margin: 0;
+  }
+}
+
+// Details section
+.details {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+}
+
+.detail-block {
+  text-align: center;
+  padding: 40px 24px;
+  border: 1px solid rgba($sage, 0.15);
+  background: rgba($forest, 0.3);
+  backdrop-filter: blur(8px);
+  transition: border-color 0.4s ease, background 0.4s ease;
+
+  &:hover {
+    border-color: rgba($gold-leaf, 0.3);
+    background: rgba($forest, 0.5);
+  }
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 20px;
+    color: $gold-leaf;
+    opacity: 0.7;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__label {
+    font-family: var(--font-text);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: $sage;
+    margin: 0 0 12px;
+    font-weight: 400;
+  }
+
+  &__value {
+    font-family: var(--font-editorial);
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: $cream;
+    margin: 0;
+  }
+}
+
+// Venue note
+.venue-note {
+  position: relative;
+  z-index: 1;
+  padding: 40px 24px 80px;
+  max-width: 650px;
+  margin: 0 auto;
+
+  &__card {
+    padding: 48px 40px;
+    background: linear-gradient(135deg, rgba($forest, 0.5), rgba($forest-mid, 0.2));
+    border-left: 2px solid rgba($gold-leaf, 0.4);
+  }
+
+  &__heading {
+    font-family: var(--font-editorial);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: $gold-leaf;
+    margin: 0 0 20px;
+    letter-spacing: 0.05em;
+  }
+
+  &__text {
+    font-family: var(--font-text);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: $cream-soft;
+    margin: 0 0 24px;
+  }
+
+  &__link {
+    font-family: var(--font-text);
+    font-size: 0.85rem;
+    color: $gold-leaf;
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+
+// RSVP section
+.rsvp {
+  position: relative;
+  z-index: 1;
+  padding: 80px 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+
+  &__ornament {
+    width: 160px;
+    margin: 0 auto 32px;
+    color: $gold-leaf;
+    opacity: 0.7;
+  }
+
+  &__heading {
+    font-family: var(--font-editorial);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $gold-leaf;
+    margin: 0 0 16px;
+  }
+
+  &__subtext {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: $cream-soft;
+    line-height: 1.7;
+    margin: 0 0 48px;
+  }
+
+  &__form-card {
+    padding: 48px 40px;
+    border: 1px solid rgba($sage, 0.15);
+    background: rgba($forest, 0.3);
+    backdrop-filter: blur(8px);
+    text-align: left;
+
+    @media (max-width: 500px) {
+      padding: 32px 20px;
+    }
+  }
+
+  &__field {
+    margin-bottom: 28px;
+  }
+
+  &__label {
+    display: block;
+    font-family: var(--font-text);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: $sage;
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+
+  &__select,
+  &__textarea {
+    width: 100%;
+    font-family: var(--font-editorial);
+    font-size: 1rem;
+    color: $cream;
+    background: rgba($forest-deep, 0.6);
+    border: 1px solid rgba($sage, 0.2);
+    padding: 14px 16px;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: rgba($gold-leaf, 0.5);
+    }
+
+    &::placeholder {
+      color: rgba($cream-soft, 0.4);
+      font-style: italic;
+    }
+  }
+
+  &__select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b8f6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  &__submit {
+    font-family: var(--font-text);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: $forest-deep;
+    background: $gold-leaf;
+    border: none;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  &__secondary {
+    font-family: var(--font-text);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    color: $gold-leaf;
+    background: none;
+    border: 1px solid rgba($gold-leaf, 0.3);
+    padding: 14px 24px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+
+    &:hover {
+      background: rgba($gold-leaf, 0.06);
+      border-color: rgba($gold-leaf, 0.5);
+    }
+  }
+}
+
+// Footer
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 60px 24px 80px;
+
+  &__leaf {
+    width: 80px;
+    margin: 0 auto 24px;
+    color: $sage;
+  }
+
+  &__text {
+    font-family: var(--font-editorial);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: $cream-soft;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

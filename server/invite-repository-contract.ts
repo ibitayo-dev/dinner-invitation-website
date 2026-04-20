@@ -4,7 +4,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
-const baseSeedState = {
+import type { IInviteRepository } from './create-invite-repository.js';
+import type { SeedState } from './invite-store-shared.js';
+
+const baseSeedState: SeedState = {
   invites: [
     {
       token: 'alpha-plus-one',
@@ -28,7 +31,7 @@ const baseSeedState = {
   },
 };
 
-const backfillSeedState = {
+const backfillSeedState: SeedState = {
   invites: [
     {
       token: 'shannon-plus-one',
@@ -52,19 +55,35 @@ const backfillSeedState = {
   },
 };
 
-function writeSeedFile(seedFilePath, seedState) {
+function writeSeedFile(seedFilePath: string, seedState: SeedState): void {
   writeFileSync(seedFilePath, JSON.stringify(seedState, null, 2));
 }
 
-function sanitizeLabel(label) {
+function sanitizeLabel(label: string): string {
   return label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
-async function closeRepository(repository) {
+async function closeRepository(repository: IInviteRepository): Promise<void> {
   await repository.close?.();
 }
 
-export function registerInviteRepositoryContract(label, createRepository) {
+interface RepositoryContext {
+  repository?: IInviteRepository;
+  cleanup?: () => Promise<void>;
+  close?: () => Promise<void>;
+}
+
+interface CreateRepositoryOptions {
+  databasePath: string;
+  seedFilePath?: string;
+  tempDirectory: string;
+  resetState?: boolean;
+}
+
+export function registerInviteRepositoryContract(
+  label: string,
+  createRepository: (options: CreateRepositoryOptions) => Promise<RepositoryContext | IInviteRepository>,
+): void {
   const prefix = sanitizeLabel(label);
 
   test(`${label} repository contract seeds, reads, and writes invite state`, async () => {
@@ -80,7 +99,7 @@ export function registerInviteRepositoryContract(label, createRepository) {
       tempDirectory,
       resetState: true,
     });
-    const repository = context.repository ?? context;
+    const repository = (context as RepositoryContext).repository ?? (context as IInviteRepository);
 
     try {
       assert.equal(repository.getInviteByToken('alpha-plus-one') instanceof Promise, true);
@@ -157,7 +176,7 @@ export function registerInviteRepositoryContract(label, createRepository) {
       );
     } finally {
       await closeRepository(repository);
-      await context.cleanup?.();
+      await (context as RepositoryContext).cleanup?.();
       rmSync(tempDirectory, { force: true, recursive: true });
     }
   });
@@ -174,7 +193,8 @@ export function registerInviteRepositoryContract(label, createRepository) {
       tempDirectory,
       resetState: true,
     });
-    const initialRepository = initialContext.repository ?? initialContext;
+    const initialRepository =
+      (initialContext as RepositoryContext).repository ?? (initialContext as IInviteRepository);
 
     try {
       await closeRepository(initialRepository);
@@ -185,7 +205,8 @@ export function registerInviteRepositoryContract(label, createRepository) {
         tempDirectory,
         resetState: false,
       });
-      const reseededRepository = reseededContext.repository ?? reseededContext;
+      const reseededRepository =
+        (reseededContext as RepositoryContext).repository ?? (reseededContext as IInviteRepository);
 
       try {
         const seededInvite = await reseededRepository.getInviteByToken('shannon-plus-one');
@@ -196,10 +217,10 @@ export function registerInviteRepositoryContract(label, createRepository) {
         assert.equal(seededSubmission?.guestCount, 2);
       } finally {
         await closeRepository(reseededRepository);
-        await reseededContext.cleanup?.();
+        await (reseededContext as RepositoryContext).cleanup?.();
       }
     } finally {
-      await initialContext.cleanup?.();
+      await (initialContext as RepositoryContext).cleanup?.();
       rmSync(tempDirectory, { force: true, recursive: true });
     }
   });

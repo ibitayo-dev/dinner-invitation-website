@@ -1,0 +1,138 @@
+<app-design-nav [current]="7"></app-design-nav>
+<!-- Design 7: Paper Cut — Tactile layered craft, soft shadows, earthy pastels, handmade charm -->
+<div class="paper">
+
+  <header class="paper-hero">
+    <div class="paper-layer paper-layer--back" aria-hidden="true"></div>
+    <div class="paper-layer paper-layer--mid" aria-hidden="true"></div>
+    <div class="paper-hero__content">
+      <div class="paper-stamp" aria-hidden="true">
+        <svg viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="0.6"/>
+          <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="0.4" stroke-dasharray="2 3"/>
+        </svg>
+        <span class="paper-stamp__text">27 · NOV · 2026</span>
+      </div>
+      <p class="paper-hero__above">— an invitation to —</p>
+      <h2 class="paper-hero__event">Post Wedding Dinner</h2>
+      <h1 class="paper-hero__names">
+        <span class="paper-hero__name">Ibitayo</span>
+        <span class="paper-hero__amp">&</span>
+        <span class="paper-hero__name">Shannon</span>
+      </h1>
+    </div>
+  </header>
+
+  <section class="paper-photo">
+    <div class="paper-photo__card">
+      <div class="paper-photo__tape paper-photo__tape--left" aria-hidden="true"></div>
+      <div class="paper-photo__tape paper-photo__tape--right" aria-hidden="true"></div>
+      <img src="couple-photo.jpeg" alt="Ibitayo and Shannon" class="paper-photo__img"/>
+    </div>
+  </section>
+
+  <section class="paper-note">
+    <div class="paper-note__card">
+      <p class="paper-note__text">
+        Please join us for an evening of heartfelt celebration, 
+        fine dining, and the warmth of loved ones — as we 
+        mark this beautiful new chapter together.
+      </p>
+    </div>
+  </section>
+
+  <section class="paper-details">
+    <h2 class="paper-title">The Details</h2>
+    <div class="paper-tiles">
+      <div class="paper-tile">
+        <div class="paper-tile__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <h3>Date</h3>
+        <p>Friday<br/>27 November 2026</p>
+      </div>
+      <div class="paper-tile">
+        <div class="paper-tile__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3>Time</h3>
+        <p>6:00 PM<br/>until 9:00 PM</p>
+      </div>
+      <div class="paper-tile">
+        <div class="paper-tile__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <h3>Venue</h3>
+        <p>The Coal Shed<br/>One Tower Bridge, London</p>
+      </div>
+      <div class="paper-tile">
+        <div class="paper-tile__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M12 2 L14 8 L20 8 L15 12 L17 18 L12 14 L7 18 L9 12 L4 8 L10 8Z"/>
+          </svg>
+        </div>
+        <h3>Dress Code</h3>
+        <p>Formal</p>
+      </div>
+    </div>
+    <div class="paper-details__link">
+      <a href="https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London"
+         target="_blank" rel="noreferrer" class="craft-link">View venue location →</a>
+    </div>
+  </section>
+
+  <section class="paper-rsvp">
+    <h2 class="paper-title">Your Reply</h2>
+    <p class="paper-rsvp__note">Please respond by 1st October 2026</p>
+    <div class="paper-rsvp__card">
+      <div class="paper-rsvp__row">
+        <div class="p-field">
+          <label>Attending?</label>
+          <select>
+            <option>Happily accepts</option>
+            <option>Unfortunately declines</option>
+          </select>
+        </div>
+        <div class="p-field">
+          <label>Guests</label>
+          <select>
+            <option>1</option>
+            <option>2</option>
+          </select>
+        </div>
+      </div>
+      <div class="p-field p-field--full">
+        <label>Dietary requirements</label>
+        <textarea rows="3" placeholder="Any requirements or allergies…"></textarea>
+      </div>
+      <div class="paper-rsvp__actions">
+        <button type="button" class="craft-btn craft-btn--primary">Send Reply</button>
+        <button type="button" class="craft-btn craft-btn--ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Save the Date
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="paper-footer">
+    <p class="paper-footer__text">Made with love, sealed with joy</p>
+    <div class="paper-footer__heart" aria-hidden="true">♡</div>
+  </footer>
+</div>

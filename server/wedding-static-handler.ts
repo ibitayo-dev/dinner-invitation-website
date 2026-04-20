@@ -1,7 +1,8 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 
-const contentTypes = {
+const contentTypes: Record<string, string> = {
   '.css': 'text/css; charset=utf-8',
   '.gif': 'image/gif',
   '.html': 'text/html; charset=utf-8',
@@ -18,13 +19,17 @@ const contentTypes = {
   '.woff2': 'font/woff2',
 };
 
-function resolveStaticPath(staticDir, pathname) {
+function resolveStaticPath(staticDir: string, pathname: string): string | null {
   const relativePath = pathname === '/' ? '/index.html' : pathname;
   const filePath = normalize(join(staticDir, relativePath));
   return filePath.startsWith(staticDir) ? filePath : null;
 }
 
-async function serveStaticAsset(staticDir, pathname, response) {
+async function serveStaticAsset(
+  staticDir: string,
+  pathname: string,
+  response: ServerResponse,
+): Promise<boolean> {
   const filePath = resolveStaticPath(staticDir, pathname);
   if (!filePath) {
     return false;
@@ -48,7 +53,11 @@ async function serveStaticAsset(staticDir, pathname, response) {
   }
 }
 
-async function serveAppShell(indexFile, response, sendText) {
+async function serveAppShell(
+  indexFile: string,
+  response: ServerResponse,
+  sendText: (response: ServerResponse, statusCode: number, payload: string) => void,
+): Promise<void> {
   try {
     response.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
@@ -56,8 +65,23 @@ async function serveAppShell(indexFile, response, sendText) {
     });
     response.end(await readFile(indexFile, 'utf8'));
   } catch {
-    sendText(response, 503, 'Frontend build output is not available yet. Run npm run build first.');
+    sendText(
+      response,
+      503,
+      'Frontend build output is not available yet. Run npm run build first.',
+    );
   }
+}
+
+interface HandleStaticRequestOptions {
+  request: IncomingMessage;
+  response: ServerResponse;
+  pathname: string;
+  staticDir: string;
+  indexFile: string;
+  adminGuid: string | null;
+  isAuthorizedAdmin: (adminGuid: string | null, guid: string) => boolean;
+  sendText: (response: ServerResponse, statusCode: number, payload: string) => void;
 }
 
 async function handleStaticRequest({
@@ -69,7 +93,7 @@ async function handleStaticRequest({
   adminGuid,
   isAuthorizedAdmin,
   sendText,
-}) {
+}: HandleStaticRequestOptions): Promise<boolean> {
   if (request.method !== 'GET' || pathname.startsWith('/api/')) {
     return false;
   }
@@ -81,7 +105,10 @@ async function handleStaticRequest({
 
   if (
     pathname.startsWith('/admin/') &&
-    !isAuthorizedAdmin(adminGuid, decodeURIComponent(pathname.split('/').filter(Boolean)[1] ?? ''))
+    !isAuthorizedAdmin(
+      adminGuid,
+      decodeURIComponent(pathname.split('/').filter(Boolean)[1] ?? ''),
+    )
   ) {
     sendText(response, 404, 'Not found');
     return true;

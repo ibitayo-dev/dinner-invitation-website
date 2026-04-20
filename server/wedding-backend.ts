@@ -6,40 +6,50 @@ import {
   handleAdminRequest,
   isAuthorizedAdmin,
   parseAdminRequest,
-} from './wedding-admin-routes.mjs';
-import { createInviteRepository } from './create-invite-repository.mjs';
-import { handleApiRequest } from './wedding-guest-routes.mjs';
+} from './wedding-admin-routes.js';
+import { createInviteRepository } from './create-invite-repository.js';
+import type { IInviteRepository } from './create-invite-repository.js';
+import { handleApiRequest } from './wedding-guest-routes.js';
 import {
   normalizeBoolean,
   normalizeGuestCount,
   normalizeInviteType,
   normalizePlusOneName,
   normalizeString,
-} from './wedding-request-normalization.mjs';
-import { createResponseHelpers, readJsonBody } from './wedding-response-utils.mjs';
-import { handleStaticRequest } from './wedding-static-handler.mjs';
+} from './wedding-request-normalization.js';
+import { createResponseHelpers, readJsonBody } from './wedding-response-utils.js';
+import { handleStaticRequest } from './wedding-static-handler.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
 const staticDir = join(__dirname, '..', 'dist', 'dinner-invitation-website', 'browser');
 const indexFile = join(staticDir, 'index.html');
-const databasePath = process.env.DATABASE_PATH ?? join(dataDir, 'wedding.sqlite');
-const databaseUrl = process.env.DATABASE_URL?.trim() || null;
+const databasePath = process.env['DATABASE_PATH'] ?? join(dataDir, 'wedding.sqlite');
+const databaseUrl = process.env['DATABASE_URL']?.trim() || null;
 const seedFilePath = join(dataDir, 'wedding-data.json');
-const adminGuid = process.env.ADMIN_GUID?.trim() || null;
-const port = Number.parseInt(process.env.PORT ?? '3001', 10);
+const adminGuid = process.env['ADMIN_GUID']?.trim() || null;
+const port = Number.parseInt(process.env['PORT'] ?? '3001', 10);
 
 const allowedOrigins = new Set(['http://localhost:4200', 'http://127.0.0.1:4200']);
 
-if (process.env.APP_ORIGIN?.trim()) {
-  allowedOrigins.add(process.env.APP_ORIGIN.trim());
+if (process.env['APP_ORIGIN']?.trim()) {
+  allowedOrigins.add(process.env['APP_ORIGIN'].trim());
 }
 
-if (process.env.RAILWAY_PUBLIC_DOMAIN?.trim()) {
-  allowedOrigins.add(`https://${process.env.RAILWAY_PUBLIC_DOMAIN.trim()}`);
+if (process.env['RAILWAY_PUBLIC_DOMAIN']?.trim()) {
+  allowedOrigins.add(`https://${process.env['RAILWAY_PUBLIC_DOMAIN'].trim()}`);
 }
 
 export { normalizeGuestCount, normalizePlusOneName };
+
+interface CreateWeddingBackendServerOptions {
+  repository?: IInviteRepository;
+  adminGuid?: string | null;
+  databasePath?: string;
+  databaseUrl?: string | null;
+  staticDir?: string;
+  indexFile?: string;
+}
 
 export function createWeddingBackendServer({
   repository,
@@ -48,7 +58,7 @@ export function createWeddingBackendServer({
   databaseUrl: configuredDatabaseUrl = databaseUrl,
   staticDir: configuredStaticDir = staticDir,
   indexFile: configuredIndexFile = indexFile,
-} = {}) {
+}: CreateWeddingBackendServerOptions = {}) {
   if (!repository) {
     throw new Error('A repository is required to create the wedding backend server.');
   }
@@ -140,7 +150,7 @@ export function createWeddingBackendServer({
   });
 }
 
-async function main() {
+async function main(): Promise<void> {
   const repository = await createInviteRepository({
     databasePath,
     databaseUrl,

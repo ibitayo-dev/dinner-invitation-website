@@ -13,9 +13,44 @@ import {
   nowIso,
   readSeedState,
   toIsoString,
-} from './invite-store-shared.mjs';
+} from './invite-store-shared.js';
+import type {
+  Invite,
+  InviteType,
+  InviteWithSubmission,
+  DatabaseSnapshot,
+  Submission,
+  SeedState,
+  InviteSubmissionRow,
+} from './invite-store-shared.js';
 
-function summarizeDatabaseUrl(databaseUrl) {
+interface UpsertRsvpInput {
+  attending: string;
+  guestCount: number;
+  dietaryRequirements?: string;
+  plusOneName?: string;
+}
+
+interface UpdateInviteInput {
+  displayName?: string;
+  inviteType?: InviteType;
+  active?: boolean;
+}
+
+interface CreateInviteInput {
+  displayName: string;
+  inviteType: InviteType;
+  active?: boolean;
+  token?: string;
+}
+
+interface PostgresInviteRepositoryOptions {
+  databaseUrl: string;
+  seedFilePath?: string;
+  sqliteMigrationPath?: string;
+}
+
+function summarizeDatabaseUrl(databaseUrl: string): string {
   try {
     const url = new URL(databaseUrl);
     return `${url.hostname}${url.pathname}`;
@@ -24,7 +59,7 @@ function summarizeDatabaseUrl(databaseUrl) {
   }
 }
 
-function readSqliteSnapshot(databasePath) {
+function readSqliteSnapshot(databasePath: string | undefined): SeedState | null {
   if (!databasePath || !existsSync(databasePath)) {
     return null;
   }
@@ -47,7 +82,15 @@ function readSqliteSnapshot(databasePath) {
           ORDER BY active DESC, updated_at DESC, display_name ASC
         `,
       )
-      .all();
+      .all() as Array<{
+      token: string;
+      displayName: string;
+      inviteType: InviteType;
+      plusOneAllowed: number;
+      active: number;
+      createdAt: string;
+      updatedAt: string;
+    }>;
     const submissions = database
       .prepare(
         `
@@ -62,7 +105,14 @@ function readSqliteSnapshot(databasePath) {
           ORDER BY updated_at DESC, invite_token ASC
         `,
       )
-      .all();
+      .all() as Array<{
+      inviteToken: string;
+      attending: string;
+      guestCount: number;
+      dietaryRequirements: string;
+      plusOneName: string;
+      updatedAt: string;
+    }>;
 
     return {
       invites: invites.map((invite) => ({
@@ -80,8 +130,13 @@ function readSqliteSnapshot(databasePath) {
 }
 
 export class PostgresInviteRepository {
-  constructor({ databaseUrl, seedFilePath, sqliteMigrationPath }) {
-    this.provider = 'postgres';
+  readonly provider = 'postgres';
+  readonly connectionLabel: string;
+  private readonly seedFilePath: string | undefined;
+  private readonly sqliteMigrationPath: string | undefined;
+  private readonly pool: Pool;
+
+  constructor({ databaseUrl, seedFilePath, sqliteMigrationPath }: PostgresInviteRepositoryOptions) {
     this.connectionLabel = summarizeDatabaseUrl(databaseUrl);
     this.seedFilePath = seedFilePath;
     this.sqliteMigrationPath = sqliteMigrationPath;
@@ -94,7 +149,7 @@ export class PostgresInviteRepository {
     });
   }
 
-  async initialize() {
+  async initialize(): Promise<this> {
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS invites (
         token TEXT PRIMARY KEY,
@@ -124,7 +179,7 @@ export class PostgresInviteRepository {
     return this;
   }
 
-  async seed() {
+  private async seed(): Promise<void> {
     const sourceState =
       readSqliteSnapshot(this.sqliteMigrationPath) ?? readSeedState(this.seedFilePath);
     const { invites, submissions } = buildSeedEntries(sourceState);
@@ -194,7 +249,10 @@ export class PostgresInviteRepository {
     }
   }
 
-  async getInviteByToken(token, { includeInactive = false } = {}) {
+  async getInviteByToken(
+    token: string,
+    { includeInactive = false } = {},
+  ): Promise<Invite | null> {
     const result = await this.pool.query(
       `
         SELECT *
@@ -205,10 +263,12 @@ export class PostgresInviteRepository {
       [token],
     );
 
-    return mapInviteRow(result.rows[0], { dateSerializer: toIsoString });
+    return mapInviteRow(result.rows[0] as Parameters<typeof mapInviteRow>[0], {
+      dateSerializer: toIsoString,
+    });
   }
 
-  async getInviteByDisplayName(displayName) {
+  async getInviteByDisplayName(displayName: string): Promise<Invite | null> {
     const result = await this.pool.query(
       `
         SELECT *
@@ -221,10 +281,12 @@ export class PostgresInviteRepository {
       [normalizeDisplayName(displayName)],
     );
 
-    return mapInviteRow(result.rows[0], { dateSerializer: toIsoString });
+    return mapInviteRow(result.rows[0] as Parameters<typeof mapInviteRow>[0], {
+      dateSerializer: toIsoString,
+    });
   }
 
-  async listInvitesWithSubmissions() {
+  async listInvitesWithSubmissions(): Promise<InviteWithSubmission[]> {
     const result = await this.pool.query(`
       SELECT
         invites.token,
@@ -245,10 +307,12 @@ export class PostgresInviteRepository {
       ORDER BY invites.active DESC, invites.updated_at DESC, invites.display_name ASC
     `);
 
-    return result.rows.map((row) => mapInviteSubmissionRow(row, { dateSerializer: toIsoString }));
+    return result.rows.map((row) =>
+      mapInviteSubmissionRow(row as InviteSubmissionRow, { dateSerializer: toIsoString }),
+    );
   }
 
-  async listDatabaseSnapshot() {
+  async listDatabaseSnapshot(): Promise<DatabaseSnapshot> {
     const [invitesResult, rsvpsResult] = await Promise.all([
       this.pool.query(`
         SELECT *
@@ -265,12 +329,27 @@ export class PostgresInviteRepository {
     return {
       provider: this.provider,
       connectionLabel: this.connectionLabel,
-      invites: invitesResult.rows.map((row) => mapInviteRow(row, { dateSerializer: toIsoString })),
-      rsvps: rsvpsResult.rows.map((row) => mapSubmissionRow(row, { dateSerializer: toIsoString })),
+      invites: invitesResult.rows.map(
+        (row) =>
+          mapInviteRow(row as Parameters<typeof mapInviteRow>[0], {
+            dateSerializer: toIsoString,
+          }) as Invite,
+      ),
+      rsvps: rsvpsResult.rows.map(
+        (row) =>
+          mapSubmissionRow(row as Parameters<typeof mapSubmissionRow>[0], {
+            dateSerializer: toIsoString,
+          }) as Submission,
+      ),
     };
   }
 
-  async createInvite({ displayName, inviteType, active = true, token }) {
+  async createInvite({
+    displayName,
+    inviteType,
+    active = true,
+    token,
+  }: CreateInviteInput): Promise<Invite | null> {
     const inviteToken = token || createToken(displayName, inviteType);
     const timestamp = nowIso();
 
@@ -302,7 +381,7 @@ export class PostgresInviteRepository {
     return this.getInviteByToken(inviteToken, { includeInactive: true });
   }
 
-  async updateInvite(token, updates) {
+  async updateInvite(token: string, updates: UpdateInviteInput): Promise<Invite | null> {
     const existingInvite = await this.getInviteByToken(token, { includeInactive: true });
     if (!existingInvite) {
       return null;
@@ -338,7 +417,7 @@ export class PostgresInviteRepository {
     return this.getInviteByToken(token, { includeInactive: true });
   }
 
-  async getRsvpByToken(token) {
+  async getRsvpByToken(token: string): Promise<Submission | null> {
     const result = await this.pool.query(
       `
         SELECT *
@@ -348,10 +427,12 @@ export class PostgresInviteRepository {
       [token],
     );
 
-    return mapSubmissionRow(result.rows[0], { dateSerializer: toIsoString });
+    return mapSubmissionRow(result.rows[0] as Parameters<typeof mapSubmissionRow>[0], {
+      dateSerializer: toIsoString,
+    });
   }
 
-  async upsertRsvp(token, submission) {
+  async upsertRsvp(token: string, submission: UpsertRsvpInput): Promise<Submission | null> {
     const result = await this.pool.query(
       `
         INSERT INTO rsvps (
@@ -380,10 +461,12 @@ export class PostgresInviteRepository {
       ],
     );
 
-    return mapSubmissionRow(result.rows[0], { dateSerializer: toIsoString });
+    return mapSubmissionRow(result.rows[0] as Parameters<typeof mapSubmissionRow>[0], {
+      dateSerializer: toIsoString,
+    });
   }
 
-  async close() {
+  async close(): Promise<void> {
     await this.pool.end();
   }
 }

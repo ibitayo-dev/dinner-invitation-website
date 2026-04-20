@@ -1,0 +1,524 @@
+// Design 3: Tokyo Neon
+// Japanese night-market energy, deep indigo, electric neon accents, vertical rhythm
+@import url('https://fonts.googleapis.com/css2?family=Zen+Dots&family=Lexend+Deca:wght@200;300;400;500;600&display=swap');
+
+$indigo: #0c0a1a;
+$indigo-mid: #15122a;
+$indigo-light: #1f1b38;
+$neon-pink: #ff2d8a;
+$neon-blue: #3b82f6;
+$neon-violet: #a855f7;
+$electric: #e0f2fe;
+$muted: #706b85;
+$warm-white: #eae7f0;
+
+:host {
+  display: block;
+  --font-display: 'Zen Dots', 'Helvetica Neue', sans-serif;
+  --font-body: 'Lexend Deca', 'Helvetica Neue', sans-serif;
+}
+
+.tokyo {
+  background: $indigo;
+  color: $warm-white;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.tokyo-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+}
+
+.tokyo-glow {
+  position: fixed;
+  top: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($neon-pink, 0.12) 0%, rgba($neon-violet, 0.06) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: glowDrift 12s ease-in-out infinite alternate;
+}
+
+@keyframes glowDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-5%, 10%) scale(1.1); }
+}
+
+// Hero
+.tokyo-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+
+  &__kanji {
+    font-size: clamp(8rem, 25vw, 18rem);
+    line-height: 0.85;
+    color: rgba($neon-pink, 0.04);
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    white-space: nowrap;
+    letter-spacing: 0.1em;
+  }
+
+  &__tag {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    color: $neon-pink;
+    margin: 0 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: tokyoFade 1s ease-out 0.2s forwards;
+  }
+
+  &__names {
+    margin: 0 0 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: tokyoFade 1s ease-out 0.4s forwards;
+  }
+
+  &__name {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: $warm-white;
+  }
+
+  &__x {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    font-weight: 200;
+    color: $neon-pink;
+  }
+
+  &__date-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: tokyoFade 1s ease-out 0.6s forwards;
+  }
+}
+
+.tag-flash {
+  width: 8px;
+  height: 8px;
+  background: $neon-pink;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: flashPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes flashPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.strip-segment {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: $muted;
+}
+
+.strip-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba($neon-pink, 0.5);
+}
+
+// Photo
+.tokyo-photo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 80px;
+
+  &__wrapper {
+    position: relative;
+    max-width: 520px;
+    width: 100%;
+  }
+
+  &__border {
+    position: absolute;
+    inset: -8px;
+    border: 1px solid rgba($neon-pink, 0.2);
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      right: 20px;
+      width: 30px;
+      height: 1px;
+      background: $neon-pink;
+    }
+  }
+
+  &__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    filter: contrast(1.1) saturate(0.85) brightness(0.95);
+  }
+
+  &__caption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+}
+
+.caption-line {
+  width: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba($neon-pink, 0.5));
+
+  &:last-child {
+    background: linear-gradient(90deg, rgba($neon-pink, 0.5), transparent);
+  }
+}
+
+.caption-text {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: $neon-pink;
+}
+
+// Quote
+.tokyo-quote {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 80px;
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  gap: 20px;
+
+  &__bar {
+    width: 2px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, $neon-pink, $neon-violet, transparent);
+    border-radius: 1px;
+  }
+
+  &__text {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.85;
+    color: rgba($warm-white, 0.75);
+    margin: 0;
+  }
+}
+
+// Section header
+.tokyo-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.section-marker {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  color: $neon-pink;
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  letter-spacing: 0.08em;
+  color: $warm-white;
+  margin: 0;
+}
+
+// Details grid
+.tokyo-details {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 80px;
+  max-width: 700px;
+  margin: 0 auto;
+
+  &__link {
+    margin-top: 32px;
+  }
+}
+
+.tokyo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tokyo-cell {
+  background: $indigo-mid;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: $indigo-light;
+  }
+
+  &__num {
+    font-size: 1.8rem;
+    color: rgba($neon-pink, 0.08);
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    line-height: 1;
+  }
+
+  &__key {
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $neon-pink;
+  }
+
+  &__val {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 300;
+    color: $warm-white;
+    line-height: 1.5;
+  }
+}
+
+.neon-link {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: $neon-blue;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.04em;
+  transition: color 0.3s ease, gap 0.3s ease;
+
+  &:hover {
+    color: $neon-pink;
+    gap: 10px;
+  }
+
+  &__arrow {
+    transition: transform 0.3s ease;
+  }
+}
+
+// RSVP
+.tokyo-rsvp {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 80px;
+  max-width: 580px;
+  margin: 0 auto;
+
+  &__deadline {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: $muted;
+    margin: 0 0 32px;
+    letter-spacing: 0.06em;
+  }
+
+  &__form {
+    background: $indigo-mid;
+    padding: 36px 32px;
+    border: 1px solid rgba($neon-pink, 0.08);
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+
+    @media (max-width: 500px) {
+      padding: 24px 16px;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    @media (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.t-field {
+  label {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $neon-pink;
+    margin-bottom: 8px;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: $warm-white;
+    background: $indigo;
+    border: 1px solid rgba($neon-pink, 0.15);
+    padding: 12px 16px;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: $neon-pink;
+      box-shadow: 0 0 0 1px rgba($neon-pink, 0.1);
+    }
+
+    &::placeholder {
+      color: $muted;
+    }
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23ff2d8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 72px;
+  }
+}
+
+.t-btn {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+
+  &--primary {
+    color: $indigo;
+    background: $neon-pink;
+    border: none;
+    padding: 12px 28px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+
+    &:hover {
+      box-shadow: 0 0 20px rgba($neon-pink, 0.4);
+    }
+  }
+
+  &--ghost {
+    color: $neon-pink;
+    background: none;
+    border: 1px solid rgba($neon-pink, 0.25);
+    padding: 12px 20px;
+
+    &:hover {
+      border-color: $neon-pink;
+      background: rgba($neon-pink, 0.05);
+    }
+  }
+}
+
+// Footer
+.tokyo-footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 24px 80px;
+
+  &__line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba($neon-pink, 0.4), transparent);
+    margin: 0 auto 20px;
+  }
+
+  &__text {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: $muted;
+    letter-spacing: 0.08em;
+    margin: 0;
+  }
+}
+
+@keyframes tokyoFade {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
