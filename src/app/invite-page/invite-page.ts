@@ -15,24 +15,25 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InviteRecord, RsvpSubmission } from '../invite-database';
 import { getUiErrorMessage, normalizeGuestCountSelection } from '../invite-ui-helpers';
 import { createInvitePageRevealObserver } from './invite-page-animations';
+import {
+  inviteAttireSection,
+  inviteCalendarLinkLabel,
+  inviteMapLinkLabel,
+  invitePageDetailsIntro,
+  invitePageFacts,
+  invitePageHero,
+  invitePageNavigationItems,
+  invitePagePhotos,
+  inviteRsvpSection,
+  inviteTravelSection,
+  inviteVenueSection,
+} from './invite-page-content';
 import { InvitePageFacade } from './invite-page-facade';
-
-interface Detail {
-  label: string;
-  value: string;
-}
 
 interface GuestCountOption {
   label: string;
   value: string;
 }
-
-const invitationDetails: Detail[] = [
-  { label: 'Date', value: 'Friday, 27th November 2026' },
-  { label: 'Time', value: '6:00 PM - 9:00 PM' },
-  { label: 'Venue', value: 'The Coal Shed, One Tower Bridge' },
-  { label: 'Dress', value: 'Formal' },
-];
 
 const plusOneGuestCountOptions: GuestCountOption[] = [
   { label: '1 Guest', value: '1' },
@@ -57,14 +58,18 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   protected readonly showRsvpForm = signal(false);
   protected readonly rsvpSubmitted = signal(false);
   protected readonly savedRsvpLoaded = signal(false);
-  protected readonly details = invitationDetails;
-  protected readonly heroQuote =
-    'Join us for an evening of exceptional dining and celebration overlooking the Thames at The Coal Shed, One Tower Bridge.';
-  protected readonly photoAlt =
-    'A smiling couple standing together by the water in front of a brick building';
-  protected readonly photoSrc = 'couple-photo.jpeg';
-  protected readonly mapHref =
-    'https://www.google.com/maps/search/?api=1&query=The+Coal+Shed+One+Tower+Bridge+London';
+  protected readonly attireSection = inviteAttireSection;
+  protected readonly calendarLinkLabel = inviteCalendarLinkLabel;
+  protected readonly details = invitePageFacts;
+  protected readonly detailsIntro = invitePageDetailsIntro;
+  protected readonly hero = invitePageHero;
+  protected readonly mapHref = inviteVenueSection.mapHref;
+  protected readonly mapLinkLabel = inviteMapLinkLabel;
+  protected readonly navigationItems = invitePageNavigationItems;
+  protected readonly photos = invitePagePhotos;
+  protected readonly rsvpSection = inviteRsvpSection;
+  protected readonly travelSection = inviteTravelSection;
+  protected readonly venueSection = inviteVenueSection;
 
   protected readonly rsvpForm = new FormGroup({
     attending: new FormControl<'yes' | 'no'>('yes', { nonNullable: true }),
@@ -89,6 +94,16 @@ export class InvitePageComponent implements OnInit, OnDestroy {
     return this.showGuestCountField()
       ? plusOneGuestCountOptions
       : plusOneGuestCountOptions.slice(0, 1);
+  });
+
+  protected readonly rsvpInviteeName = computed(() => {
+    const value = this.inviteeName().trim();
+
+    if (!value) {
+      return 'Friend';
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
   });
 
   protected readonly showPlusOneField = computed(() => {
@@ -149,11 +164,10 @@ export class InvitePageComponent implements OnInit, OnDestroy {
 
   protected downloadCalendar(): void {
     const event = {
-      description:
-        'Join us for an evening of exceptional dining and celebration overlooking the Thames.',
-      end: '20261127T180000',
+      description: 'Join us for an intimate post wedding dinner at The Coal Shed, One Tower Bridge.',
+      end: '20261127T210000',
       location: 'The Coal Shed, One Tower Bridge, 4 Crown Square, London SE1 2SE',
-      start: '20261127T150000',
+      start: '20261127T180000',
       title: 'Ibitayo and Shannon - Post Wedding Dinner',
     };
 
@@ -183,7 +197,7 @@ export class InvitePageComponent implements OnInit, OnDestroy {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = 'ibitayo-shannon-dinner.ics';
+    link.download = 'ibitayo-shannon-post-wedding-dinner.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

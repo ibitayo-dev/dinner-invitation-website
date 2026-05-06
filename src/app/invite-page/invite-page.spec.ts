@@ -78,14 +78,12 @@ describe('InvitePageComponent', () => {
     const fixture = await renderInvitePage(facade);
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('h1')?.textContent).toContain('Ibitayo');
-    expect(compiled.querySelector('h1')?.textContent).toContain('Shannon');
-    expect(compiled.querySelector('.rsvp-title')?.textContent).toContain(
-      "friend, we'd love to have you!",
-    );
-    expect(compiled.textContent).not.toContain('Event Schedule');
-    expect(compiled.querySelectorAll('.detail-card').length).toBeGreaterThan(0);
-    expect(compiled.querySelectorAll('.icon-pulse').length).toBeGreaterThan(0);
+    expect(compiled.querySelector('h1')?.textContent).toContain('IBITAYO');
+    expect(compiled.querySelector('.hero-name--right')?.textContent).toContain('SHANNON');
+    expect(compiled.querySelector('.section--rsvp h2')?.textContent).toContain('Friend');
+    expect(compiled.textContent).toContain('Guest Attire');
+    expect(compiled.querySelectorAll('.fact-card').length).toBe(4);
+    expect(compiled.querySelectorAll('.attire-track').length).toBe(2);
     expect(facade.load).toHaveBeenCalled();
   });
 
@@ -93,7 +91,7 @@ describe('InvitePageComponent', () => {
     const facade = createInvitePageFacadeStub();
     const fixture = await renderInvitePage(facade);
     const compiled = fixture.nativeElement as HTMLElement;
-    (compiled.querySelector('.btn-primary') as HTMLButtonElement | null)?.click();
+    (compiled.querySelector('.rsvp-open-button') as HTMLButtonElement | null)?.click();
     fixture.detectChanges();
 
     const form = compiled.querySelector('.rsvp-form');
@@ -122,7 +120,7 @@ describe('InvitePageComponent', () => {
 
     const fixture = await renderInvitePage(facade);
     const compiled = fixture.nativeElement as HTMLElement;
-    (compiled.querySelector('.btn-primary') as HTMLButtonElement | null)?.click();
+    (compiled.querySelector('.rsvp-open-button') as HTMLButtonElement | null)?.click();
     fixture.detectChanges();
 
     const guestSelect = compiled.querySelector('#rsvpGuests') as HTMLSelectElement | null;
@@ -167,7 +165,7 @@ describe('InvitePageComponent', () => {
     const fixture = await renderInvitePage(facade);
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-primary') as HTMLButtonElement | null)?.click();
+    (compiled.querySelector('.rsvp-open-button') as HTMLButtonElement | null)?.click();
     fixture.detectChanges();
 
     const guestSelect = compiled.querySelector('#rsvpGuests') as HTMLSelectElement | null;
@@ -193,6 +191,6 @@ describe('InvitePageComponent', () => {
     fixture.detectChanges();
 
     expect(facade.save).toHaveBeenCalled();
-    expect(compiled.textContent).toContain('Thank You!');
+    expect(compiled.textContent).toContain('Thank you.');
   });
 });

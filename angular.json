@@ -27,6 +27,10 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "inspiration"
               }
             ],
             "styles": ["src/styles.scss"],
