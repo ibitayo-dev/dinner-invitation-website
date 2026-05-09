@@ -5,6 +5,7 @@
 .editorial-invitation {
   position: relative;
   min-height: 100vh;
+  overflow-x: clip; /* prevent horizontal scroll when names bleed beyond the shell */
 }
 
 .invite-shell {
@@ -59,7 +60,7 @@
   --hero-photo-width: clamp(138px, 15vw, 184px);
   padding: 38px 0 96px;
   text-align: center;
-  overflow: hidden;
+  overflow: visible; /* allow names to bleed past the shell boundary; clip is handled at .editorial-invitation */
 }
 
 .hero-composition {
@@ -90,6 +91,7 @@
 .hero-name p {
   margin: 0;
   font-family: var(--font-hero);
+  font-size: clamp(5rem, 6.5vw, 8.5rem); /* large-screen base; overridden by max-width media queries below */
   line-height: 1;
   font-style: italic;
   font-weight: 500;
