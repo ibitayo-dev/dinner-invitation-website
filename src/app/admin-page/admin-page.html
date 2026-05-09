@@ -169,11 +169,19 @@
               <p class="invite-name">{{ entry.invite.displayName }}</p>
               <p class="invite-meta">
                 {{ entry.invite.inviteType === 'plus_one' ? 'Plus one' : 'Solo' }}
+                @if (!entry.invite.active) {
+                  &bull; <span class="invite-status-inactive">Inactive</span>
+                }
               </p>
             </div>
-            <button type="button" class="secondary-button secondary-button--danger" (click)="deleteInvite(entry)">
-              Delete
-            </button>
+            <div class="invite-card__actions">
+              <button type="button" class="secondary-button" (click)="toggleInvite(entry)">
+                {{ entry.invite.active ? 'Deactivate' : 'Reactivate' }}
+              </button>
+              <button type="button" class="secondary-button secondary-button--danger" (click)="deleteInvite(entry)">
+                Delete
+              </button>
+            </div>
           </div>
 
           <div class="invite-link-group">

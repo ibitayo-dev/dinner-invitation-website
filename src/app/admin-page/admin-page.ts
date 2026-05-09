@@ -75,6 +75,23 @@ export class AdminPageComponent {
     }
   }
 
+  protected async toggleInvite(entry: AdminInviteEntry): Promise<void> {
+    this.dashboardError.set('');
+
+    try {
+      const updated = await this.inviteDatabase.updateInvite(this.adminGuid(), entry.invite.token, {
+        active: !entry.invite.active,
+      });
+      this.inviteItems.update((items) =>
+        items.map((item) =>
+          item.invite.token === updated.token ? { ...item, invite: updated } : item,
+        ),
+      );
+    } catch (error) {
+      this.dashboardError.set(getUiErrorMessage(error));
+    }
+  }
+
   protected async deleteInvite(entry: AdminInviteEntry): Promise<void> {
     if (!confirm(`Delete "${entry.invite.displayName}"? This cannot be undone.`)) {
       return;
