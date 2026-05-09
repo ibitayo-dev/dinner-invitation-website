@@ -67,6 +67,8 @@ Prerequisites:
 - Local checkout at the commit you want to deploy
 - Linked Railway project `dinner-invitation-website`
 
+> **Important:** Always commit your changes locally _before_ deploying. Railway builds from the working directory, but the deployed image should correspond to a tracked commit so the git history and the live site stay in sync. Run `git add -A && git commit -m "..."` before any `railway up` command.
+
 Check the current Railway context first:
 
 ```bash
