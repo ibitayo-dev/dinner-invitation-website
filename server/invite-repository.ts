@@ -306,6 +306,13 @@ export class InviteRepository {
     return this.getInviteByToken(token, { includeInactive: true });
   }
 
+  deleteInvite(token: string): boolean {
+    const result = this.database
+      .prepare(`DELETE FROM invites WHERE token = ?`)
+      .run(token);
+    return result.changes > 0;
+  }
+
   getRsvpByToken(token: string): Submission | null {
     return mapSubmissionRow(
       this.database

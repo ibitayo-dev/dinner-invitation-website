@@ -264,6 +264,24 @@ export class WeddingInviteDatabase {
     return payload.invite;
   }
 
+  async deleteInvite(adminGuid: string, token: string): Promise<void> {
+    if (this.apiBaseUrl === null) {
+      return;
+    }
+
+    const response = await this.fetchImpl(
+      buildRequestUrl(this.apiBaseUrl, `/api/admin/${encodeURIComponent(adminGuid)}/invites/${encodeURIComponent(token)}`),
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response));
+    }
+  }
+
   private async fetchJson<T>(path: string, init: RequestInit = {}): Promise<T | null> {
     if (this.apiBaseUrl === null) {
       return null;

@@ -3,7 +3,7 @@
     <p class="admin-kicker">Admin Console</p>
     <h1>Invite management</h1>
     <p class="admin-summary">
-      Create guest links, deactivate invites, and review RSVP state from the same Railway-backed
+      Create guest links, delete invites, and review RSVP state from the same Railway-backed
       database.
     </p>
   </header>
@@ -15,10 +15,6 @@
         <div>
           <span class="stat-label">Invites</span>
           <strong>{{ inviteItems().length }}</strong>
-        </div>
-        <div>
-          <span class="stat-label">Active</span>
-          <strong>{{ activeInviteCount() }}</strong>
         </div>
         <div>
           <span class="stat-label">Responses</span>
@@ -103,7 +99,6 @@
                   <th>Token</th>
                   <th>Name</th>
                   <th>Type</th>
-                  <th>Active</th>
                   <th>Updated</th>
                 </tr>
               </thead>
@@ -113,7 +108,6 @@
                     <td>{{ invite.token }}</td>
                     <td>{{ invite.displayName }}</td>
                     <td>{{ invite.inviteType }}</td>
-                    <td>{{ invite.active ? 'true' : 'false' }}</td>
                     <td>{{ formatTimestamp(invite.updatedAt) }}</td>
                   </tr>
                 }
@@ -169,18 +163,16 @@
 
     <section class="invite-list">
       @for (entry of inviteItems(); track entry.invite.token) {
-        <article class="invite-card" [class.invite-card--inactive]="!entry.invite.active">
+        <article class="invite-card">
           <div class="invite-card__header">
             <div>
               <p class="invite-name">{{ entry.invite.displayName }}</p>
               <p class="invite-meta">
                 {{ entry.invite.inviteType === 'plus_one' ? 'Plus one' : 'Solo' }}
-                •
-                {{ entry.invite.active ? 'Active' : 'Inactive' }}
               </p>
             </div>
-            <button type="button" class="secondary-button" (click)="toggleInviteState(entry)">
-              {{ entry.invite.active ? 'Deactivate' : 'Reactivate' }}
+            <button type="button" class="secondary-button secondary-button--danger" (click)="deleteInvite(entry)">
+              Delete
             </button>
           </div>
 

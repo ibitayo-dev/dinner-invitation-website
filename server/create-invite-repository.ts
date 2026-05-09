@@ -25,6 +25,7 @@ export interface IInviteRepository {
     token: string,
     updates: { displayName?: string; inviteType?: InviteType; active?: boolean },
   ): Promise<Invite | null>;
+  deleteInvite(token: string): Promise<boolean>;
   getRsvpByToken(token: string): Promise<Submission | null>;
   upsertRsvp(
     token: string,
@@ -63,6 +64,9 @@ function wrapAsyncInviteRepository(repository: InviteRepository): IInviteReposit
     },
     async updateInvite(...args: Parameters<InviteRepository['updateInvite']>) {
       return repository.updateInvite(...args);
+    },
+    async deleteInvite(...args: Parameters<InviteRepository['deleteInvite']>) {
+      return repository.deleteInvite(...args);
     },
     async getRsvpByToken(...args: Parameters<InviteRepository['getRsvpByToken']>) {
       return repository.getRsvpByToken(...args);

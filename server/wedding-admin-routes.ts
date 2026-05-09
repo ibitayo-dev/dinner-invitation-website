@@ -137,6 +137,20 @@ async function handleAdminRequest({
     return true;
   }
 
+  if (
+    request.method === 'DELETE' &&
+    adminRequest.resource === 'invites' &&
+    adminRequest.resourceId
+  ) {
+    const deleted = await repository.deleteInvite(adminRequest.resourceId);
+    if (!deleted) {
+      sendJson(response, 404, { error: 'Invite not found.' }, origin);
+      return true;
+    }
+    sendJson(response, 200, { deleted: true }, origin);
+    return true;
+  }
+
   sendJson(response, 404, { error: 'Not found' }, origin);
   return true;
 }

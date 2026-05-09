@@ -155,6 +155,15 @@
   color: var(--ink);
 }
 
+.secondary-button--danger {
+  border-color: rgba(160, 31, 41, 0.4);
+  color: #a01f29;
+
+  &:hover {
+    background: rgba(160, 31, 41, 0.08);
+  }
+}
+
 .ghost-button {
   border: 1px solid var(--line);
   background: var(--paper-shadow);

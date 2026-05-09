@@ -181,6 +181,10 @@
   color: var(--ink);
 }
 
+.rsvp-heading {
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+}
+
 .section-copy p,
 .travel-notes p,
 .attire-track__intro,

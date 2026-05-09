@@ -34,10 +34,6 @@ export class AdminPageComponent {
     inviteType: new FormControl<InviteType>('solo', { nonNullable: true }),
   });
 
-  protected readonly activeInviteCount = computed(() => {
-    return this.inviteItems().filter((item) => item.invite.active).length;
-  });
-
   protected readonly responseCount = computed(() => {
     return this.inviteItems().filter((item) => item.submission !== null).length;
   });
@@ -79,22 +75,17 @@ export class AdminPageComponent {
     }
   }
 
-  protected async toggleInviteState(entry: AdminInviteEntry): Promise<void> {
+  protected async deleteInvite(entry: AdminInviteEntry): Promise<void> {
+    if (!confirm(`Delete "${entry.invite.displayName}"? This cannot be undone.`)) {
+      return;
+    }
+
     this.dashboardError.set('');
 
     try {
-      const updatedInvite = await this.inviteDatabase.updateInvite(
-        this.adminGuid(),
-        entry.invite.token,
-        {
-          active: !entry.invite.active,
-        },
-      );
-
+      await this.inviteDatabase.deleteInvite(this.adminGuid(), entry.invite.token);
       this.inviteItems.update((items) =>
-        items.map((item) =>
-          item.invite.token === updatedInvite.token ? { ...item, invite: updatedInvite } : item,
-        ),
+        items.filter((item) => item.invite.token !== entry.invite.token),
       );
       await this.reloadDatabaseSnapshot();
     } catch (error) {

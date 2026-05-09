@@ -417,6 +417,14 @@ export class PostgresInviteRepository {
     return this.getInviteByToken(token, { includeInactive: true });
   }
 
+  async deleteInvite(token: string): Promise<boolean> {
+    const result = await this.pool.query(
+      `DELETE FROM invites WHERE token = $1`,
+      [token],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
   async getRsvpByToken(token: string): Promise<Submission | null> {
     const result = await this.pool.query(
       `
