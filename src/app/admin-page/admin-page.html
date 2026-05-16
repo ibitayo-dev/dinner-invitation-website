@@ -133,6 +133,8 @@
                   <th>Attending</th>
                   <th>Guest count</th>
                   <th>Plus one</th>
+                  <th>Invitee menu</th>
+                  <th>Plus-one menu</th>
                   <th>Dietary notes</th>
                   <th>Updated</th>
                 </tr>
@@ -145,13 +147,27 @@
                       <td>{{ submission.attending }}</td>
                       <td>{{ submission.guestCount }}</td>
                       <td>{{ submission.plusOneName || 'None' }}</td>
+                      <td>
+                        Starter: {{ submission.inviteeStarter || 'Not selected' }}<br />
+                        Main: {{ submission.inviteeMain || 'Not selected' }}<br />
+                        Dessert: {{ submission.inviteeDessert || 'Not selected' }}
+                      </td>
+                      <td>
+                        @if (submission.guestCount > 1) {
+                          Starter: {{ submission.plusOneStarter || 'Not selected' }}<br />
+                          Main: {{ submission.plusOneMain || 'Not selected' }}<br />
+                          Dessert: {{ submission.plusOneDessert || 'Not selected' }}
+                        } @else {
+                          N/A
+                        }
+                      </td>
                       <td>{{ submission.dietaryRequirements || 'None' }}</td>
                       <td>{{ formatTimestamp(submission.updatedAt) }}</td>
                     </tr>
                   }
                 } @else {
                   <tr>
-                    <td colspan="6">No RSVP rows stored yet.</td>
+                    <td colspan="8">No RSVP rows stored yet.</td>
                   </tr>
                 }
               </tbody>
@@ -212,6 +228,20 @@
                 • {{ entry.submission.guestCount }} guest(s)
               </p>
               <p>Plus-one: {{ entry.submission.plusOneName || 'Not supplied' }}</p>
+              <p>
+                Invitee menu:
+                {{ entry.submission.inviteeStarter || 'Not selected' }} /
+                {{ entry.submission.inviteeMain || 'Not selected' }} /
+                {{ entry.submission.inviteeDessert || 'Not selected' }}
+              </p>
+              @if (entry.submission.guestCount > 1) {
+                <p>
+                  Plus-one menu:
+                  {{ entry.submission.plusOneStarter || 'Not selected' }} /
+                  {{ entry.submission.plusOneMain || 'Not selected' }} /
+                  {{ entry.submission.plusOneDessert || 'Not selected' }}
+                </p>
+              }
               <p>Dietary notes: {{ entry.submission.dietaryRequirements || 'None' }}</p>
               <p>Updated: {{ formatTimestamp(entry.submission.updatedAt) }}</p>
             } @else {

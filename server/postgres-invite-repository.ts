@@ -29,6 +29,12 @@ interface UpsertRsvpInput {
   guestCount: number;
   dietaryRequirements?: string;
   plusOneName?: string;
+  inviteeStarter?: string;
+  inviteeMain?: string;
+  inviteeDessert?: string;
+  plusOneStarter?: string;
+  plusOneMain?: string;
+  plusOneDessert?: string;
 }
 
 interface UpdateInviteInput {
@@ -171,8 +177,21 @@ export class PostgresInviteRepository {
         guest_count INTEGER NOT NULL,
         dietary_requirements TEXT NOT NULL DEFAULT '',
         plus_one_name TEXT NOT NULL DEFAULT '',
+        invitee_starter TEXT NOT NULL DEFAULT '',
+        invitee_main TEXT NOT NULL DEFAULT '',
+        invitee_dessert TEXT NOT NULL DEFAULT '',
+        plus_one_starter TEXT NOT NULL DEFAULT '',
+        plus_one_main TEXT NOT NULL DEFAULT '',
+        plus_one_dessert TEXT NOT NULL DEFAULT '',
         updated_at TIMESTAMPTZ NOT NULL
       );
+
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS invitee_starter TEXT NOT NULL DEFAULT '';
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS invitee_main TEXT NOT NULL DEFAULT '';
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS invitee_dessert TEXT NOT NULL DEFAULT '';
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS plus_one_starter TEXT NOT NULL DEFAULT '';
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS plus_one_main TEXT NOT NULL DEFAULT '';
+      ALTER TABLE rsvps ADD COLUMN IF NOT EXISTS plus_one_dessert TEXT NOT NULL DEFAULT '';
     `);
 
     await this.seed();
@@ -225,8 +244,14 @@ export class PostgresInviteRepository {
               guest_count,
               dietary_requirements,
               plus_one_name,
+              invitee_starter,
+              invitee_main,
+              invitee_dessert,
+              plus_one_starter,
+              plus_one_main,
+              plus_one_dessert,
               updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             ON CONFLICT (invite_token) DO NOTHING
           `,
           [
@@ -235,6 +260,12 @@ export class PostgresInviteRepository {
             submission.guestCount,
             submission.dietaryRequirements,
             submission.plusOneName,
+            submission.inviteeStarter,
+            submission.inviteeMain,
+            submission.inviteeDessert,
+            submission.plusOneStarter,
+            submission.plusOneMain,
+            submission.plusOneDessert,
             submission.updatedAt,
           ],
         );
@@ -301,6 +332,12 @@ export class PostgresInviteRepository {
         rsvps.guest_count,
         rsvps.dietary_requirements,
         rsvps.plus_one_name,
+        rsvps.invitee_starter,
+        rsvps.invitee_main,
+        rsvps.invitee_dessert,
+        rsvps.plus_one_starter,
+        rsvps.plus_one_main,
+        rsvps.plus_one_dessert,
         rsvps.updated_at AS rsvp_updated_at
       FROM invites
       LEFT JOIN rsvps ON rsvps.invite_token = invites.token
@@ -449,13 +486,25 @@ export class PostgresInviteRepository {
           guest_count,
           dietary_requirements,
           plus_one_name,
+          invitee_starter,
+          invitee_main,
+          invitee_dessert,
+          plus_one_starter,
+          plus_one_main,
+          plus_one_dessert,
           updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         ON CONFLICT(invite_token) DO UPDATE SET
           attending = excluded.attending,
           guest_count = excluded.guest_count,
           dietary_requirements = excluded.dietary_requirements,
           plus_one_name = excluded.plus_one_name,
+          invitee_starter = excluded.invitee_starter,
+          invitee_main = excluded.invitee_main,
+          invitee_dessert = excluded.invitee_dessert,
+          plus_one_starter = excluded.plus_one_starter,
+          plus_one_main = excluded.plus_one_main,
+          plus_one_dessert = excluded.plus_one_dessert,
           updated_at = excluded.updated_at
         RETURNING *
       `,
@@ -465,6 +514,12 @@ export class PostgresInviteRepository {
         submission.guestCount,
         submission.dietaryRequirements ?? '',
         submission.plusOneName ?? '',
+        submission.inviteeStarter ?? '',
+        submission.inviteeMain ?? '',
+        submission.inviteeDessert ?? '',
+        submission.plusOneStarter ?? '',
+        submission.plusOneMain ?? '',
+        submission.plusOneDessert ?? '',
         nowIso(),
       ],
     );

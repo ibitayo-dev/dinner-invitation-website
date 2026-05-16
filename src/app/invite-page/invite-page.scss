@@ -145,6 +145,7 @@
 .rsvp-note p,
 .travel-notes p,
 .footer p,
+.menu-fieldset legend,
 .form-input,
 .form-select,
 .form-textarea {
@@ -380,6 +381,10 @@
   max-width: min(100%, 190px);
 }
 
+.attire-look--formal-gentlemen img {
+  transform: translateY(-8px);
+}
+
 .attire-look h3,
 .rsvp-note h3 {
   margin: 0 0 8px;
@@ -416,6 +421,23 @@
   margin-top: 28px;
 }
 
+.rsvp-helper-text {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.rsvp-menu-helper-text {
+  margin: 14px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
 .rsvp-open-button,
 .rsvp-submit-button {
   border: 1px solid var(--ink);
@@ -443,6 +465,68 @@
   display: grid;
   gap: 10px;
   margin-top: 18px;
+}
+
+.menu-fieldset {
+  margin: 22px 0 0;
+  padding: 16px 16px 10px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.menu-fieldset--plus-one {
+  margin-top: 16px;
+}
+
+.menu-fieldset legend {
+  padding: 0 8px;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.menu-grid .form-group {
+  margin-top: 8px;
+}
+
+.menu-reference {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.menu-reference p {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.menu-reference__title,
+.menu-reference__subtitle {
+  color: var(--ink);
+}
+
+.menu-reference__title {
+  margin-top: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.menu-reference__subtitle {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .form-input,
@@ -532,6 +616,7 @@
   .attire-tracks,
   .attire-look-grid,
   .note-panels,
+  .menu-grid,
   .form-row,
   .photo-band {
     grid-template-columns: 1fr;

@@ -60,7 +60,7 @@ export const invitePageFacts: InvitePageFact[] = [
   { label: 'Date', value: 'Tuesday, 24th November 2026' },
   { label: 'Time', value: '6:00 PM - 9:00 PM' },
   { label: 'Venue', value: 'The Coal Shed, One Tower Bridge' },
-  { label: 'Reply By', value: '1st October 2026' },
+  { label: 'Reply By', value: '31st August 2026' },
 ];
 
 export const inviteVenueSection = {
@@ -184,8 +184,11 @@ export const inviteAttireSection = {
 
 export const inviteRsvpSection = {
   title: 'RSVP',
-  lead: 'Kindly reply by 1st October 2026. We cannot wait to share dinner with you.',
-  tokenMessage: 'Your invite link has loaded your saved invitation details.',
+  lead: 'Kindly reply by 31st August 2026 and share your meal choices.',
+  sidesMessage:
+    'You do not need to choose a side. Every main comes with all shared sides for the table: Beef Fat Chips, Mixed Salad Leaves, and Tenderstem Broccoli.',
+  updateDisclaimer:
+    'You can change your order any time by reopening this invite link, or by contacting a member of the wedding party.',
   editMessage: 'If you have already replied, you may review and update your response below.',
   submitLabel: 'Send Reply',
   openLabel: 'Reply',

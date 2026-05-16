@@ -25,15 +25,39 @@ function createInviteGatewayStub() {
       guestCount: 2,
       dietaryRequirements: 'Vegetarian',
       plusOneName: 'Alex',
+      inviteeStarter: 'Charred Watermelon',
+      inviteeMain: 'Grilled Butterflied Seabass',
+      inviteeDessert: 'Pavlova',
+      plusOneStarter: 'Steak Tartare',
+      plusOneMain: 'Rump Steak 300g',
+      plusOneDessert: 'Pavlova',
       updatedAt: '2026-04-18T02:00:00.000Z',
     })),
     saveSubmission: vi.fn(
-      async (token: string, submission: { guestCount: number; plusOneName: string }) => ({
+      async (
+        token: string,
+        submission: {
+          guestCount: number;
+          plusOneName: string;
+          inviteeStarter: string;
+          inviteeMain: string;
+          inviteeDessert: string;
+          plusOneStarter: string;
+          plusOneMain: string;
+          plusOneDessert: string;
+        },
+      ) => ({
         inviteToken: token,
         attending: 'yes' as const,
         guestCount: submission.guestCount,
         dietaryRequirements: 'Vegetarian',
         plusOneName: submission.plusOneName,
+        inviteeStarter: submission.inviteeStarter,
+        inviteeMain: submission.inviteeMain,
+        inviteeDessert: submission.inviteeDessert,
+        plusOneStarter: submission.plusOneStarter,
+        plusOneMain: submission.plusOneMain,
+        plusOneDessert: submission.plusOneDessert,
         updatedAt: '2026-04-18T02:00:00.000Z',
       }),
     ),
@@ -126,6 +150,12 @@ describe('InvitePageFacade', () => {
         dietaryRequirements: ' Vegetarian ',
         guestCount: 2,
         plusOneName: ' Alex ',
+        inviteeStarter: ' Steak Tartare ',
+        inviteeMain: ' Grilled Butterflied Seabass ',
+        inviteeDessert: ' Pavlova ',
+        plusOneStarter: ' Charred Watermelon ',
+        plusOneMain: ' Rump Steak 300g ',
+        plusOneDessert: ' Pavlova ',
       },
     );
 
@@ -134,6 +164,12 @@ describe('InvitePageFacade', () => {
       dietaryRequirements: 'Vegetarian',
       guestCount: 2,
       plusOneName: 'Alex',
+      inviteeStarter: 'Steak Tartare',
+      inviteeMain: 'Grilled Butterflied Seabass',
+      inviteeDessert: 'Pavlova',
+      plusOneStarter: 'Charred Watermelon',
+      plusOneMain: 'Rump Steak 300g',
+      plusOneDessert: 'Pavlova',
     });
   });
 });

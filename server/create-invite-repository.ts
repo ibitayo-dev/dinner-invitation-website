@@ -34,6 +34,12 @@ export interface IInviteRepository {
       guestCount: number;
       dietaryRequirements?: string;
       plusOneName?: string;
+      inviteeStarter?: string;
+      inviteeMain?: string;
+      inviteeDessert?: string;
+      plusOneStarter?: string;
+      plusOneMain?: string;
+      plusOneDessert?: string;
     },
   ): Promise<Submission | null>;
   close?(): Promise<void> | void;

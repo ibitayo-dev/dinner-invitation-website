@@ -7,6 +7,7 @@ import { normalizeDisplayName } from './invite-store-shared.js';
 import {
   createWeddingBackendServer,
   normalizeGuestCount,
+  normalizeMenuChoice,
   normalizePlusOneName,
 } from './wedding-backend.js';
 import type { IInviteRepository } from './create-invite-repository.js';
@@ -144,6 +145,12 @@ function createMemoryRepository(): MemoryRepository {
         guestCount: submission.guestCount,
         dietaryRequirements: submission.dietaryRequirements ?? '',
         plusOneName: submission.plusOneName ?? '',
+        inviteeStarter: submission.inviteeStarter ?? '',
+        inviteeMain: submission.inviteeMain ?? '',
+        inviteeDessert: submission.inviteeDessert ?? '',
+        plusOneStarter: submission.plusOneStarter ?? '',
+        plusOneMain: submission.plusOneMain ?? '',
+        plusOneDessert: submission.plusOneDessert ?? '',
         updatedAt: new Date().toISOString(),
       };
 
@@ -206,6 +213,11 @@ test('plus-one invites clamp guest count to at most two attendees', () => {
 test('plus-one names are only kept when a second guest is attending', () => {
   assert.equal(normalizePlusOneName(' Alex ', 2), 'Alex');
   assert.equal(normalizePlusOneName(' Alex ', 1), '');
+});
+
+test('menu choices are trimmed and bounded before persistence', () => {
+  assert.equal(normalizeMenuChoice('  Steak Tartare  '), 'Steak Tartare');
+  assert.equal(normalizeMenuChoice('x'.repeat(500)).length, 180);
 });
 
 test('health endpoint reports backend status and allowed CORS headers', async (t) => {
@@ -272,6 +284,12 @@ test('rsvp routes read and write normalized submissions', async (t) => {
       guestCount: 4,
       dietaryRequirements: '  Vegetarian ',
       plusOneName: ' Alex ',
+      inviteeStarter: '  Steak Tartare ',
+      inviteeMain: '  Grilled Butterflied Seabass ',
+      inviteeDessert: '  Pavlova ',
+      plusOneStarter: '  Charred Watermelon ',
+      plusOneMain: '  Rump Steak 300g ',
+      plusOneDessert: '  Pavlova ',
     }),
   });
   payload = await response.json() as Record<string, unknown>;
@@ -280,6 +298,11 @@ test('rsvp routes read and write normalized submissions', async (t) => {
   assert.equal((payload['submission'] as Submission).guestCount, 2);
   assert.equal((payload['submission'] as Submission).plusOneName, 'Alex');
   assert.equal(repository.submissions.get('alpha-plus-one')?.dietaryRequirements, 'Vegetarian');
+  assert.equal(repository.submissions.get('alpha-plus-one')?.inviteeStarter, 'Steak Tartare');
+  assert.equal(
+    repository.submissions.get('alpha-plus-one')?.plusOneMain,
+    'Rump Steak 300g',
+  );
 
   response = await fetch(`${baseUrl}/api/rsvps/alpha-plus-one`);
   payload = await response.json() as Record<string, unknown>;
@@ -298,6 +321,45 @@ test('rsvp routes read and write normalized submissions', async (t) => {
 
   assert.equal(response.status, 404);
   assert.equal(payload['error'], 'Invite not found.');
+
+  response = await fetch(`${baseUrl}/api/rsvps/alpha-plus-one`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      attending: 'yes',
+      guestCount: 1,
+      inviteeStarter: '',
+      inviteeMain: '',
+      inviteeDessert: '',
+    }),
+  });
+  payload = await response.json() as Record<string, unknown>;
+
+  assert.equal(response.status, 400);
+  assert.equal(payload['error'], 'Starter, main and dessert choices are required for attending guests.');
+
+  response = await fetch(`${baseUrl}/api/rsvps/alpha-plus-one`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      attending: 'yes',
+      guestCount: 2,
+      inviteeStarter: 'Steak Tartare',
+      inviteeMain: 'Rump Steak 300g',
+      inviteeDessert: 'Pavlova',
+      plusOneStarter: 'Charred Watermelon',
+      plusOneMain: '',
+      plusOneDessert: 'Pavlova',
+    }),
+  });
+  payload = await response.json() as Record<string, unknown>;
+
+  assert.equal(response.status, 400);
+  assert.equal(payload['error'], 'Plus-one menu selections are required when bringing a guest.');
 
   response = await fetch(`${baseUrl}/api/rsvps/alpha-plus-one`, {
     method: 'PUT',

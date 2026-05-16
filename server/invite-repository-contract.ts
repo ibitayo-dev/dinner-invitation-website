@@ -26,6 +26,12 @@ const baseSeedState: SeedState = {
       guestCount: 2,
       dietaryRequirements: 'Vegetarian',
       plusOneName: 'Taylor',
+      inviteeStarter: 'Steak Tartare',
+      inviteeMain: 'Grilled Butterflied Seabass',
+      inviteeDessert: 'Pavlova',
+      plusOneStarter: 'Charred Watermelon',
+      plusOneMain: 'Rump Steak 300g',
+      plusOneDessert: 'Pavlova',
       updatedAt: '2026-04-18T01:00:00.000Z',
     },
   },
@@ -50,6 +56,12 @@ const backfillSeedState: SeedState = {
       guestCount: 2,
       dietaryRequirements: 'Vegetarian',
       plusOneName: 'Alex',
+      inviteeStarter: 'Steak Tartare',
+      inviteeMain: 'Grilled Butterflied Seabass',
+      inviteeDessert: 'Pavlova',
+      plusOneStarter: 'Charred Watermelon',
+      plusOneMain: 'Rump Steak 300g',
+      plusOneDessert: 'Pavlova',
       updatedAt: '2026-04-18T01:00:00.000Z',
     },
   },
@@ -113,6 +125,7 @@ export function registerInviteRepositoryContract(
 
       const seededSubmission = await repository.getRsvpByToken('alpha-plus-one');
       assert.equal(seededSubmission?.plusOneName, 'Taylor');
+      assert.equal(seededSubmission?.inviteeStarter, 'Steak Tartare');
 
       const createdInvite = await repository.createInvite({
         displayName: 'Beta Guest',
@@ -144,6 +157,12 @@ export function registerInviteRepositoryContract(
         guestCount: 1,
         dietaryRequirements: '',
         plusOneName: '',
+        inviteeStarter: '',
+        inviteeMain: '',
+        inviteeDessert: '',
+        plusOneStarter: '',
+        plusOneMain: '',
+        plusOneDessert: '',
       });
 
       assert.equal(updatedSubmission?.attending, 'no');
@@ -215,6 +234,7 @@ export function registerInviteRepositoryContract(
         const seededSubmission = await reseededRepository.getRsvpByToken('shannon-plus-one');
         assert.equal(seededSubmission?.plusOneName, 'Alex');
         assert.equal(seededSubmission?.guestCount, 2);
+        assert.equal(seededSubmission?.plusOneMain, 'Rump Steak 300g');
       } finally {
         await closeRepository(reseededRepository);
         await (reseededContext as RepositoryContext).cleanup?.();

@@ -18,6 +18,12 @@ export interface RsvpSubmission {
   guestCount: number;
   dietaryRequirements: string;
   plusOneName: string;
+  inviteeStarter: string;
+  inviteeMain: string;
+  inviteeDessert: string;
+  plusOneStarter: string;
+  plusOneMain: string;
+  plusOneDessert: string;
   updatedAt: string;
 }
 

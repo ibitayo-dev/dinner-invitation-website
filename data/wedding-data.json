@@ -26,6 +26,12 @@
       "guestCount": 2,
       "dietaryRequirements": "Vegetarian",
       "plusOneName": "Alex",
+      "inviteeStarter": "Steak Tartare",
+      "inviteeMain": "Grilled Butterflied Seabass",
+      "inviteeDessert": "Pavlova",
+      "plusOneStarter": "Charred Watermelon",
+      "plusOneMain": "Rump Steak 300g",
+      "plusOneDessert": "Pavlova",
       "updatedAt": "2026-04-18T21:17:27.889Z"
     }
   }

@@ -20,6 +20,12 @@ export interface Submission {
   guestCount: number;
   dietaryRequirements: string;
   plusOneName: string;
+  inviteeStarter: string;
+  inviteeMain: string;
+  inviteeDessert: string;
+  plusOneStarter: string;
+  plusOneMain: string;
+  plusOneDessert: string;
   updatedAt: string;
 }
 
@@ -51,6 +57,12 @@ export interface SeedSubmission {
   guestCount: number | string;
   dietaryRequirements?: string;
   plusOneName?: string;
+  inviteeStarter?: string;
+  inviteeMain?: string;
+  inviteeDessert?: string;
+  plusOneStarter?: string;
+  plusOneMain?: string;
+  plusOneDessert?: string;
   updatedAt?: string;
 }
 
@@ -76,6 +88,12 @@ export interface NormalizedSeedSubmission {
   guestCount: number;
   dietaryRequirements: string;
   plusOneName: string;
+  inviteeStarter: string;
+  inviteeMain: string;
+  inviteeDessert: string;
+  plusOneStarter: string;
+  plusOneMain: string;
+  plusOneDessert: string;
   updatedAt: string;
 }
 
@@ -96,6 +114,12 @@ export interface SubmissionRow {
   guest_count: number | string;
   dietary_requirements: string;
   plus_one_name: string;
+  invitee_starter?: string;
+  invitee_main?: string;
+  invitee_dessert?: string;
+  plus_one_starter?: string;
+  plus_one_main?: string;
+  plus_one_dessert?: string;
   updated_at: string | Date;
   [key: string]: unknown;
 }
@@ -106,6 +130,12 @@ export interface InviteSubmissionRow extends InviteRow {
   guest_count: number | string;
   dietary_requirements: string;
   plus_one_name: string;
+  invitee_starter?: string;
+  invitee_main?: string;
+  invitee_dessert?: string;
+  plus_one_starter?: string;
+  plus_one_main?: string;
+  plus_one_dessert?: string;
   attending: string;
 }
 
@@ -213,6 +243,12 @@ export function mapSubmissionRow(
     guestCount: Number(row.guest_count),
     dietaryRequirements: row.dietary_requirements,
     plusOneName: row.plus_one_name,
+    inviteeStarter: typeof row.invitee_starter === 'string' ? row.invitee_starter : '',
+    inviteeMain: typeof row.invitee_main === 'string' ? row.invitee_main : '',
+    inviteeDessert: typeof row.invitee_dessert === 'string' ? row.invitee_dessert : '',
+    plusOneStarter: typeof row.plus_one_starter === 'string' ? row.plus_one_starter : '',
+    plusOneMain: typeof row.plus_one_main === 'string' ? row.plus_one_main : '',
+    plusOneDessert: typeof row.plus_one_dessert === 'string' ? row.plus_one_dessert : '',
     updatedAt: dateSerializer(row[updatedAtField] as string | Date),
   };
 }
@@ -230,6 +266,12 @@ export function mapInviteSubmissionRow(
           guestCount: Number(row.guest_count),
           dietaryRequirements: row.dietary_requirements,
           plusOneName: row.plus_one_name,
+          inviteeStarter: typeof row.invitee_starter === 'string' ? row.invitee_starter : '',
+          inviteeMain: typeof row.invitee_main === 'string' ? row.invitee_main : '',
+          inviteeDessert: typeof row.invitee_dessert === 'string' ? row.invitee_dessert : '',
+          plusOneStarter: typeof row.plus_one_starter === 'string' ? row.plus_one_starter : '',
+          plusOneMain: typeof row.plus_one_main === 'string' ? row.plus_one_main : '',
+          plusOneDessert: typeof row.plus_one_dessert === 'string' ? row.plus_one_dessert : '',
           updatedAt: dateSerializer(row.rsvp_updated_at as string | Date),
         }
       : null,
@@ -258,6 +300,12 @@ export function normalizeSeedSubmission(submission: SeedSubmission): NormalizedS
       : 1,
     dietaryRequirements: submission.dietaryRequirements ?? '',
     plusOneName: submission.plusOneName ?? '',
+    inviteeStarter: submission.inviteeStarter ?? '',
+    inviteeMain: submission.inviteeMain ?? '',
+    inviteeDessert: submission.inviteeDessert ?? '',
+    plusOneStarter: submission.plusOneStarter ?? '',
+    plusOneMain: submission.plusOneMain ?? '',
+    plusOneDessert: submission.plusOneDessert ?? '',
     updatedAt: submission.updatedAt ?? nowIso(),
   };
 }

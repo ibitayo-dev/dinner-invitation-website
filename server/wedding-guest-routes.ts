@@ -18,6 +18,7 @@ interface HandleApiRequestOptions {
   readJsonBody: (request: IncomingMessage) => Promise<unknown>;
   normalizeString: (value: unknown) => string;
   normalizeGuestCount: (value: unknown, plusOneAllowed: boolean, attending: string) => number;
+  normalizeMenuChoice: (value: unknown) => string;
   normalizePlusOneName: (value: unknown, guestCount: number) => string;
   sendJson: (response: ServerResponse, statusCode: number, payload: unknown, origin?: string) => void;
 }
@@ -34,6 +35,7 @@ async function handleApiRequest({
   readJsonBody,
   normalizeString,
   normalizeGuestCount,
+  normalizeMenuChoice,
   normalizePlusOneName,
   sendJson,
 }: HandleApiRequestOptions): Promise<boolean> {
@@ -110,11 +112,44 @@ async function handleApiRequest({
       invite.plusOneAllowed,
       attending,
     );
+    const inviteeStarter = normalizeMenuChoice(bodyRecord['inviteeStarter']);
+    const inviteeMain = normalizeMenuChoice(bodyRecord['inviteeMain']);
+    const inviteeDessert = normalizeMenuChoice(bodyRecord['inviteeDessert']);
+    const plusOneStarter = guestCount > 1 ? normalizeMenuChoice(bodyRecord['plusOneStarter']) : '';
+    const plusOneMain = guestCount > 1 ? normalizeMenuChoice(bodyRecord['plusOneMain']) : '';
+    const plusOneDessert = guestCount > 1 ? normalizeMenuChoice(bodyRecord['plusOneDessert']) : '';
+
+    if (attending === 'yes' && (!inviteeStarter || !inviteeMain || !inviteeDessert)) {
+      sendJson(
+        response,
+        400,
+        { error: 'Starter, main and dessert choices are required for attending guests.' },
+        origin,
+      );
+      return true;
+    }
+
+    if (attending === 'yes' && guestCount > 1 && (!plusOneStarter || !plusOneMain || !plusOneDessert)) {
+      sendJson(
+        response,
+        400,
+        { error: 'Plus-one menu selections are required when bringing a guest.' },
+        origin,
+      );
+      return true;
+    }
+
     const submission = await repository.upsertRsvp(token, {
       attending,
       dietaryRequirements: normalizeString(bodyRecord['dietaryRequirements']),
       guestCount,
       plusOneName: normalizePlusOneName(bodyRecord['plusOneName'], guestCount),
+      inviteeStarter: attending === 'yes' ? inviteeStarter : '',
+      inviteeMain: attending === 'yes' ? inviteeMain : '',
+      inviteeDessert: attending === 'yes' ? inviteeDessert : '',
+      plusOneStarter: attending === 'yes' && guestCount > 1 ? plusOneStarter : '',
+      plusOneMain: attending === 'yes' && guestCount > 1 ? plusOneMain : '',
+      plusOneDessert: attending === 'yes' && guestCount > 1 ? plusOneDessert : '',
     });
 
     sendJson(response, 200, { submission }, origin);

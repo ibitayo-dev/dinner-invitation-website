@@ -23,19 +23,34 @@ function createInvitePageFacadeStub() {
       }),
     ),
     save: vi.fn(
-      async (): Promise<{
+      async (
+        _invite,
+        submission,
+      ): Promise<{
         inviteToken: string;
         attending: 'yes' | 'no';
         guestCount: number;
         dietaryRequirements: string;
         plusOneName: string;
+        inviteeStarter: string;
+        inviteeMain: string;
+        inviteeDessert: string;
+        plusOneStarter: string;
+        plusOneMain: string;
+        plusOneDessert: string;
         updatedAt: string;
       }> => ({
         inviteToken: 'guest',
         attending: 'yes',
         guestCount: 1,
-        dietaryRequirements: '',
-        plusOneName: '',
+        dietaryRequirements: submission.dietaryRequirements,
+        plusOneName: submission.plusOneName,
+        inviteeStarter: submission.inviteeStarter,
+        inviteeMain: submission.inviteeMain,
+        inviteeDessert: submission.inviteeDessert,
+        plusOneStarter: submission.plusOneStarter,
+        plusOneMain: submission.plusOneMain,
+        plusOneDessert: submission.plusOneDessert,
         updatedAt: '2026-04-18T02:00:00.000Z',
       }),
     ),
@@ -142,6 +157,8 @@ describe('InvitePageComponent', () => {
 
     expect(compiled.querySelector('#rsvpGuests')).toBeNull();
     expect(compiled.querySelector('#rsvpPlusOneName')).toBeNull();
+    expect(compiled.querySelector('#inviteeStarter')).toBeNull();
+    expect(compiled.querySelector('#rsvpDietary')).toBeNull();
   });
 
   it('submits RSVP details through the injected gateway and shows success feedback', async () => {
@@ -169,6 +186,8 @@ describe('InvitePageComponent', () => {
     fixture.detectChanges();
 
     const guestSelect = compiled.querySelector('#rsvpGuests') as HTMLSelectElement | null;
+    const inviteeStarter = compiled.querySelector('#inviteeStarter') as HTMLSelectElement | null;
+    const inviteeMain = compiled.querySelector('#inviteeMain') as HTMLSelectElement | null;
     const dietaryRequirements = compiled.querySelector(
       '#rsvpDietary',
     ) as HTMLTextAreaElement | null;
@@ -179,9 +198,16 @@ describe('InvitePageComponent', () => {
     await fixture.whenStable();
 
     const plusOneName = compiled.querySelector('#rsvpPlusOneName') as HTMLInputElement | null;
+    const plusOneMain = compiled.querySelector('#plusOneMain') as HTMLSelectElement | null;
 
     plusOneName!.value = ' Alex ';
     plusOneName!.dispatchEvent(new Event('input'));
+    inviteeStarter!.value = 'Steak Tartare';
+    inviteeStarter!.dispatchEvent(new Event('change'));
+    inviteeMain!.value = 'Grilled Butterflied Seabass';
+    inviteeMain!.dispatchEvent(new Event('change'));
+    plusOneMain!.value = 'Ribeye Steak 300g';
+    plusOneMain!.dispatchEvent(new Event('change'));
     dietaryRequirements!.value = ' Vegetarian ';
     dietaryRequirements!.dispatchEvent(new Event('input'));
     fixture.detectChanges();
@@ -191,6 +217,14 @@ describe('InvitePageComponent', () => {
     fixture.detectChanges();
 
     expect(facade.save).toHaveBeenCalled();
+    expect(facade.save).toHaveBeenLastCalledWith(
+      expect.objectContaining({ token: 'remote-token' }),
+      expect.objectContaining({
+        inviteeStarter: 'Steak Tartare',
+        inviteeMain: 'Grilled Butterflied Seabass',
+        plusOneMain: 'Ribeye Steak 300g',
+      }),
+    );
     expect(compiled.textContent).toContain('Thank you.');
   });
 });

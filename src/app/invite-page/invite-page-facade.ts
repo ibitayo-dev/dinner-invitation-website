@@ -26,6 +26,12 @@ export interface InvitePageSubmissionInput {
   dietaryRequirements: string;
   guestCount: number;
   plusOneName: string;
+  inviteeStarter: string;
+  inviteeMain: string;
+  inviteeDessert: string;
+  plusOneStarter: string;
+  plusOneMain: string;
+  plusOneDessert: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -69,6 +75,12 @@ export class InvitePageFacade {
       dietaryRequirements: submission.dietaryRequirements.trim(),
       guestCount: submission.guestCount,
       plusOneName: submission.plusOneName.trim(),
+      inviteeStarter: submission.inviteeStarter.trim(),
+      inviteeMain: submission.inviteeMain.trim(),
+      inviteeDessert: submission.inviteeDessert.trim(),
+      plusOneStarter: submission.plusOneStarter.trim(),
+      plusOneMain: submission.plusOneMain.trim(),
+      plusOneDessert: submission.plusOneDessert.trim(),
     });
   }
 

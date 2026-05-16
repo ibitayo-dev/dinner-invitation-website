@@ -157,7 +157,12 @@
 
             <div class="attire-look-grid">
               @for (look of track.looks; track look.label + look.image.src) {
-                <figure class="attire-look">
+                <figure
+                  class="attire-look"
+                  [class.attire-look--formal-gentlemen]="
+                    track.title === 'Formal' && look.label === 'Gentlemen'
+                  "
+                >
                   <img
                     [ngSrc]="look.image.src"
                     [alt]="look.image.alt"
@@ -183,18 +188,6 @@
         <p>{{ rsvpSection.lead }}</p>
       </div>
 
-      @if (inviteSource() === 'token') {
-        <div class="rsvp-note">
-          <p>{{ rsvpSection.tokenMessage }}</p>
-        </div>
-      }
-
-      @if (savedRsvpLoaded()) {
-        <div class="rsvp-note rsvp-note--subtle">
-          <p>{{ rsvpSection.editMessage }}</p>
-        </div>
-      }
-
       @if (rsvpSubmitted()) {
         <div class="rsvp-note rsvp-note--success">
           <h3>Thank you.</h3>
@@ -207,6 +200,10 @@
           <h3>Invite link issue</h3>
           <p>{{ inviteError() }}</p>
         </div>
+      }
+
+      @if (savedRsvpLoaded()) {
+        <p class="rsvp-helper-text">{{ rsvpSection.editMessage }}</p>
       }
 
       @if (!showRsvpForm() && !rsvpSubmitted()) {
@@ -253,16 +250,112 @@
             </div>
           }
 
-          <div class="form-group">
-            <label for="rsvpDietary">Dietary requirements</label>
-            <textarea
-              id="rsvpDietary"
-              formControlName="dietaryRequirements"
-              rows="4"
-              placeholder="Please share any allergies or dietary restrictions."
-              class="form-textarea"
-            ></textarea>
-          </div>
+          @if (showMenuSelectionFields()) {
+            <fieldset class="menu-fieldset">
+              <legend>Three Course Set Menu - Your selection</legend>
+
+              <div class="menu-grid">
+                <div class="form-group">
+                  <label for="inviteeStarter">Starter</label>
+                  <select id="inviteeStarter" formControlName="inviteeStarter" class="form-select">
+                    @for (option of starterMenuOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="inviteeMain">Main</label>
+                  <select id="inviteeMain" formControlName="inviteeMain" class="form-select">
+                    @for (option of mainMenuOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="inviteeDessert">Dessert</label>
+                  <select id="inviteeDessert" formControlName="inviteeDessert" class="form-select">
+                    @for (option of dessertMenuOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="menu-reference">
+                <p class="menu-reference__title">Meal descriptions</p>
+                <p class="menu-reference__subtitle">Starters</p>
+                @for (option of starterMenuOptions; track option.value) {
+                  <p><strong>{{ option.label }}:</strong> {{ option.description }}</p>
+                }
+                <p class="menu-reference__subtitle">Mains</p>
+                @for (option of mainMenuOptions; track option.value) {
+                  <p><strong>{{ option.label }}:</strong> {{ option.description }}</p>
+                }
+                <p class="menu-reference__subtitle">Desserts</p>
+                @for (option of dessertMenuOptions; track option.value) {
+                  <p><strong>{{ option.label }}:</strong> {{ option.description }}</p>
+                }
+              </div>
+            </fieldset>
+
+            @if (showPlusOneField()) {
+              <fieldset class="menu-fieldset menu-fieldset--plus-one">
+                <legend>Three Course Set Menu - Plus-one selection</legend>
+
+                <div class="menu-grid">
+                  <div class="form-group">
+                    <label for="plusOneStarter">Starter</label>
+                    <select id="plusOneStarter" formControlName="plusOneStarter" class="form-select">
+                      @for (option of starterMenuOptions; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="plusOneMain">Main</label>
+                    <select id="plusOneMain" formControlName="plusOneMain" class="form-select">
+                      @for (option of mainMenuOptions; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="plusOneDessert">Dessert</label>
+                    <select id="plusOneDessert" formControlName="plusOneDessert" class="form-select">
+                      @for (option of dessertMenuOptions; track option.value) {
+                        <option [value]="option.value">{{ option.label }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+            }
+
+            <p class="rsvp-menu-helper-text">
+              {{ rsvpSection.sidesMessage }}
+              <br />
+              <br />
+              {{ rsvpSection.updateDisclaimer }}
+            </p>
+
+          }
+
+          @if (showMenuSelectionFields()) {
+            <div class="form-group">
+              <label for="rsvpDietary">Dietary requirements</label>
+              <textarea
+                id="rsvpDietary"
+                formControlName="dietaryRequirements"
+                rows="4"
+                placeholder="Please share any allergies or dietary restrictions."
+                class="form-textarea"
+              ></textarea>
+            </div>
+          }
 
           <div class="form-actions">
             <button type="submit" class="rsvp-submit-button">{{ rsvpSection.submitLabel }}</button>

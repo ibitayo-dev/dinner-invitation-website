@@ -27,6 +27,12 @@ interface UpsertRsvpInput {
   guestCount: number;
   dietaryRequirements?: string;
   plusOneName?: string;
+  inviteeStarter?: string;
+  inviteeMain?: string;
+  inviteeDessert?: string;
+  plusOneStarter?: string;
+  plusOneMain?: string;
+  plusOneDessert?: string;
 }
 
 interface UpdateInviteInput {
@@ -79,10 +85,38 @@ export class InviteRepository {
         guest_count INTEGER NOT NULL,
         dietary_requirements TEXT NOT NULL DEFAULT '',
         plus_one_name TEXT NOT NULL DEFAULT '',
+        invitee_starter TEXT NOT NULL DEFAULT '',
+        invitee_main TEXT NOT NULL DEFAULT '',
+        invitee_dessert TEXT NOT NULL DEFAULT '',
+        plus_one_starter TEXT NOT NULL DEFAULT '',
+        plus_one_main TEXT NOT NULL DEFAULT '',
+        plus_one_dessert TEXT NOT NULL DEFAULT '',
         updated_at TEXT NOT NULL,
         FOREIGN KEY(invite_token) REFERENCES invites(token) ON DELETE CASCADE
       );
     `);
+
+    const rsvpColumns = new Set(
+      (this.database
+        .prepare(`PRAGMA table_info(rsvps)`)
+        .all() as Array<{ name: string }>).map((column) => column.name),
+    );
+    const requiredRsvpColumns = [
+      'invitee_starter',
+      'invitee_main',
+      'invitee_dessert',
+      'plus_one_starter',
+      'plus_one_main',
+      'plus_one_dessert',
+    ];
+
+    for (const column of requiredRsvpColumns) {
+      if (!rsvpColumns.has(column)) {
+        this.database.exec(
+          `ALTER TABLE rsvps ADD COLUMN ${column} TEXT NOT NULL DEFAULT ''`,
+        );
+      }
+    }
   }
 
   private seed(seedFilePath?: string): void {
@@ -106,8 +140,14 @@ export class InviteRepository {
         guest_count,
         dietary_requirements,
         plus_one_name,
+        invitee_starter,
+        invitee_main,
+        invitee_dessert,
+        plus_one_starter,
+        plus_one_main,
+        plus_one_dessert,
         updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const seedTransaction = this.database.transaction(() => {
@@ -131,6 +171,12 @@ export class InviteRepository {
           submission.guestCount,
           submission.dietaryRequirements,
           submission.plusOneName,
+          submission.inviteeStarter,
+          submission.inviteeMain,
+          submission.inviteeDessert,
+          submission.plusOneStarter,
+          submission.plusOneMain,
+          submission.plusOneDessert,
           submission.updatedAt,
         );
       }
@@ -188,6 +234,12 @@ export class InviteRepository {
             rsvps.guest_count,
             rsvps.dietary_requirements,
             rsvps.plus_one_name,
+            rsvps.invitee_starter,
+            rsvps.invitee_main,
+            rsvps.invitee_dessert,
+            rsvps.plus_one_starter,
+            rsvps.plus_one_main,
+            rsvps.plus_one_dessert,
             rsvps.updated_at AS rsvp_updated_at
           FROM invites
           LEFT JOIN rsvps ON rsvps.invite_token = invites.token
@@ -337,13 +389,25 @@ export class InviteRepository {
             guest_count,
             dietary_requirements,
             plus_one_name,
+            invitee_starter,
+            invitee_main,
+            invitee_dessert,
+            plus_one_starter,
+            plus_one_main,
+            plus_one_dessert,
             updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(invite_token) DO UPDATE SET
             attending = excluded.attending,
             guest_count = excluded.guest_count,
             dietary_requirements = excluded.dietary_requirements,
             plus_one_name = excluded.plus_one_name,
+            invitee_starter = excluded.invitee_starter,
+            invitee_main = excluded.invitee_main,
+            invitee_dessert = excluded.invitee_dessert,
+            plus_one_starter = excluded.plus_one_starter,
+            plus_one_main = excluded.plus_one_main,
+            plus_one_dessert = excluded.plus_one_dessert,
             updated_at = excluded.updated_at
         `,
       )
@@ -353,6 +417,12 @@ export class InviteRepository {
         submission.guestCount,
         submission.dietaryRequirements ?? '',
         submission.plusOneName ?? '',
+        submission.inviteeStarter ?? '',
+        submission.inviteeMain ?? '',
+        submission.inviteeDessert ?? '',
+        submission.plusOneStarter ?? '',
+        submission.plusOneMain ?? '',
+        submission.plusOneDessert ?? '',
         nowIso(),
       );
 

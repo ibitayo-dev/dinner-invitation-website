@@ -16,6 +16,13 @@ import { InviteRecord, RsvpSubmission } from '../invite-database';
 import { getUiErrorMessage, normalizeGuestCountSelection } from '../invite-ui-helpers';
 import { createInvitePageRevealObserver } from './invite-page-animations';
 import {
+  createDefaultMenuSelectionFields,
+  dessertMenuOptions,
+  mainMenuOptions,
+  normalizeMenuChoiceValue,
+  starterMenuOptions,
+} from './invite-menu-options';
+import {
   inviteAttireSection,
   inviteCalendarLinkLabel,
   inviteMapLinkLabel,
@@ -39,6 +46,8 @@ const plusOneGuestCountOptions: GuestCountOption[] = [
   { label: '1 Guest', value: '1' },
   { label: '2 Guests', value: '2' },
 ];
+
+const defaultMenuSelections = createDefaultMenuSelectionFields();
 
 @Component({
   selector: 'app-invite-page',
@@ -68,6 +77,9 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   protected readonly navigationItems = invitePageNavigationItems;
   protected readonly photos = invitePagePhotos;
   protected readonly rsvpSection = inviteRsvpSection;
+  protected readonly starterMenuOptions = starterMenuOptions;
+  protected readonly mainMenuOptions = mainMenuOptions;
+  protected readonly dessertMenuOptions = dessertMenuOptions;
   protected readonly travelSection = inviteTravelSection;
   protected readonly venueSection = inviteVenueSection;
 
@@ -76,6 +88,12 @@ export class InvitePageComponent implements OnInit, OnDestroy {
     dietaryRequirements: new FormControl('', { nonNullable: true }),
     guestCount: new FormControl('1', { nonNullable: true }),
     plusOneName: new FormControl('', { nonNullable: true }),
+    inviteeStarter: new FormControl(defaultMenuSelections.inviteeStarter, { nonNullable: true }),
+    inviteeMain: new FormControl(defaultMenuSelections.inviteeMain, { nonNullable: true }),
+    inviteeDessert: new FormControl(defaultMenuSelections.inviteeDessert, { nonNullable: true }),
+    plusOneStarter: new FormControl(defaultMenuSelections.plusOneStarter, { nonNullable: true }),
+    plusOneMain: new FormControl(defaultMenuSelections.plusOneMain, { nonNullable: true }),
+    plusOneDessert: new FormControl(defaultMenuSelections.plusOneDessert, { nonNullable: true }),
   });
 
   private readonly attendingValue = toSignal(this.rsvpForm.controls.attending.valueChanges, {
@@ -110,6 +128,8 @@ export class InvitePageComponent implements OnInit, OnDestroy {
     return Boolean(this.showGuestCountField() && this.guestCountValue() === '2');
   });
 
+  protected readonly showMenuSelectionFields = computed(() => this.attendingValue() === 'yes');
+
   private readonly guestCountConstraintEffect = effect(() => {
     const normalizedGuestCount = normalizeGuestCountSelection(
       this.guestCountValue(),
@@ -120,8 +140,22 @@ export class InvitePageComponent implements OnInit, OnDestroy {
       this.rsvpForm.controls.guestCount.setValue(normalizedGuestCount);
     }
 
-    if (normalizedGuestCount !== '2' && this.rsvpForm.controls.plusOneName.value) {
-      this.rsvpForm.controls.plusOneName.setValue('');
+    if (normalizedGuestCount !== '2') {
+      if (this.rsvpForm.controls.plusOneName.value) {
+        this.rsvpForm.controls.plusOneName.setValue('');
+      }
+
+      if (this.rsvpForm.controls.plusOneStarter.value !== defaultMenuSelections.plusOneStarter) {
+        this.rsvpForm.controls.plusOneStarter.setValue(defaultMenuSelections.plusOneStarter);
+      }
+
+      if (this.rsvpForm.controls.plusOneMain.value !== defaultMenuSelections.plusOneMain) {
+        this.rsvpForm.controls.plusOneMain.setValue(defaultMenuSelections.plusOneMain);
+      }
+
+      if (this.rsvpForm.controls.plusOneDessert.value !== defaultMenuSelections.plusOneDessert) {
+        this.rsvpForm.controls.plusOneDessert.setValue(defaultMenuSelections.plusOneDessert);
+      }
     }
   });
 
@@ -137,7 +171,6 @@ export class InvitePageComponent implements OnInit, OnDestroy {
   protected toggleRsvpForm(): void {
     this.showRsvpForm.update((isVisible) => !isVisible);
     this.rsvpSubmitted.set(false);
-    this.savedRsvpLoaded.set(false);
 
     if (this.activeInvite()) {
       this.inviteError.set('');
@@ -151,6 +184,12 @@ export class InvitePageComponent implements OnInit, OnDestroy {
         dietaryRequirements: this.rsvpForm.controls.dietaryRequirements.getRawValue(),
         guestCount: Number(this.rsvpForm.controls.guestCount.getRawValue()),
         plusOneName: this.rsvpForm.controls.plusOneName.getRawValue(),
+        inviteeStarter: this.rsvpForm.controls.inviteeStarter.getRawValue(),
+        inviteeMain: this.rsvpForm.controls.inviteeMain.getRawValue(),
+        inviteeDessert: this.rsvpForm.controls.inviteeDessert.getRawValue(),
+        plusOneStarter: this.rsvpForm.controls.plusOneStarter.getRawValue(),
+        plusOneMain: this.rsvpForm.controls.plusOneMain.getRawValue(),
+        plusOneDessert: this.rsvpForm.controls.plusOneDessert.getRawValue(),
       });
 
       this.rsvpSubmitted.set(true);
@@ -214,7 +253,7 @@ export class InvitePageComponent implements OnInit, OnDestroy {
 
     if (state.savedSubmission) {
       this.applySubmission(state.savedSubmission);
-      this.showRsvpForm.set(true);
+      this.showRsvpForm.set(false);
       this.savedRsvpLoaded.set(true);
     }
   }
@@ -225,6 +264,24 @@ export class InvitePageComponent implements OnInit, OnDestroy {
       dietaryRequirements: submission.dietaryRequirements,
       guestCount: String(submission.guestCount),
       plusOneName: submission.plusOneName,
+      inviteeStarter: normalizeMenuChoiceValue(
+        submission.inviteeStarter,
+        defaultMenuSelections.inviteeStarter,
+      ),
+      inviteeMain: normalizeMenuChoiceValue(submission.inviteeMain, defaultMenuSelections.inviteeMain),
+      inviteeDessert: normalizeMenuChoiceValue(
+        submission.inviteeDessert,
+        defaultMenuSelections.inviteeDessert,
+      ),
+      plusOneStarter: normalizeMenuChoiceValue(
+        submission.plusOneStarter,
+        defaultMenuSelections.plusOneStarter,
+      ),
+      plusOneMain: normalizeMenuChoiceValue(submission.plusOneMain, defaultMenuSelections.plusOneMain),
+      plusOneDessert: normalizeMenuChoiceValue(
+        submission.plusOneDessert,
+        defaultMenuSelections.plusOneDessert,
+      ),
     });
   }
 

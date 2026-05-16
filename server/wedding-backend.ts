@@ -14,6 +14,7 @@ import {
   normalizeBoolean,
   normalizeGuestCount,
   normalizeInviteType,
+  normalizeMenuChoice,
   normalizePlusOneName,
   normalizeString,
 } from './wedding-request-normalization.js';
@@ -40,7 +41,7 @@ if (process.env['RAILWAY_PUBLIC_DOMAIN']?.trim()) {
   allowedOrigins.add(`https://${process.env['RAILWAY_PUBLIC_DOMAIN'].trim()}`);
 }
 
-export { normalizeGuestCount, normalizePlusOneName };
+export { normalizeGuestCount, normalizeMenuChoice, normalizePlusOneName };
 
 interface CreateWeddingBackendServerOptions {
   repository?: IInviteRepository;
@@ -121,6 +122,7 @@ export function createWeddingBackendServer({
         readJsonBody,
         normalizeString,
         normalizeGuestCount,
+        normalizeMenuChoice,
         normalizePlusOneName,
         sendJson,
       });

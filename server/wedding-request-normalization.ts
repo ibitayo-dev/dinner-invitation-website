@@ -27,10 +27,15 @@ function normalizePlusOneName(value: unknown, guestCount: number): string {
   return guestCount > 1 ? normalizeString(value) : '';
 }
 
+function normalizeMenuChoice(value: unknown): string {
+  return normalizeString(value).slice(0, 180);
+}
+
 export {
   normalizeBoolean,
   normalizeGuestCount,
   normalizeInviteType,
+  normalizeMenuChoice,
   normalizePlusOneName,
   normalizeString,
 };
