@@ -28,8 +28,13 @@ export class AdminPageComponent {
   protected readonly inviteItems = signal<AdminInviteEntry[]>([]);
   protected readonly databaseSnapshot = signal<DatabaseSnapshot | null>(null);
   protected readonly copiedToken = signal<string | null>(null);
+  protected readonly editingInviteToken = signal<string | null>(null);
 
   protected readonly createInviteForm = new FormGroup({
+    displayName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    inviteType: new FormControl<InviteType>('solo', { nonNullable: true }),
+  });
+  protected readonly editInviteForm = new FormGroup({
     displayName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     inviteType: new FormControl<InviteType>('solo', { nonNullable: true }),
   });
@@ -89,6 +94,52 @@ export class AdminPageComponent {
       );
     } catch (error) {
       this.dashboardError.set(getUiErrorMessage(error));
+    }
+  }
+
+  protected startEditing(entry: AdminInviteEntry): void {
+    this.dashboardError.set('');
+    this.editingInviteToken.set(entry.invite.token);
+    this.editInviteForm.reset({
+      displayName: entry.invite.displayName,
+      inviteType: entry.invite.inviteType,
+    });
+  }
+
+  protected cancelEditing(): void {
+    this.editingInviteToken.set(null);
+    this.editInviteForm.reset({
+      displayName: '',
+      inviteType: 'solo',
+    });
+  }
+
+  protected async saveInviteEdits(entry: AdminInviteEntry): Promise<void> {
+    if (this.editInviteForm.invalid || !this.adminGuid()) {
+      this.editInviteForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.dashboardError.set('');
+
+    try {
+      const updated = await this.inviteDatabase.updateInvite(this.adminGuid(), entry.invite.token, {
+        displayName: this.editInviteForm.controls.displayName.getRawValue().trim(),
+        inviteType: this.editInviteForm.controls.inviteType.getRawValue(),
+      });
+
+      this.inviteItems.update((items) =>
+        items.map((item) =>
+          item.invite.token === updated.token ? { ...item, invite: updated } : item,
+        ),
+      );
+      this.cancelEditing();
+      await this.reloadDatabaseSnapshot();
+    } catch (error) {
+      this.dashboardError.set(getUiErrorMessage(error));
+    } finally {
+      this.isSaving.set(false);
     }
   }
 

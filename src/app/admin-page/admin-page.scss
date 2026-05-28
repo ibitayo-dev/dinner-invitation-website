@@ -301,6 +301,18 @@
   margin-bottom: 16px;
 }
 
+.invite-edit-form {
+  flex: 1;
+  display: grid;
+  gap: 12px;
+}
+
+.invite-edit-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .invite-name {
   margin: 0;
   font-size: 1.25rem;
@@ -378,5 +390,9 @@
   .invite-link-group {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .invite-edit-form {
+    width: 100%;
   }
 }

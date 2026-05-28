@@ -181,16 +181,52 @@
       @for (entry of inviteItems(); track entry.invite.token) {
         <article class="invite-card">
           <div class="invite-card__header">
-            <div>
-              <p class="invite-name">{{ entry.invite.displayName }}</p>
-              <p class="invite-meta">
-                {{ entry.invite.inviteType === 'plus_one' ? 'Plus one' : 'Solo' }}
-                @if (!entry.invite.active) {
-                  &bull; <span class="invite-status-inactive">Inactive</span>
-                }
-              </p>
-            </div>
+            @if (editingInviteToken() === entry.invite.token) {
+              <form class="invite-edit-form" [formGroup]="editInviteForm" (ngSubmit)="saveInviteEdits(entry)">
+                <label class="field">
+                  <span>Edit display name</span>
+                  <input
+                    type="text"
+                    formControlName="displayName"
+                    aria-label="Edit display name"
+                    placeholder="Guest name"
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Edit invite type</span>
+                  <select formControlName="inviteType" aria-label="Edit invite type">
+                    <option value="solo">Solo</option>
+                    <option value="plus_one">Plus one</option>
+                  </select>
+                </label>
+
+                <div class="invite-edit-form__actions">
+                  <button type="submit" class="primary-button" [disabled]="isSaving()">
+                    {{ isSaving() ? 'Saving...' : 'Save changes' }}
+                  </button>
+                  <button type="button" class="secondary-button" (click)="cancelEditing()" [disabled]="isSaving()">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <div>
+                <p class="invite-name">{{ entry.invite.displayName }}</p>
+                <p class="invite-meta">
+                  {{ entry.invite.inviteType === 'plus_one' ? 'Plus one' : 'Solo' }}
+                  @if (!entry.invite.active) {
+                    &bull; <span class="invite-status-inactive">Inactive</span>
+                  }
+                </p>
+              </div>
+            }
             <div class="invite-card__actions">
+              @if (editingInviteToken() !== entry.invite.token) {
+                <button type="button" class="secondary-button" (click)="startEditing(entry)">
+                  Edit
+                </button>
+              }
               <button type="button" class="secondary-button" (click)="toggleInvite(entry)">
                 {{ entry.invite.active ? 'Deactivate' : 'Reactivate' }}
               </button>
